@@ -39,47 +39,19 @@ Desarrollar una solución de software que permita mejorar la comunicación, gest
 - **Disponibilidad**: Al menos 95% de uptime mensual.
 - **Exportación de datos**: Posibilidad de exportar reportes en PDF y Excel.
 
+## 👥 Integrantes del Proyecto
+
+- **Marco Cerda**  
+  ✉️ marco.cerda2101@alumnos.ubiobio.cl
+
+- **Cristian Torres**  
+  ✉️ cristian.torres2101@alumnos.ubiobio.cl
+
+- **Esteban Soto**  
+  ✉️ esteban.soto2101@alumnos.ubiobio.cl
+
 ---
 
 Desarrollado por el Grupo 1 – Ingeniería Civil en Informática, Universidad.
 
 
-
-## Tecnologías
-
-Este proyecto utiliza el stack **PERN**, que incluye las siguientes tecnologías:
-
-### PostgreSQL
-
-- **Descripción**: Sistema de gestión de bases de datos relacional y objeto.
-- **Uso en el Proyecto**: Se utiliza para almacenar y gestionar datos de usuarios y otros datos de la aplicación.
-- **Enlace**: [PostgreSQL](https://www.postgresql.org/)
-
-### Express.js
-
-- **Descripción**: Framework minimalista para Node.js que facilita la creación de aplicaciones web y APIs.
-- **Uso en el Proyecto**: Se utiliza para construir la API del Backend, gestionando rutas y solicitudes HTTP.
-- **Enlace**: [Express.js](https://expressjs.com/)
-
-### React
-
-- **Descripción**: Biblioteca de JavaScript para construir interfaces de usuario.
-- **Uso en el Proyecto**: Se utiliza para construir la interfaz de usuario del Frontend, proporcionando una experiencia interactiva y dinámica.
-- **Enlace**: [React](https://reactjs.org/)
-
-### Node.js
-
-- **Descripción**: Entorno de ejecución para JavaScript en el lado del servidor.
-- **Uso en el Proyecto**: Se utiliza para ejecutar el código del Backend y manejar la lógica del servidor.
-- **Enlace**: [Node.js](https://nodejs.org/)
-
-### Otros Recursos y Librerías
-
-- **Passport.js**: Middleware de autenticación para Node.js.
-  - **Enlace**: [Passport.js](http://www.passportjs.org/)
-- **bcrypt.js**: Biblioteca para el hashing de contraseñas.
-  - **Enlace**: [bcrypt.js](https://www.npmjs.com/package/bcryptjs)
-- **dotenv**: Carga variables de entorno desde un archivo `.env`.
-  - **Enlace**: [dotenv](https://www.npmjs.com/package/dotenv)
-
-Estas tecnologías y herramientas forman la base de la aplicación y permiten su funcionamiento de forma correcta.
