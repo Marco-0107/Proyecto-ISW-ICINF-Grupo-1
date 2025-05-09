@@ -83,5 +83,3 @@ Este proyecto utiliza el stack **PERN**, que incluye las siguientes tecnologías
   - **Enlace**: [dotenv](https://www.npmjs.com/package/dotenv)
 
 Estas tecnologías y herramientas forman la base de la aplicación y permiten su funcionamiento de forma correcta.
-
-⌨️ with ❤️ by [@Didudocl](https://github.com/Didudocl)
