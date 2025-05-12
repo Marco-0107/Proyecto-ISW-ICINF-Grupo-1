@@ -52,6 +52,6 @@ Desarrollar una solución de software que permita mejorar la comunicación, gest
 
 ---
 
-Desarrollado por el Grupo 1 – Ingeniería Civil en Informática, Universidad.
+Desarrollado por el Grupo 1 – Ingeniería Civil en Informática, Universidad del Bio-Bio
 
 
