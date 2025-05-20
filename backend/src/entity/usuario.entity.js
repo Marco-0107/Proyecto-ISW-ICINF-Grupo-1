@@ -33,7 +33,7 @@ const Usuario = new EntitySchema({
     },
     telefono:{
       type: "varchar",
-      length: 13,
+      length: 20,
       nullable: false
     },
     email: {
@@ -44,7 +44,7 @@ const Usuario = new EntitySchema({
     },
     contrasena: {
       type: "varchar",
-      length: 32,
+      length: 255,
       nullable: false
     },
     rol: {

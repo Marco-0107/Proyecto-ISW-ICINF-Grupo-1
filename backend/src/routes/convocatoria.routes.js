@@ -3,11 +3,11 @@ import { Router } from "express";
 import { isAdmin } from "../middlewares/authorization.middleware";
 import { authenticateJwt } from "../middlewares/authentication.middleware";
 import{
-    deletePublicacion,
-    getPublicacion,
-    getPublicaciones,
-    updatePublicacion
-}from "../controllers/publicacion.controller.js";
+    deleteConvocoria,
+    getConvocatoria,
+    getConvocatorias,
+    updateConvocatoria
+} from "../controllers/convocatoria.controller.js";
 
 const router=Router();
 
@@ -16,9 +16,9 @@ router
     .use(isAdmin);
 
 router
-    .get("/", getPublicaciones)
-    .get("/detail/", getPublicacion)
-    .patch("/detail/", updatePublicacion)
-    .delete("/detail/", deletePublicacion);
+    .get("/", getConvocatorias)
+    .get("/detail/", getConvocatoria)
+    .patch("/detail/", updateConvocatoria)
+    .delete("/detail/", deleteConvocoria);
 
 export default router;
