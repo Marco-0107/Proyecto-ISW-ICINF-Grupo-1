@@ -139,10 +139,12 @@ export const userBodyValidation = Joi.object({
   rol: Joi.string()
     .min(4)
     .max(15)
+    .pattern(/^[a-zA-Z]+$/)
     .messages({
       "string.base": "El rol debe ser de tipo string.",
       "string.min": "El rol debe tener como mínimo 4 caracteres.",
       "string.max": "El rol debe tener como máximo 15 caracteres.",
+      "string.pattern.base": "El rol solo puede contener letras"
     }),
   direccion: Joi.string()
     .min(40)
@@ -152,7 +154,7 @@ export const userBodyValidation = Joi.object({
       "string.empty": "La dirección no puede estar vacía",
       "string.base": "La dirección debe ser de tipo string",
       "string.min": "La dirección debe tener mínimo 40 caracteres.",
-      "string.min": "La dirección debe tener como máximo 100 caracteres",
+      "string.min": "La dirección debe tener como máximo 100 caracteres"
     }),
     estado_activo: Joi.boolean()
     .messages({
