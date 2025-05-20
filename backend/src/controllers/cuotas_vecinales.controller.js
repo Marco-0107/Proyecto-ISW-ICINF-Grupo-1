@@ -62,7 +62,7 @@ export async function updateCuotaVecinal(req, res) {
         const [cuota, errorCuota] = await updatecuotas_vecinalesService({ id_cuota }, body);
         if (errorCuota) return handleErrorClient(res, 400, "Error actualizando la Cuota", errorCuota);
 
-        handleSuccess(res, 200, "Publicacion actualizada", cuota);
+        handleSuccess(res, 200, "Cuota actualizada", cuota);
     }catch (error) {
         handleErrorServer(res, 500, error.message);
     }

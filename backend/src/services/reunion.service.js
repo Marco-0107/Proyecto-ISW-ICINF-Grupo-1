@@ -63,7 +63,7 @@ export async function updateReunionService(query, body) {
         await reunionRepository.update({ id_reunion }, dataUpdate);
 
         const updatedReunion = await publicacionRepository.findOne({
-        where: { id_reunion },
+        where: { id_reunion:id_reunion },
         });
 
         if (!updatedReunion)

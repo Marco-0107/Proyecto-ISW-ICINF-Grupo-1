@@ -81,7 +81,7 @@ export async function deleteUserService(query) {
     const publicacionRepository = AppDataSource.getRepository(Publicacion);
 
     const publicacionFound = await publicacionRepository.findOne({
-      where: { id_publicacion }
+      where: { id_publicacion: id_publicacion }
     });
 
     if (!publicacionFound) return [null, "Publicación no encontrada"];

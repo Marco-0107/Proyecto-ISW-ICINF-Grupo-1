@@ -1,10 +1,10 @@
 "use strict";
-import CuotasVecinales from "../entity/cuotas_vecinales.entity.js";
+import Cuota from "../entity/cuotas_vecinales.entity.js";
 import Usuario from "../entity/user.entity.js";
 import UsuarioCuota from "../entity/Usuario_cuota.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
-// Obtener una reunion por ID
+// Obtener una cuota por ID
 export async function getcuota_vecinalService({ id_cuota }) {
     try {
         const cuotaRepository = AppDataSource.getRepository(Cuota);
@@ -25,16 +25,16 @@ export async function getcuota_vecinalService({ id_cuota }) {
 // Obtengo lista de cuotas
 export async function getcuotas_vecinalesService() {
     try {
-        const cuotasRepository = AppDataSource.getRepository(Cuotas);
+        const cuotaRepository = AppDataSource.getRepository(Cuota);
 
-        const cuotas = await cuotasRepository.find();
+        const cuotas = await cuotaRepository.find();
 
-        if (!reuniones || reuniones.length === 0) return [null, "No hay reuniones"];
+        if (!cuotas || cuotas.length === 0) return [null, "No hay cuotas"];
 
-        return [reuniones, null];
+        return [cuotas, null];
 
     } catch (error) {
-        console.error("Error al obtener las reuniones:", error);
+        console.error("Error al obtener las cuotas:", error);
         return [null, "Error interno del servidor"];
     }
 }
@@ -77,10 +77,10 @@ export async function deletecuotas_vecinalesService(query) {
     try {
         const { id_cuota } = query;
 
-        const cuotaRepository = AppDataSource.getRepository(Reunion);
+        const cuotaRepository = AppDataSource.getRepository(Cuota);
 
         const cuotaFound = await cuotaRepository.findOne({
-        where: { id_cuota }
+        where: { id_cuota: id_cuota }
         });
 
         if (!cuotaFound) return [null, "Cuota no encontrada"];
@@ -95,7 +95,7 @@ export async function deletecuotas_vecinalesService(query) {
 }
 // Crear Cuota y asignarla a todos los vecinos
 export async function createcuotas_vecinalesService(data) {
-        const cuotaRepository = AppDataSource.getRepository(CuotasVecinales);
+        const cuotaRepository = AppDataSource.getRepository(Cuota);
         const UsuarioRepository = AppDataSource.getRepository(Usuario)
         const ucRepository = AppDataSource.getRepository(UsuarioCuota)
 
