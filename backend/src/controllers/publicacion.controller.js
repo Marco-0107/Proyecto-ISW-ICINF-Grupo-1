@@ -73,7 +73,7 @@ export async function deletePublicacion(req, res) {
         const { id_publicacion } = req.query;
 
         const { error } = publicacionQueryValidation.validate({ id });
-        if (error) return handleErrorClient(res, 400, "Errror en busqueda de la publicación", error.message);
+        if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
         const [publicacion, errorPub] = await deletePublicacionService({ id });
         if (errorPub) return handleErrorClient(res, 400, "Error eliminando la publicación", errorPub);

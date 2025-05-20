@@ -1,7 +1,7 @@
 "use strict";
 import Publicacion from "../entity/publicacion.entity.js";
 import { AppDataSource } from "../config/configDb.js";
-import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
+
 // Obtengo publicacion por id o titulo
 export async function getPublicacionService(query) {
     try {
@@ -34,7 +34,7 @@ export async function getPublicacionesService() {
     }catch (error) {
     console.error("Error al obtener las publicaciones:", error);
     return [null, "Error interno del servidor"];
-  }
+    }
 }
 // Modifico datos de las publicaciones
 export async function updatePublicacionService(query, body) {
@@ -51,7 +51,9 @@ export async function updatePublicacionService(query, body) {
 
         const dataUpdate = {
             titulo: body.titulo,
+            tipo: body.tipo,
             contenido: body.contenido,
+            fecha_publicación: body.fecha_publicación,
             estado: body.estado,
             fechaActualizacion: new Date(),
         };
@@ -71,7 +73,7 @@ export async function updatePublicacionService(query, body) {
     return [null, "Error interno del servidor"];
     }
 }
-
+// Elimino publicaciones
 export async function deleteUserService(query) {
   try {
     const { id_publicacion } = query;
@@ -92,7 +94,7 @@ export async function deleteUserService(query) {
     return [null, "Error interno del servidor"];
   }
 }
-
+// Creo publicaciones
 export async function createPublicacionService(body) {
     try{
         const publicacionRepository = AppDataSource.getRepository(Publicacion);
