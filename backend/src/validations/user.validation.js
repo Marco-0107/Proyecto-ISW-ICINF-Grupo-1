@@ -54,7 +54,7 @@ export const userQueryValidation = Joi.object({
   });
 
 export const userBodyValidation = Joi.object({
-  id: Joi.number()
+  id_usuario: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -62,19 +62,19 @@ export const userBodyValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
-  nombres: Joi.string()
+  nombre: Joi.string()
     .min(4)
     .max(25)
     .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
     .messages({
-      "string.empty": "Los nombres no puede estar vacío.",
+      "string.empty": "El nombre no puede estar vacío.",
       "string.base": "Los nombre debe ser de tipo string.",
       "string.min": "Los nombre debe tener como mínimo 4 caracteres.",
       "string.max": "Los nombre debe tener como máximo 25 caracteres.",
       "string.pattern.base":
         "El nombre solo puede contener letras y espacios.",
     }),
-    apellidos: Joi.string()
+    apellido: Joi.string()
     .min(4)
     .max(25)
     .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
@@ -147,6 +147,7 @@ export const userBodyValidation = Joi.object({
   direccion: Joi.string()
     .min(40)
     .max(100)
+    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
     .messages({
       "string.empty": "La dirección no puede estar vacía",
       "string.base": "La dirección debe ser de tipo string",

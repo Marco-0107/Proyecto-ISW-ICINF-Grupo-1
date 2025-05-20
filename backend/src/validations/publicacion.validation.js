@@ -67,7 +67,7 @@ export const publicacionBodyValidation = Joi.object({
         "date.empty": "La fecha no puede estar vacía",
         "date.base": "La fecha debe ser tipo Date",
         "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
-        "date.max": "La fecha puede tomar como valor máximo now"
+        "date.max": "La fecha puede tomar como valor máximo la fecha actual"
     }),
     id_usuario: Joi.number()
     .Integer()
@@ -77,4 +77,18 @@ export const publicacionBodyValidation = Joi.object({
         "number.base": "El id debe ser un integer",
         "integer.positive": "El id debe ser positivo"
     })
-})
+}).or(
+    "id_publicacion",
+    "titulo",
+    "tipo",
+    "contenido",
+    "fecha_publicacion",
+    "estado",
+    "id_usuario",
+  )
+  .unknown(false)
+  .messages({
+    "object.unknown": "No se permiten propiedades adicionales.",
+    "object.missing":
+      "Debes proporcionar al menos un campo: titulo, tipo"
+  });
