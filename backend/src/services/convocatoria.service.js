@@ -23,9 +23,9 @@ export async function getconvocatoriaService({ id_convocatoria }) {
 // Obtengo lista de cuotas
 export async function getconvocatoriasService() {
     try {
-        const convocatoriasRepository = AppDataSource.getRepository(Convocatoria);
+        const convocatoriaRepository = AppDataSource.getRepository(Convocatoria);
 
-        const convocatorias = await convocatoriasRepository.find();
+        const convocatorias = await convocatoriaRepository.find();
 
         if (!convocatorias || convocatorias.length === 0) return [null, "No hay convocatorias"];
 

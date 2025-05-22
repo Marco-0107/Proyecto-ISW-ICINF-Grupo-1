@@ -64,8 +64,8 @@ export async function updateReunion(req, res) {
         const { error: bodyError } = reunionBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [reunion, errorReunion] = await updateReunionService({ id_reunion }, body);
-        if (errorReunion) return handleErrorClient(res, 400, "Error actualizando reunión", errorReunion);
+        const [reunion, errorUpdateReunion] = await updateReunionService({ id_reunion }, body);
+        if (errorUpdateReunion) return handleErrorClient(res, 400, "Error actualizando reunión", errorUpdateReunion);
 
         handleSuccess(res, 200, "Reunión actualizada", reunion);
     }catch (error) {
@@ -80,8 +80,8 @@ export async function deleteReunion(req, res) {
         const { error } = reunionQueryValidation.validate({ id_reunion });
         if (error) return handleErrorClient(res, 400, "Error en consulta", error.message);
 
-        const [reunion, errorReunion] = await deleteReunionService({ id_reunion });
-        if (errorReunion) return handleErrorClient(res, 400, "Error eliminando la reunión", errorReunion);
+        const [reunion, errorDeleteReunion] = await deleteReunionService({ id_reunion });
+        if (errorDeleteReunion) return handleErrorClient(res, 400, "Error eliminando la reunión", errorDeleteReunion);
 
         handleSuccess(res, 200, "Reunión eliminada", reunion);
     } catch (error) {
@@ -96,8 +96,8 @@ export async function createPublicacion(req, res) {
         const { error } = reunionBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [reunion, errorPub] = await createReunionService(body);
-        if (errorReunion) return handleErrorClient(res, 404, "Error creando reunión", errorReunion);
+        const [reunion, errorCreateReunion] = await createReunionService(body);
+        if (errorCreateReunion) return handleErrorClient(res, 404, "Error creando reunión", errorCreateReunion);
 
         handleSuccess(res, 201, "Reunión creada correctamente", reunion);
     } catch (error) {

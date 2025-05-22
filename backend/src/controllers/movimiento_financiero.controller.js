@@ -59,8 +59,8 @@ export async function updateMovimientoFinanciero(req, res) {
         const { error: bodyError } = movimiento_financieroBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [movimiento, errorMov] = await updateMovimientoFinancieroService({ id_movimiento }, body);
-        if (errorMov) return handleErrorClient(res, 400, "Error actualizando el Movimiento", errorMov);
+        const [movimiento, errorUpdateMov] = await updateMovimientoFinancieroService({ id_movimiento }, body);
+        if (errorUpdateMov) return handleErrorClient(res, 400, "Error actualizando el Movimiento", errorUpdateMov);
 
         handleSuccess(res, 200, "Movimiento actualizado", movimiento);
     }catch (error) {
@@ -75,8 +75,8 @@ export async function deleteMovimientoFinanciero(req, res) {
         const { error } = movimiento_financieroQueryValidation.validate({ id_movimiento });
         if (error) return handleErrorClient(res, 400, "Errror en consulat", error.message);
 
-        const [movimiento, errorMov] = await deleteMovimientoFinancieroService({ id_movimiento });
-        if (errorMov) return handleErrorClient(res, 400, "Error eliminando el Movimiento", errorMov);
+        const [movimiento, errorDeleteMov] = await deleteMovimientoFinancieroService({ id_movimiento });
+        if (errorDeleteMov) return handleErrorClient(res, 400, "Error eliminando el Movimiento", errorDeleteMov);
 
         handleSuccess(res, 200, "Movimiento eliminado", movimiento);
     } catch (error) {
@@ -91,8 +91,8 @@ export async function createMovimientoFinanciero(req, res) {
         const { error } = movimiento_financieroBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [movimiento, errorMov] = await createMovimientoFinancieroService(body);
-        if (errorMov) return handleErrorClient(res, 404, "Error creando Movimiento", errorMov);
+        const [movimiento, errorCreateMov] = await createMovimientoFinancieroService(body);
+        if (errorCreateMov) return handleErrorClient(res, 404, "Error creando Movimiento", errorCreateMov);
 
         handleSuccess(res, 201, "Movimiento creado correctamente", movimiento);
     } catch {

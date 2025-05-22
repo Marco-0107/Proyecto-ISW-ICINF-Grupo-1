@@ -59,13 +59,13 @@ export async function updatePublicacion(req, res) {
         const { error: bodyError } = publicacionBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [publicacion, errorPub] = await updatePublicacionesService({ id }, body);
-        if (errorPub) return handleErrorClient(res, 400, "Error actualizando publicacion", errorPub);
+        const [publicacion, errorUpdatePub] = await updatePublicacionesService({ id_publicacion }, body);
+        if (errorUpdatePub) return handleErrorClient(res, 400, "Error actualizando publicacion", errorUpdatePub);
 
         handleSuccess(res, 200, "Publicacion actualizada", publicacion);
     }catch (error) {
         handleErrorServer(res, 500, error.message);
-    }
+    }Delete
 }
 // Eliminar una públicacion
 export async function deletePublicacion(req, res) {
@@ -75,8 +75,8 @@ export async function deletePublicacion(req, res) {
         const { error } = publicacionQueryValidation.validate({ id });
         if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
-        const [publicacion, errorPub] = await deletePublicacionService({ id });
-        if (errorPub) return handleErrorClient(res, 400, "Error eliminando la publicación", errorPub);
+        const [publicacion, errorDeletePub] = await deletePublicacionService({ id });
+        if (errorDeletePub) return handleErrorClient(res, 400, "Error eliminando la publicación", errorDeletePub);
 
         handleSuccess(res, 200, "Publicación eliminada", publicacion);
     } catch (error) {
@@ -91,8 +91,8 @@ export async function createPublicacion(req, res) {
         const { error } = publicacionBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [publicacion, errorPub] = await createPublicacionService(body);
-        if (errorPub) return handleErrorClient(res, 404, "Error creando publicacion", errorPub);
+        const [publicacion, errorCreatePub] = await createPublicacionService(body);
+        if (errorCreatePub) return handleErrorClient(res, 404, "Error creando publicacion", errorCreatePub);
 
         handleSuccess(res, 201, "Publicación creada correctamente", publicacion);
     } catch {

@@ -53,7 +53,7 @@ export async function updatePublicacionService(query, body) {
             titulo: body.titulo,
             tipo: body.tipo,
             contenido: body.contenido,
-            fecha_publicación: body.fecha_publicación,
+            fecha_publicación: new Date(),
             estado: body.estado,
             fechaActualizacion: new Date(),
         };
@@ -74,7 +74,7 @@ export async function updatePublicacionService(query, body) {
     }
 }
 // Elimino publicaciones
-export async function deleteUserService(query) {
+export async function deletePublicacionService(query) {
   try {
     const { id_publicacion } = query;
 
@@ -101,9 +101,9 @@ export async function createPublicacionService(body) {
 
         const newPublicacion = publicacionRepository.create ({
             titulo: body.titulo,
+            tipo: body.tipo,
             contenido: body.contenido,
-            autorId: body.autorId,
-            fechaCreacion: new Date(),
+            fecha_publicación: new Date(),
             estado: body.estado || "pendiente",
         });
 

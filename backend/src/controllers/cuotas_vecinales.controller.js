@@ -59,10 +59,10 @@ export async function updateCuotaVecinal(req, res) {
         const { error: bodyError } = cuotas_vecinalesBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [cuota, errorCuota] = await updatecuotas_vecinalesService({ id_cuota }, body);
-        if (errorCuota) return handleErrorClient(res, 400, "Error actualizando la Cuota", errorCuota);
+        const [cuota, errorUpdateCuota] = await updatecuotas_vecinalesService({ id_cuota }, body);
+        if (errorUpdateCuota) return handleErrorClient(res, 400, "Error actualizando la Cuota", errorUpdateCuota);
 
-        handleSuccess(res, 200, "Cuota actualizada", cuota);
+        handleSuccess(res, 200, "Cuota actualizada", cuota);Delete
     }catch (error) {
         handleErrorServer(res, 500, error.message);
     }
@@ -75,11 +75,11 @@ export async function deleteCuotaVecinal(req, res) {
         const { error } = cuotas_vecinalesQueryValidation.validate({ id_cuota });
         if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
-        const [cuota, errorCuota] = await deletecuotas_vecinalesService({ id_cuota });
-        if (errorCuota) return handleErrorClient(res, 400, "Error eliminando la Cuota", errorCuota);
+        const [cuota, errorDeleteCuota] = await deletecuotas_vecinalesService({ id_cuota });
+        if (errorDeleteCuota) return handleErrorClient(res, 400, "Error eliminando la Cuota", errorDeleteCuota);
 
         handleSuccess(res, 200, "Cuota eliminada", cuota);
-    } catch (error) {
+    } catch (error) {Create
         handleErrorServer(res, 500, error.message);
     }
 }
@@ -91,8 +91,8 @@ export async function createCuotaVecinal(req, res) {
         const { error } = cuotas_vecinalesBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [cuota, errorCuota] = await createcuotas_vecinalesService(body);
-        if (errorCuota) return handleErrorClient(res, 404, "Error creando Cuota", errorCuota);
+        const [cuota, errorCreateCuota] = await createcuotas_vecinalesService(body);
+        if (errorCreateCuota) return handleErrorClient(res, 404, "Error creando Cuota", errorCreateCuota);
 
         handleSuccess(res, 201, "Cuota creada correctamente", cuota);
     } catch {

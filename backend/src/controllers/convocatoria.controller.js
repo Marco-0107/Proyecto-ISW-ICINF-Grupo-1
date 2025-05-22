@@ -59,8 +59,8 @@ export async function updateConvocatorias(req, res) {
         const { error: bodyError } = convocatoriaBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [convocatoria, errorConvocatoria] = await updateconvocatoriaService({ id_convocatoria }, body);
-        if (errorConvocatoria) return handleErrorClient(res, 400, "Error actualizando la Convocatoria", errorConvocatoria);
+        const [convocatoria, errorUpdateConvocatoria] = await updateconvocatoriaService({ id_convocatoria }, body);
+        if (errorUpdateConvocatoria) return handleErrorClient(res, 400, "Error actualizando la Convocatoria", errorUpdateConvocatoria);
 
         handleSuccess(res, 200, "Convocatoria actualizada", convocatoria);
     }catch (error) {
@@ -75,8 +75,8 @@ export async function deleteConvocatoria(req, res) {
         const { error } = convocatoriaQueryValidation.validate({ id_convocatoria });
         if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
-        const [convocatoria, errorConvocatoria] = await deleteconvocatoriaService({ id_convocatoria });
-        if (errorConvocatoria) return handleErrorClient(res, 400, "Error eliminando la Convocatoria", errorConvocatoria);
+        const [convocatoria, errorDeleteConvocatoria] = await deleteconvocatoriaService({ id_convocatoria });
+        if (errorDeleteConvocatoria) return handleErrorClient(res, 400, "Error eliminando la Convocatoria", errorDeleteConvocatoria);
 
         handleSuccess(res, 200, "Convocatoria eliminada", convocatoria);
     } catch (error) {
@@ -91,8 +91,8 @@ export async function createConvocatoria(req, res) {
         const { error } = convocatoriaBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [convocatoria, errorConvocatoria] = await createconvocatoriaService(body);
-        if (errorConvocatoria) return handleErrorClient(res, 404, "Error creando Convocatoria", errorConvocatoria);
+        const [convocatoria, errorCreateConvocatoria] = await createconvocatoriaService(body);
+        if (errorCreateConvocatoria) return handleErrorClient(res, 404, "Error creando Convocatoria", errorCreateConvocatoria);
 
         handleSuccess(res, 201, "Convocatoria creada correctamente", convocatoria);
     } catch {
