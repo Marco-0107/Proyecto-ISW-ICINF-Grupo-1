@@ -1,7 +1,7 @@
 "use strict";
 import {
   getUsuarioCuotaService,
-  actualizarEstadoPagoCuotaService,
+  UpdateEstadoPagoCuotaService,
 } from "../services/usuario_cuota.service.js";
 
 import {
@@ -35,7 +35,7 @@ export async function getUsuarioCuota(req, res) {
 }
 
 // Actualiza el estado de pago de una cuota para un usuario
-export async function actualizarEstadoPagoCuota(req, res) {
+export async function UpdateEstadoPagoCuota(req, res) {
     try {
         const { estado_pago } = req.body;
 

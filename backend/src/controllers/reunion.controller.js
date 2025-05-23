@@ -105,7 +105,7 @@ export async function createPublicacion(req, res) {
     }
 }
 
-export async function resgistarAsistenciaService(req, res) {
+export async function registrarAsistencia(req, res) {
     try{
         const { body } = req;
 

@@ -26,7 +26,7 @@ export async function getPublicacion(req, res) {
         const { error } = publicacionQueryValidation.validate({ id_publicacion, titulo });
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [publicacion, errorPub] = await getPublicacionService({ id, titulo });
+        const [publicacion, errorPub] = await getPublicacionService({ id_publicacion, titulo });
         if (errorPub) return handleErrorClient(res, 404, errorPub);
 
         handleSuccess(res, 200, "Publicación encontrada", publicacion);
