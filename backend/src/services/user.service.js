@@ -127,3 +127,40 @@ export async function deleteUserService(query) {
     return [null, "Error interno del servidor"];
   }
 }
+
+export async function createUserService(body) {
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const existingUser = await userRepository.findOne({
+      where: [{ id: id }, { rut: body.rut }, { email: body.email }],
+    }); 
+
+    if (existingUser) {
+      return [null, "Ya existe un usuario con el mismo id, rut o email"];
+    }
+
+    // Encriptar la contraseña antes de guardar
+    const hashedPassword = await encryptPassword(body.password);
+
+    const newUser = userRepository.create({
+      nombre: body.nombre,
+      apellido: body.apellido,
+      direccion: body.direccion,
+      rut: body.rut,
+      email: body.email,
+      rol: body.rol,
+      password: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const userSaved = await userRepository.save(newUser);
+
+    const { password, ...userData } = userSaved;
+
+    return [userData, null];
+  } catch (error) {
+    console.error("Error al crear un usuario:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
