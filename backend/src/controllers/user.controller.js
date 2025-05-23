@@ -4,6 +4,7 @@ import {
   getUserService,
   getUsersService,
   updateUserService,
+  createUserService,
 } from "../services/user.service.js";
 import {
   userBodyValidation,
@@ -15,6 +16,7 @@ import {
   handleSuccess,
 } from "../handlers/responseHandlers.js";
 
+// Busca un usuario por rut, id, email, telefono.
 export async function getUser(req, res) {
   try {
     const { rut, id, email } = req.query;
@@ -32,7 +34,7 @@ export async function getUser(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
-
+//Lista todos los usuarios en la base de datos
 export async function getUsers(req, res) {
   try {
     const [users, errorUsers] = await getUsersService();
@@ -50,7 +52,7 @@ export async function getUsers(req, res) {
     );
   }
 }
-
+//Actualiza los datos del usuario en especifico
 export async function updateUser(req, res) {
   try {
     const { rut, id, email } = req.query;
@@ -90,7 +92,7 @@ export async function updateUser(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
-
+//Elimina un usuario
 export async function deleteUser(req, res) {
   try {
     const { rut, id, email } = req.query;
@@ -120,6 +122,24 @@ export async function deleteUser(req, res) {
 
     handleSuccess(res, 200, "Usuario eliminado correctamente", userDelete);
   } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+// Crea un usuario
+export async function createUser(req, res) {
+  try {
+    const { body } = req;
+
+    const { error } = userBodyValidation.validate(body);
+
+    if (error) return handleErrorClient(res, 400, "Los datos ingresados no son validos", error.message);
+
+    const [user, errorUser] = await createUserService(body);
+
+    if (errorUser) return handleErrorClient(res, 400, "Error al crear el usuario", errorUser);
+
+    handleSuccess(res, 201, "Usuario creado correctamente", user);
+  }  catch (error) {
     handleErrorServer(res, 500, error.message);
   }
 }
