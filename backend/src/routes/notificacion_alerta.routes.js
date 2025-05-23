@@ -3,10 +3,11 @@ import { Router } from "express";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
-  deleteNotificacion_alerta,
-  getNotificacion_alerta,
-  getNotificaciones_alertas,
-  updateNotificacion_alerta,
+  deleteNotificacionAlerta,
+  getNotificacionAlerta,
+  getNotificacionesAlertas,
+  updateNotificacionAlerta,
+  createNotificacionAlerta,
 } from "../controllers/notificacion_alerta.controller.js";
 
 const router = Router();
@@ -16,9 +17,10 @@ router
   .use(isAdmin);
 
 router
-  .get("/", getNotificaciones_alertas)
-  .get("/detail/", getNotificacion_alerta)
-  .patch("/detail/", updateNotificacion_alerta)
-  .delete("/detail/", deleteNotificacion_alerta);
+  .get("/", getNotificacionesAlertas)
+  .get("/detail/", getNotificacionAlerta)
+  .patch("/detail/", updateNotificacionAlerta)
+  .delete("/detail/", deleteNotificacionAlerta)
+  .post("/", createNotificacionAlerta);
 
 export default router;

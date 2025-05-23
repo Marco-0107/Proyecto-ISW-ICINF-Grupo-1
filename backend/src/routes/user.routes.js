@@ -7,6 +7,7 @@ import {
   getUser,
   getUsers,
   updateUser,
+  createUser,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -19,6 +20,7 @@ router
   .get("/", getUsers)
   .get("/detail/", getUser)
   .patch("/detail/", updateUser)
-  .delete("/detail/", deleteUser);
+  .delete("/detail/", deleteUser)
+  .post("/", createUser);
 
 export default router;

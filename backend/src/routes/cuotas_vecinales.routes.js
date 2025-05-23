@@ -3,10 +3,11 @@ import { Router } from "express";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
-  deleteCuotavecinal,
-  getCuota_vecinal,
-  getCuotas_vecinales,
-  updateCuota_vecinal,
+  deleteCuotaVecinal,
+  getCuotaVecinal,
+  getCuotasVecinales,
+  updateCuotaVecinal,
+  createCuotaVecinal,
 } from "../controllers/cuotas_vecinales.controller.js";
 
 const router = Router();
@@ -16,9 +17,10 @@ router
   .use(isAdmin);
 
 router
-  .get("/", getCuotas_vecinales)
-  .get("/detail/", getCuota_vecinal)
-  .patch("/detail/", updateCuota_vecinal)
-  .delete("/detail/", deleteCuotavecinal);
+  .get("/", getCuotasVecinales)
+  .get("/detail/", getCuotaVecinal)
+  .patch("/detail/", updateCuotaVecinal)
+  .delete("/detail/", deleteCuotaVecinal)
+  .post("/", createCuotaVecinal);
 
 export default router;

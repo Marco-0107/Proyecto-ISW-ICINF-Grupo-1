@@ -6,7 +6,8 @@ import{
     deleteConvocoria,
     getConvocatoria,
     getConvocatorias,
-    updateConvocatoria
+    updateConvocatoria,
+    createConvocatoria,
 } from "../controllers/convocatoria.controller.js";
 
 const router=Router();
@@ -19,6 +20,7 @@ router
     .get("/", getConvocatorias)
     .get("/detail/", getConvocatoria)
     .patch("/detail/", updateConvocatoria)
-    .delete("/detail/", deleteConvocoria);
+    .delete("/detail/", deleteConvocoria)
+    .post("/", createConvocatoria);
 
 export default router;

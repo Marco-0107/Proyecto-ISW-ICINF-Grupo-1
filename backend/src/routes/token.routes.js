@@ -3,10 +3,10 @@ import { Router } from "express";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
-  deleteToken,
   getToken,
   getTokens,
-  updateToken,
+  closeToken,
+  createToken,
 } from "../controllers/token.controller.js";
 
 const router = Router();
@@ -18,7 +18,7 @@ router
 router
   .get("/", getTokens)
   .get("/detail/", getToken)
-  .patch("/detail/", updateToken)
-  .delete("/detail/", deleteToken);
+  .patch("/detail/", closeToken)
+  .post("/", createToken);
 
 export default router;

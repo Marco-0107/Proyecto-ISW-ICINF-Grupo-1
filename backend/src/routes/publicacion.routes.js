@@ -6,7 +6,8 @@ import{
     deletePublicacion,
     getPublicacion,
     getPublicaciones,
-    updatePublicacion
+    updatePublicacion,
+    createPublicacion
 }from "../controllers/publicacion.controller.js";
 
 const router=Router();
@@ -19,6 +20,7 @@ router
     .get("/", getPublicaciones)
     .get("/detail/", getPublicacion)
     .patch("/detail/", updatePublicacion)
-    .delete("/detail/", deletePublicacion);
+    .delete("/detail/", deletePublicacion)
+    .post("/", createPublicacion);
 
 export default router;
