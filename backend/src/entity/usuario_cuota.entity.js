@@ -5,7 +5,7 @@ const UsuarioCuota = new EntitySchema({
     name: "UsuarioCuota",
     tableName: "usuario_cuota",
     columns: {
-        id_usuario: {
+        id: {
             type: "int",
             primary: true
         },
@@ -19,19 +19,21 @@ const UsuarioCuota = new EntitySchema({
         },
     },
     relations:{
-        Usuario:{
+        User:{
             type: "many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn:{
-                name:"id_usuario"
+                name:"id"
             },
+            primary:true,
         },
         cuotas_vecinales:{
             type: "many-to-one",
-            target: "cuotas__vecinales",
+            target: "cuotas_vecinales",
             joinColumn:{
                 name:"id_cuota"
             },
+            primary:true,
         },
     }
 })

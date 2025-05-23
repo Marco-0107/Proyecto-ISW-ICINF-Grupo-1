@@ -16,12 +16,10 @@ const Convocatoria = new EntitySchema({
         },
         descripcion:{
             type: "text",
-            length: 1024,
             nullable: false
         },
         requisitos:{
             type: "text",
-            length: 512,
             nullable: false
         },
         fecha_inicio:{

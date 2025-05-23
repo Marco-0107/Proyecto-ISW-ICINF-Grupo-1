@@ -1,13 +1,13 @@
 "use strict";
 import {EntitySchema} from "typeorm";
-import Usuario from "./user.entity";
+import Usuario from "../entity/user.entity.js";
 const Token= new EntitySchema({
     name: "Token",
     tableName: "token",
     columns:{
         id_token:{
             type: "int",
-            primery: true,
+            primary: true,
             generated: true
         },
         numero_token:{
@@ -24,12 +24,13 @@ const Token= new EntitySchema({
         },
     },
     relations:{
-        Usuario:{
+        User:{
             type:"many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn: {
-                name: "id_usuario"
+                name: "id"
             },
+            primary:true,
         },
     },
 });

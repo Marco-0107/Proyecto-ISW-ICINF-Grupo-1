@@ -1,6 +1,6 @@
 "use strict";
 import {EntitySchema} from "typeorm";
-import Usuario from "./user.entity";
+import Usuario from "../entity/user.entity.js";
 const MovimientoFinanciero=new EntitySchema({
     name: "MovimientoFinanciero",
     tableName: "movimiento_financiero",
@@ -18,8 +18,7 @@ const MovimientoFinanciero=new EntitySchema({
             type:"int"
         },
         descripcion:{
-            type:"text",
-            length:512
+            type:"text"
         },
         fecha_movimiento:{
             type:"date",
@@ -34,11 +33,11 @@ const MovimientoFinanciero=new EntitySchema({
         },
     },
     relations:{
-        Usuario:{
+        User:{
             type:   "many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn:{
-                name: "id_usuario"
+                name: "id"
             },
         },
         cuota:{

@@ -1,17 +1,28 @@
 "use strict";
 import {EntitySchema} from "typeorm";
-import Convocatoria from "./convocatoria.entity";
+import Convocatoria from "../entity/convocatoria.entity.js";
+import User from "../entity/user.entity.js";
 const UsuarioConvocatoria=new EntitySchema({
     name: "UsuarioConvocatoria",
     tableName: "usuario_convocatoria",
-    columns:{},
+    columns:{
+        id:{
+            type:"int",
+            primary:true
+        },
+        id_convocatoria:{
+            type:"int",
+            primary:true
+        }
+    },
     relations:{
-        Usuario:{
+        User:{
             type:"many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn:{
-                name:"id_usuario"
+                name:"id"
             },
+            primary:true,
         },
         Convocatoria:{
             type:"many-to-one",
@@ -19,6 +30,7 @@ const UsuarioConvocatoria=new EntitySchema({
             joinColumn:{
                 name:"id_convocatoria"
             },
+            primary:true,
         },
     },
 });

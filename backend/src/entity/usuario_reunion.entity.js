@@ -4,7 +4,7 @@ const UsuarioReunion=new EntitySchema({
     name: "UsuarioReunion",
     tableName: "usuario_reunion",
     columns:{
-        id_usuario:{
+        id:{
             type: "int",
             primary: true
         },
@@ -16,7 +16,7 @@ const UsuarioReunion=new EntitySchema({
             type: "int"
         },
         asistio:{
-            type: "Boolean"
+            type: "boolean"
         },
         fecha_confirmacion_asistencia:{
             type: "date",
@@ -24,19 +24,21 @@ const UsuarioReunion=new EntitySchema({
         },
     },
     relations:{
-        Usuario:{
+        User:{
             type: "many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn:{
-                name:"id_usuario"
+                name:"id"
             },
+            primary:true,
         },
         Reunion:{
             type: "many-to-one",
-            target: "Reunuion",
+            target: "Reunion",
             joinColumn:{
                 name:"id_reunion"
             },
+            primary:true,
         },
     }
 });

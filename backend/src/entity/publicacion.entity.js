@@ -22,7 +22,6 @@ const Publicacion = new EntitySchema({
     },
     contenido:{
       type: "text",
-      length: 1024,
       nullable: false
     },
     fecha_publicacion:{
@@ -37,8 +36,8 @@ const Publicacion = new EntitySchema({
   relations:{
     usuario:{
       type:"many-to-one",
-      target: "Usuario",
-      joinColumn:{name: "id_usuario"},
+      target: "User",
+      joinColumn:{name: "id"},
     },
   },
 })

@@ -14,20 +14,17 @@ const Reunion=new EntitySchema({
             length:255
         },
         descripcion:{
-            type: "text",
-            length: 512
+            type: "text"
         },
         fecha_reunion:{
             type:"date",
             nullable:false
         },
         objetivo:{
-            type: "text",
-            length: 512
+            type: "text"
         },
         observaciones:{
-            type: "text",
-            length: 512
+            type: "text"
         },
     },
 });

@@ -42,7 +42,7 @@ const User = new EntitySchema({
       nullable: false,
       unique: true,
     },
-    contrasena: {
+    password: {
       type: "varchar",
       length: 255,
       nullable: false

@@ -1,6 +1,6 @@
 "use stric";
 import {EntitySchema} from "typeorm";
-import Usuario from "./user.entity";
+import Usuario from "../entity/user.entity.js";
 const Notificacion=new EntitySchema({
     name: "Notificacion",
     tableName: "notificacion_alerta",
@@ -15,8 +15,7 @@ const Notificacion=new EntitySchema({
             length: 255
         },
         descripcion:{
-            type:"text",
-            length:512
+            type:"text"
         },
         tipo:{
             type:"varchar",
@@ -32,11 +31,11 @@ const Notificacion=new EntitySchema({
         },
     },
     relations:{
-        Usuario:{
+        User:{
             type: "many-to-one",
-            target: "Usuario",
+            target: "User",
             joinColumn:{
-                name:"id_usuario"
+                name:"id"
             },
         },
     },
