@@ -3,24 +3,20 @@ import { Router } from "express";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
-  deleteUser,
-  getUser,
-  getUsers,
-  updateUser,
-  createUser,
-} from "../controllers/user.controller.js";
+  getUsuarioReunion,
+  asignarUsuarioReunion,
+  marcarAsistenciaManual
+} from "../controllers/usuario_reunion.controller.js";
 
-const router = Router();
+const router= Router();
 
 router
   .use(authenticateJwt)
   .use(isAdmin);
 
 router
-  .get("/", getUsers)
-  .get("/detail/", getUser)
-  .patch("/detail/", updateUser)
-  .delete("/detail/", deleteUser)
-  .post("/", createUser);
+  .get("/detail/", getUsuarioReunion)
+  .patch("/detail/", marcarAsistenciaManual)
+  .post("/detail/", asignarUsuarioReunion);
 
 export default router;
