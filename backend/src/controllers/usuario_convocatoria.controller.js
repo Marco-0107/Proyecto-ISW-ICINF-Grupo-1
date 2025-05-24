@@ -2,8 +2,8 @@
 
 import {
     getUsuarioConvocatoriaService,
-    createUsuarioConvocatoriaService,
-    deleteUsuarioConvocatoriaService,
+    inscribirUsuarioEnConvocatoriaService,
+    eliminarInscripcionConvocatoriaService,
 } from "../services/usuario_convocatoria.service.js";
 
 import {
@@ -38,7 +38,7 @@ export async function getUsuarioConvocatoria(req, res) {
 }
 
 // Inscribe a un usuario en una convocatoria
-export async function createUsuarioConvocatoria(req, res) {
+export async function inscribirUsuarioEnConvocatoria(req, res) {
     try {
         const { error } = usuarioConvocatoriaBodyValidation.validate(req.body);
 
@@ -55,7 +55,7 @@ export async function createUsuarioConvocatoria(req, res) {
 }
 
 // Elimina la inscripción de un usuario en una convocatoria
-export async function deleteUsuarioConvocatoria(req, res) {
+export async function eliminarInscripcionConvocatoria(req, res) {
     try {
         const { id, id_convocatoria } = req.query; 
 

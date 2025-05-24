@@ -3,7 +3,7 @@ import Joi from "joi";
 
 export const notificacion_alertaQueryValidation = Joi.object({
     id_notificacion: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la notificación no puede estar vacío",
@@ -20,7 +20,7 @@ export const notificacion_alertaQueryValidation = Joi.object({
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
-    tipo: Joi.String()
+    tipo: Joi.string()
     .min(3)
     .max(50)
     .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -30,16 +30,16 @@ export const notificacion_alertaQueryValidation = Joi.object({
         "String.min": "El tipo de movimiento debe contener mínimo 10 caracteres",
         "String.max": "El tipo de movimiento puede contener máximo 1000 caracteres"
     }),
-    fecha: Joi.Date()
+    fecha: Joi.date()
     .iso()
-    .max(now)
+    .max("now")
     .messages({
         "date.empty": "La fecha de movimiento no puede estar vacía",
         "date.base": "La fecha de movimiento debe ser tipo Date",
         "date.iso": "La fecha de movimiento debe estar en formato AAAA-MM-DD",
         "date.max": "La fecha puede tomar como valor máximo la fecha actual"
     }),
-    id_usuario:  Joi.number()
+    id_usuario: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -51,7 +51,7 @@ export const notificacion_alertaQueryValidation = Joi.object({
 
 export const notificacion_alertaBodyValidation = Joi.object({
     id_notificacion: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la notificación no puede estar vacío",
@@ -68,7 +68,7 @@ export const notificacion_alertaBodyValidation = Joi.object({
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
-    descripcion: Joi.String()
+    descripcion: Joi.string()
     .min(10)
     .max(1000)
     .messages({
@@ -77,7 +77,7 @@ export const notificacion_alertaBodyValidation = Joi.object({
         "String.min": "La descripción debe contener mínimo 10 caracteres",
         "String.max": "La descripción puede contener máximo 1000 caracteres"
     }),
-    tipo: Joi.String()
+    tipo: Joi.string()
     .min(3)
     .max(50)
     .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -88,16 +88,16 @@ export const notificacion_alertaBodyValidation = Joi.object({
         "String.max": "El tipo de movimiento puede contener máximo 1000 caracteres",
         "String.pattern.base": "El tipo de movimiento solo puede contener letras, numeros y los caracteres: - ' . #."
     }),
-    fecha: Joi.Date()
+    fecha: Joi.date()
     .iso()
-    .max(now)
+    .max("now")
     .messages({
         "date.empty": "La fecha de movimiento no puede estar vacía",
         "date.base": "La fecha de movimiento debe ser tipo Date",
         "date.iso": "La fecha de movimiento debe estar en formato AAAA-MM-DD",
         "date.max": "La fecha puede tomar como valor máximo la fecha actual"
     }),
-    estado_visualizacion: Joi.String()
+    estado_visualizacion: Joi.string()
     .min(3)
     .max(50)
     .messages({

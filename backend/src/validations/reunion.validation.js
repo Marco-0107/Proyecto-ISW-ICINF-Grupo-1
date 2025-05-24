@@ -3,14 +3,14 @@ import Joi from "joi";
 
 export const reunionQueryValidation = Joi.object({
     id_reunion: Joi.number()
-        .Integer()
+        .integer()
         .positive()
         .messages({
             "integer.empty": "El id no puede estar vacío",
             "integer.base": "El id debe ser un integer",
             "integer.positive": "El id debe ser positivo"        
         }),
-    lugar: Joi.String()
+    lugar: Joi.string()
        .min(5)
        .max(255)
        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -22,7 +22,7 @@ export const reunionQueryValidation = Joi.object({
        }),
     fecha_reunion: Joi.date()
     .iso()
-    .min(now)
+    .min("now")
     .messages({
         "date.empty": "La fecha no puede estar vacía",
         "date.base": "La fecha debe ser tipo Date",
@@ -34,14 +34,14 @@ export const reunionQueryValidation = Joi.object({
 
 export const reunionBodyValidation = Joi.object({
     id_reunion: Joi.number()
-        .Integer()
+        .integer()
         .positive()
         .messages({
             "integer.empty": "El id no puede estar vacío",
             "integer.base": "El id debe ser un integer",
             "integer.positive": "El id debe ser positivo"        
         }), 
-    lugar: Joi.String()
+    lugar: Joi.string()
        .min(5)
        .max(255)
        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -51,7 +51,7 @@ export const reunionBodyValidation = Joi.object({
         "string.min": "El lugar debe tener mínimo 5 caracteres",
         "string.max": "El lugar debe tener como máximo 255 caracteres"
        }),
-    descripcion: Joi.String()
+    descripcion: Joi.string()
        .min(10)
        .max(1000)
        .messages({
@@ -62,14 +62,14 @@ export const reunionBodyValidation = Joi.object({
        }),
     fecha_reunion: Joi.date()
     .iso()
-    .min(now)
+    .min("now")
     .messages({
         "date.empty": "La fecha no puede estar vacía",
         "date.base": "La fecha debe ser tipo Date",
         "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
         "date.max": "La fecha puede tomar como valor mínimo la fecha de hoy"
     }),
-    objetivo: Joi.String
+    objetivo: Joi.string()
         .min(10)
         .max(1000)
         .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -79,7 +79,7 @@ export const reunionBodyValidation = Joi.object({
             "String.min": "El objetivo debe contener mínimo 10 caracteres",
             "String.max": "El objetivo puede contener máximo 1000 caracteres"
     }),
-    observaciones: Joi.String
+    observaciones: Joi.string()
         .min(10)
         .max(1000)
         .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
@@ -89,13 +89,23 @@ export const reunionBodyValidation = Joi.object({
             "String.min": "Las observaciones debe contener mínimo 10 caracteres",
             "String.max": "Las observaciones puede contener máximo 1000 caracteres"
         }),
+    fechaActualizacion: Joi.date()
+    .iso()
+    .max("now")
+    .messages({
+        "date.empty": "La fecha no puede estar vacía",
+        "date.base": "La fecha debe ser tipo Date",
+        "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
+        "date.max": "La fecha puede tomar como valor mínimo la fecha de hoy"
+    })
 }).or(
     "id_reunion",
     "lugar",
     "descripcion",
     "fecha_reunion",
     "objetivo",
-    "observaciones"
+    "observaciones",
+    "fechaActualizacion"
   )
   .unknown(false)
   .messages({

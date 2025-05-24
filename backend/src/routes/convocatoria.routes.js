@@ -1,9 +1,9 @@
 "use stric";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware";
-import { authenticateJwt } from "../middlewares/authentication.middleware";
+import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import{
-    deleteConvocoria,
+    deleteConvocatoria,
     getConvocatoria,
     getConvocatorias,
     updateConvocatoria,
@@ -20,7 +20,7 @@ router
     .get("/", getConvocatorias)
     .get("/detail/", getConvocatoria)
     .patch("/detail/", updateConvocatoria)
-    .delete("/detail/", deleteConvocoria)
+    .delete("/detail/", deleteConvocatoria)
     .post("/", createConvocatoria);
 
 export default router;

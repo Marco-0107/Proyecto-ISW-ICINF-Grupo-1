@@ -38,9 +38,9 @@ export async function getTokensService() {
 // Cerrar un Token
 export async function closeTokenService({id_token}) {
     try {
-        const tokenRepository = AppDataSource.getRepository(Reunion);
+        const tokenRepository = AppDataSource.getRepository(Token);
 
-        const tokenFound = await reunionRepository.findOne({
+        const tokenFound = await tokenRepository.findOne({
         where: { id_token : id_token }
         });
 
@@ -63,26 +63,27 @@ export async function createTokenService({id, id_reunion}) {
         const tokenRepository = AppDataSource.getRepository(Token);
 
         const tokenExistente = await tokenRepository.findOne({
+            where: {
             id_reunion,
             estado: "activo",
+            }
         });
 
         if (tokenExistente) return [null, "Ya existe un token activo para esta reunión"]
 
         const newToken = tokenRepository.create ({
             numero_token: generarTokenCuatroDigitos(),
-            descripcion: body.descripcion,
             fecha_generacion: new Date(),
             estado: "activo",
             id,
             id_reunion,
         });
 
-        const guardado = await reunionRepository.save(newToken);
+        const guardado = await tokenRepository.save(newToken);
 
         return [guardado, null];
     } catch(error) {
-        console.error("Error al crear Reunión:", error);
+        console.error("Error al crear token:", error);
         return [null, "Error interno del servidor:"];
     }
 }

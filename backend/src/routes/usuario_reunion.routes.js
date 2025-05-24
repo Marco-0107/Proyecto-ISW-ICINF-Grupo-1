@@ -4,7 +4,7 @@ import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   getUsuarioReunion,
-  asignarUsuarioReunion,
+  asignarUsuarioAReunion,
   marcarAsistenciaManual
 } from "../controllers/usuario_reunion.controller.js";
 
@@ -17,6 +17,6 @@ router
 router
   .get("/detail/", getUsuarioReunion)
   .patch("/detail/", marcarAsistenciaManual)
-  .post("/detail/", asignarUsuarioReunion);
+  .post("/detail/", asignarUsuarioAReunion);
 
 export default router;

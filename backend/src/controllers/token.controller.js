@@ -10,7 +10,7 @@ import {
 import {
     tokenBodyValidation,
     tokenQueryValidation,
-} from "../services/token.validation.js"
+} from "../validations/token.validation.js"
 
 import {
     handleErrorClient,
@@ -78,7 +78,7 @@ export async function createToken(req, res) {
         if (!id || !id_reunion) return handleErrorClient(res, 400, "Faltan datos obligatorios");
 
         const [token, errorCreateToken] = await createTokenService({ id : id_reunion });
-        if (errorReunion) return handleErrorClient(res, 400, "Error creando el Token", errorCreateToken);
+        if (errorCreateToken) return handleErrorClient(res, 400, "Error creando el Token", errorCreateToken);
 
         handleSuccess(res, 201, "Token creado correctamente ", token);
     } catch (error) {

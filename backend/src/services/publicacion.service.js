@@ -103,7 +103,7 @@ export async function createPublicacionService(body) {
             titulo: body.titulo,
             tipo: body.tipo,
             contenido: body.contenido,
-            fecha_publicación: new Date(),
+            fecha_publicacion: new Date(),
             estado: body.estado || "pendiente",
         });
 

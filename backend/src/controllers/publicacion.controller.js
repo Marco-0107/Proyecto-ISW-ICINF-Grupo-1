@@ -4,14 +4,14 @@ import {
     createPublicacionService,
     getPublicacionService,
     getPublicacionesService,
-    updatePublicacionesService,
+    updatePublicacionService,
     deletePublicacionService,
 } from "../services/publicacion.service.js";
 
 import {
     publicacionBodyValidation,
     publicacionQueryValidation,
-} from "../services/publicacion.validation.js"
+} from "../validations/publicacion.validation.js"
 
 import {
     handleErrorClient,

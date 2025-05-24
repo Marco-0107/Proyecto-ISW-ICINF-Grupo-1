@@ -26,6 +26,9 @@ const Reunion=new EntitySchema({
         observaciones:{
             type: "text"
         },
+        fechaActualizacion:{
+            type: "date"
+        }
     },
 });
 export default Reunion;

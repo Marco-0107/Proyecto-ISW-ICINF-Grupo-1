@@ -1,7 +1,7 @@
 "use strict";
 import {
   getUsuarioCuotaService,
-  UpdateEstadoPagoCuotaService,
+  actualizarEstadoPagoCuotaService,
 } from "../services/usuario_cuota.service.js";
 
 import {

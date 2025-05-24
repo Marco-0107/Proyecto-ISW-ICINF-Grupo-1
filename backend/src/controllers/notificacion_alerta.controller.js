@@ -1,17 +1,17 @@
 "use strict"
 
 import {
-    createNotifacionAlertaService,
+    createNotificacionAlertaService,
     getNotificacionAlertaService,
     getNotificacionesAlertasService,
     updateNotificacionAlertaService,
     deleteNotificacionAlertaService,
-} from "../services/notificacion_alerta.entity.js";
+} from "../services/notificacion_alerta.service.js";
 
 import {
     notificacion_alertaBodyValidation,
     notificacion_alertaQueryValidation,
-} from "../services/notificacion_alerta.validation.js"
+} from "../validations/notificacion_alerta.validation.js"
 
 import {
     handleErrorClient,
@@ -68,7 +68,7 @@ export async function updateNotificacionAlerta(req, res) {
     }
 }
 // Eliminar una Notificacion/Alerta
-export async function deletePublicacion(req, res) {
+export async function deleteNotificacionAlerta(req, res) {
     try{
         const { id } = req.query;
 
@@ -84,7 +84,7 @@ export async function deletePublicacion(req, res) {
     }
 }
 // Crear una Notificacion/Alerta
-export async function createNotifacionAlerta(req, res) {
+export async function createNotificacionAlerta(req, res) {
     try{
         const { body } = req;
 

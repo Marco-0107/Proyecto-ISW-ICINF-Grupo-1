@@ -11,7 +11,7 @@ import {
 import {
     convocatoriaBodyValidation,
     convocatoriaQueryValidation,
-} from "../services/convocatoria.validation.js"
+} from "../validations/convocatoria.validation.js"
 
 import {
     handleErrorClient,
@@ -48,7 +48,7 @@ export async function getConvocatoria(req, res) {
     }
 }
 // Actualizar las convocatorias
-export async function updateConvocatorias(req, res) {
+export async function updateConvocatoria(req, res) {
     try{
         const { id_convocatoria} = req.query;
         const { body } = req;

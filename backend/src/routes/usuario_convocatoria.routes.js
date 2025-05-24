@@ -1,12 +1,11 @@
 "use stric";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware";
-import { authenticateJwt } from "../middlewares/authentication.middleware";
+import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import{
-    deleteUsuarioConvocatoria,
+    eliminarInscripcionConvocatoria,
     getUsuarioConvocatoria,
-    getUsuariosConvocatorias,
-    createUsuarioConvocatoria
+    inscribirUsuarioEnConvocatoria
 } from"../controllers/usuario_convocatoria.controller.js"
 
 const router = Router();
@@ -16,9 +15,8 @@ router
     .use(isAdmin);
 
 router
-    .get("/", getUsuariosConvocatorias)
     .get("/detail/", getUsuarioConvocatoria)
-    .delete("/detail/", deleteUsuarioConvocatoria)
-    .post("/", createUsuarioConvocatoria);
+    .delete("/detail/", eliminarInscripcionConvocatoria)
+    .post("/", inscribirUsuarioEnConvocatoria);
 
 export default router;

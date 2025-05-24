@@ -5,7 +5,7 @@ import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   getToken,
   getTokens,
-  closeToken,
+  closeTokens,
   createToken,
 } from "../controllers/token.controller.js";
 
@@ -18,7 +18,7 @@ router
 router
   .get("/", getTokens)
   .get("/detail/", getToken)
-  .patch("/detail/", closeToken)
+  .patch("/detail/", closeTokens) 
   .post("/", createToken);
 
 export default router;

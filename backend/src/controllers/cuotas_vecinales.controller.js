@@ -11,7 +11,7 @@ import {
 import {
     cuotas_vecinalesBodyValidation,
     cuotas_vecinalesQueryValidation,
-} from "../services/cuotas_vecinales.validation.js"
+} from "../validations/cuotas_vecinales.validation.js"
 
 import {
     handleErrorClient,

@@ -3,7 +3,7 @@ import Joi from "joi";
 
 export const convocatoriaQueryValidation = Joi.object({
     id_convocatoria: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la convocatoria no puede estar vacío",
@@ -38,9 +38,9 @@ export const convocatoriaQueryValidation = Joi.object({
     })
 })
 
-export const convocactoriaBodyValidation = Joi.object({
+export const convocatoriaBodyValidation = Joi.object({
     id_convocatoria: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la convocatoria no puede estar vacío",
@@ -57,7 +57,7 @@ export const convocactoriaBodyValidation = Joi.object({
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
-    descripcion: Joi.String()
+    descripcion: Joi.string()
     .min(10)
     .max(1000)
     .messages({
@@ -66,7 +66,7 @@ export const convocactoriaBodyValidation = Joi.object({
         "String.min": "La descripción debe contener mínimo 10 caracteres",
         "String.max": "La descripción puede contener máximo 1000 caracteres"
     }),
-    requisitos: Joi.String()
+    requisitos: Joi.string()
     .min(10)
     .max(1000)
     .messages({
@@ -91,7 +91,7 @@ export const convocactoriaBodyValidation = Joi.object({
         "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
         "date.greater": "La fecha de cierre no puede ser anterior a la fecha de inicio"
     }),
-    estado: Joi.String()
+    estado: Joi.string()
     .min(3)
     .max(50)
     .messages({

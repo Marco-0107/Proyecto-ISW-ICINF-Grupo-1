@@ -11,7 +11,7 @@ import {
 import {
     movimiento_financieroBodyValidation,
     movimiento_financieroQueryValidation,
-} from "../services/movimiento_financiero.js"
+} from "../validations/movimiento_financiero.validation.js"
 
 import {
     handleErrorClient,

@@ -1,7 +1,7 @@
 "use strict";
 import Joi from "joi";
 
-export const usuario_convocatoriaQueryValidation = Joi.object({
+export const usuarioConvocatoriaQueryValidation = Joi.object({
     id_usuario: Joi.number()
     .integer()
     .positive()
@@ -11,7 +11,7 @@ export const usuario_convocatoriaQueryValidation = Joi.object({
       "number.positive": "El id debe ser un número positivo.",
     }),
     id_convocatoria: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la convocatoria no puede estar vacío",
@@ -20,7 +20,7 @@ export const usuario_convocatoriaQueryValidation = Joi.object({
     })
 })
 
-export const usuario_convocatoriaBodyValidation = Joi.object({
+export const usuarioConvocatoriaBodyValidation = Joi.object({
     id_usuario: Joi.number()
     .integer()
     .positive()
@@ -30,7 +30,7 @@ export const usuario_convocatoriaBodyValidation = Joi.object({
       "number.positive": "El id debe ser un número positivo.",
     }),
     id_convocatoria: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la convocatoria no puede estar vacío",

@@ -62,7 +62,7 @@ export async function updateReunionService(query, body) {
     
         await reunionRepository.update({ id_reunion }, dataUpdate);
 
-        const updatedReunion = await publicacionRepository.findOne({
+        const updatedReunion = await reunionRepository.findOne({
         where: { id_reunion:id_reunion },
         });
 
@@ -97,12 +97,12 @@ export async function deleteReunionService(query) {
     }
 }
 // Crear reunion
-export async function createPublicacionService(body) {
+export async function createReunionService(body) {
     try{
         const reunionRepository = AppDataSource.getRepository(Reunion);
 
         const newReunion = reunionRepository.create ({
-            lugar: body.titulo,
+            lugar: body.lugar,
             descripcion: body.descripcion,
             fecha_reunion: body.fecha_reunion,
             objetivo: body.objetivo,

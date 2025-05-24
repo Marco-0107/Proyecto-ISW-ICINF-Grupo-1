@@ -71,11 +71,12 @@ export async function updateUserService(query, body) {
     }
 
     const dataUserUpdate = {
-      nombreCompleto: body.nombreCompleto,
+      nombre: body.nombre,
+      apellido: body.apellido,
+      direccion: body.direccion,
       rut: body.rut,
       email: body.email,
       rol: body.rol,
-      updatedAt: new Date(),
     };
 
     if (body.newPassword && body.newPassword.trim() !== "") {
@@ -132,7 +133,7 @@ export async function createUserService(body) {
   try {
     const userRepository = AppDataSource.getRepository(User);
     const existingUser = await userRepository.findOne({
-      where: [{ id: id }, { rut: body.rut }, { email: body.email }],
+      where: [{ id: body.id }, { rut: body.rut }, { email: body.email }],
     }); 
 
     if (existingUser) {
@@ -149,7 +150,10 @@ export async function createUserService(body) {
       rut: body.rut,
       email: body.email,
       rol: body.rol,
+      telefono: body.telefono,
       password: hashedPassword,
+      estado_activo: body.estado_activo, 
+      fecha_registro: body.fecha_registro,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

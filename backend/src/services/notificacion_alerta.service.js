@@ -3,7 +3,7 @@ import Notificacion from "../entity/notificacion_alerta.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
 // Obtengo Notificacion/Alerta por id o titulo
-export async function getNotifiacionAlertaService(query) {
+export async function getNotificacionAlertaService(query) {
     try {
         const { id_notificacion } = query;
 
@@ -23,7 +23,7 @@ export async function getNotifiacionAlertaService(query) {
 }
 
 // Obtengo lista de publicaciones
-export async function getPublicacionesService() {
+export async function getNotificacionesAlertasService() {
     try {
         const naRepository = AppDataSource.getRepository(Notificacion);
 
@@ -38,7 +38,7 @@ export async function getPublicacionesService() {
     }
 }
 // Modifico datos de las notificaciones/alertas
-export async function updatedNotificacionAlertaService(query, body) {
+export async function updateNotificacionAlertaService(query, body) {
   try {
         const { id_notificacion } = query;
 

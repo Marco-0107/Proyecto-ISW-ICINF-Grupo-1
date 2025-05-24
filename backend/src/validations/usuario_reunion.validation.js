@@ -1,7 +1,7 @@
 "use strict";
 import Joi from "joi";
 
-export const usuario_reunionQueryValidation = Joi.object({
+export const usuarioReunionQueryValidation = Joi.object({
     id_usuario: Joi.number()
     .integer()
     .positive()
@@ -11,7 +11,7 @@ export const usuario_reunionQueryValidation = Joi.object({
       "number.positive": "El id debe ser un número positivo.",
     }),
     id_reunion: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id no puede estar vacío",
@@ -19,16 +19,16 @@ export const usuario_reunionQueryValidation = Joi.object({
         "integer.positive": "El id debe ser positivo"        
     }),
     id_token: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la notificación no puede estar vacío",
         "integer.base": "El id de la notificación debe ser un integer",
         "integer.positive": "El id de la notificación debe ser positivo"
     }),
-    fecha_confirmacion_asistencia: Joi.Date
+    fecha_confirmacion_asistencia: Joi.date()
     .iso()
-    .max(now)
+    .max("now")
     .messages({
         "Date.empty": "La fecha de confirmación no puede estar vacía",
         "Date.base": "La fecha de confimación debe ser de tipo Date",
@@ -37,7 +37,7 @@ export const usuario_reunionQueryValidation = Joi.object({
     })
 })
 
-export const usuario_reunionBodyValidation = Joi.object({
+export const usuarioReunionBodyValidation = Joi.object({
      id_usuario: Joi.number()
     .integer()
     .positive()
@@ -47,7 +47,7 @@ export const usuario_reunionBodyValidation = Joi.object({
       "number.positive": "El id debe ser un número positivo.",
     }),
     id_reunion: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id no puede estar vacío",
@@ -55,21 +55,21 @@ export const usuario_reunionBodyValidation = Joi.object({
         "integer.positive": "El id debe ser positivo"        
     }),
     id_token: Joi.number()
-    .Integer()
+    .integer()
     .positive()
     .messages({
         "integer.empty": "El id de la notificación no puede estar vacío",
         "integer.base": "El id de la notificación debe ser un integer",
         "integer.positive": "El id de la notificación debe ser positivo"
     }),
-    asistio: Joi.boolean
+    asistio: Joi.boolean()
     .messages({
       "boolean.empty": "El estado de actividad no puede estar vacío",
       "boolean.base": "El estado de actividad debe ser de tipo boolean"
     }),
-    fecha_confirmacion_asistencia: Joi.Date
+    fecha_confirmacion_asistencia: Joi.date()
     .iso()
-    .max(now)
+    .max("now")
     .messages({
         "Date.empty": "La fecha de confirmación no puede estar vacía",
         "Date.base": "La fecha de confimación debe ser de tipo Date",

@@ -12,7 +12,7 @@ import {
 import {
     reunionBodyValidation,
     reunionQueryValidation,
-} from "../services/reunion.validation.js"
+} from "../validations/reunion.validation.js"
 
 import {
     handleErrorClient,
@@ -89,7 +89,7 @@ export async function deleteReunion(req, res) {
     }
 }
 // Crear una Reunion
-export async function createPublicacion(req, res) {
+export async function createReunion(req, res) {
     try{
         const { body } = req;
 

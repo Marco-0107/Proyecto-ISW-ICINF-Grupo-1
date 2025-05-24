@@ -4,7 +4,7 @@ import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   getUsuarioCuota,
-  updateEstadoPagoCuota,
+  UpdateEstadoPagoCuota,
 } from "../controllers/usuario_cuota.controller.js";
 
 const router = Router();
@@ -15,6 +15,6 @@ router
 
 router
   .get("/detail/", getUsuarioCuota)
-  .patch("/detail/", updateEstadoPagoCuota);
+  .patch("/detail/", UpdateEstadoPagoCuota);
 
 export default router;

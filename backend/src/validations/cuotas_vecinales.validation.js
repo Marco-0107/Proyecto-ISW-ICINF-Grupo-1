@@ -23,7 +23,7 @@ export const cuotas_vecinalesQueryValidation = Joi.object({
         }),
     fecha_emision: Joi.date()
         .iso()
-        .max(now)
+        .max("now")
         .messages({
             "date.empty": "La fecha de emision no puede estar vacía",
             "date.base": "La fecha de emision debe ser tipo Date",
@@ -54,7 +54,7 @@ export const cuotas_vecinalesBodyValidation = Joi.object({
         }),
         fecha_emision: Joi.date()
         .iso()
-        .max(now)
+        .max("now")
         .messages({
             "date.empty": "La fecha de emision no puede estar vacía",
             "date.base": "La fecha de emision debe ser tipo Date",
