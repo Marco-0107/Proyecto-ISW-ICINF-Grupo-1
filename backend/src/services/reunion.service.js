@@ -2,7 +2,9 @@
 import UsuarioReunion from "../entity/usuario_reunion.entity.js";
 import Reunion from "../entity/reunion.entity.js";
 import Token from "../entity/token.entity.js";
+import Usuario from "../entity/user.entity.js"
 import { AppDataSource } from "../config/configDb.js";
+import { createTokenService } from "./token.service.js";
 
 // Obtener una reunion por ID
 export async function getReunionService({ id_reunion }) {
@@ -52,7 +54,7 @@ export async function updateReunionService(query, body) {
         if (!reunionFound) return [null, "Reunión no encontrada"];
 
         const dataUpdate = {
-            lugar: body.titulo,
+            lugar: body.lugar,
             descripcion: body.descripcion,
             fecha_reunion: body.fecha_reunion,
             objetivo: body.objetivo,
@@ -96,10 +98,15 @@ export async function deleteReunionService(query) {
         return [null, "Error interno del servidor"];
     }
 }
-// Crear reunion
+// Crear reunion y asignarla a todos los vecinos
 export async function createReunionService(body) {
-    try{
         const reunionRepository = AppDataSource.getRepository(Reunion);
+        const UsuarioRepository = AppDataSource.getRepository(Usuario)
+        const urRepository = AppDataSource.getRepository(UsuarioReunion)
+
+    try{
+        
+        // Crear la reunión
 
         const newReunion = reunionRepository.create ({
             lugar: body.lugar,
@@ -107,14 +114,28 @@ export async function createReunionService(body) {
             fecha_reunion: body.fecha_reunion,
             objetivo: body.objetivo,
             observaciones: body.observaciones,
-            fechaActualizacion: new Date(),
+            fechaActualizacion: new Date()
+        });
+        const saveReunion = await reunionRepository.save(newReunion);
+
+        // Obtener usuarios con rol de vecino y que esten activos
+
+        const vecinos_habilitados = await UsuarioRepository.find ({ where : { rol: "vecino", estado_activo: true } });
+
+        // Asignar la reunion a todos los vecinos
+        const asignar_reunion= vecinos_habilitados.map(vecino => { 
+        
+        return urRepository.create({        //Recorro mi array uno por uno con el .map luego para cada vecino creamos un UsuarioCuota 
+            id: vecino.id,
+            id_reunion: saveReunion.id_reunion
+            });
         });
 
-        await reunionRepository.save(newReunion);
+        await urRepository.save(asignar_reunion);
 
-        return [newReunion, null];
+        return [saveReunion, null];
     } catch(error) {
-        console.error("Error al crear Reunión:", error);
+            console.error("Error al asignar la reunión:", error);
         return [null, "Error interno del servidor:"];
     }
 }

@@ -21,12 +21,12 @@ import {
 // Obtengo Notificacion/Alerta por id o titulo
 export async function getNotificacionAlerta(req, res) {
     try {
-        const { id } = req.query;
+        const { id_notificacion } = req.query;
 
-        const { error } = notificacion_alertaQueryValidation.validate({ id });
+        const { error } = notificacion_alertaQueryValidation.validate({ id_notificacion });
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [notificacion, errorNotificacion] = await getNotificacionAlertaService({ id });
+        const [notificacion, errorNotificacion] = await getNotificacionAlertaService({ id_notificacion });
         if (errorNotificacion) return handleErrorClient(res, 404, errorNotificacion);
 
         handleSuccess(res, 200, "Notificación/Alerta encontrada", notificacion);
@@ -50,17 +50,17 @@ export async function getNotificacionAlerta(req, res) {
 // Actualizar las Notificaciones/Alertas
 export async function updateNotificacionAlerta(req, res) {
     try{
-        const { id } = req.query;
+        const { id_notificacion } = req.query;
         const { body } = req;
 
-        const { error: queryError } = notificacion_alertaQueryValidation.validate({ id });
+        const { error: queryError } = notificacion_alertaQueryValidation.validate({ id_notificacion });
         if (queryError) return handleErrorClient(res, 400, "Error en consulta", queryError.message);
 
         const { error: bodyError } = notificacion_alertaBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [notificacion, errorNotificacion] = await updateNotificacionAlertaService({ id }, body);
-        if (errorPub) return handleErrorClient(res, 400, "Error actualizando publicacion", errorPub);
+        const [notificacion, errorNotificacion] = await updateNotificacionAlertaService({ id_notificacion }, body);
+        if (errorNotificacion) return handleErrorClient(res, 400, "Error actualizando publicacion", errorNotificacion);
 
         handleSuccess(res, 200, "Publicacion actualizada", notificacion);
     }catch (error) {
@@ -70,12 +70,12 @@ export async function updateNotificacionAlerta(req, res) {
 // Eliminar una Notificacion/Alerta
 export async function deleteNotificacionAlerta(req, res) {
     try{
-        const { id } = req.query;
+        const { id_notificacion } = req.query;
 
-        const { error } = notificacion_alertaQueryValidation.validate({ id });
+        const { error } = notificacion_alertaQueryValidation.validate({ id_notificacion });
         if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
-        const [notificacion, errorNotificacion] = await deleteNotificacionAlertaService({ id });
+        const [notificacion, errorNotificacion] = await deleteNotificacionAlertaService({ id_notificacion });
         if (errorNotificacion) return handleErrorClient(res, 400, "Error eliminando la Notificacion", errorNotificacion);
 
         handleSuccess(res, 200, "Notificación/Alerta eliminada", notificacion);
@@ -91,7 +91,7 @@ export async function createNotificacionAlerta(req, res) {
         const { error } = notificacion_alertaBodyValidation.validate(body);
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
-        const [notificacion, errorNotificacion] = await createNotifacionAlertaService(body);
+        const [notificacion, errorNotificacion] = await createNotificacionAlertaService(body);
         if (errorNotificacion) return handleErrorClient(res, 404, "Error creando Notificación/Alerta", errorNotificacion);
 
         handleSuccess(res, 201, "Notificación/Alerta creada correctamente", notificacion);

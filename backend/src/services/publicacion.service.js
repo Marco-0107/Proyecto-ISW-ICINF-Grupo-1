@@ -53,7 +53,7 @@ export async function updatePublicacionService(query, body) {
             titulo: body.titulo,
             tipo: body.tipo,
             contenido: body.contenido,
-            fecha_publicación: new Date(),
+            fecha_publicacion: new Date(),
             estado: body.estado,
             fechaActualizacion: new Date(),
         };
@@ -81,7 +81,7 @@ export async function deletePublicacionService(query) {
     const publicacionRepository = AppDataSource.getRepository(Publicacion);
 
     const publicacionFound = await publicacionRepository.findOne({
-      where: { id_publicacion: id_publicacion }
+      where: { id_publicacion }
     });
 
     if (!publicacionFound) return [null, "Publicación no encontrada"];
@@ -105,6 +105,7 @@ export async function createPublicacionService(body) {
             contenido: body.contenido,
             fecha_publicacion: new Date(),
             estado: body.estado || "pendiente",
+            fechaActualizacion: new Date()
         });
 
         await publicacionRepository.save(newPublicacion);

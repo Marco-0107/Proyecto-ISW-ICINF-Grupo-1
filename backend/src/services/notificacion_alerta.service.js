@@ -105,7 +105,6 @@ export async function createNotificacionAlertaService(body) {
             titulo: body.titulo,
             descripcion: body.descripcion,
             tipo: body.tipo,
-            contenido: body.contenido,
             fecha: new Date(),
             estado_visualizacion: body.estado_visualizacion,
             fechaActualizacion: new Date(),

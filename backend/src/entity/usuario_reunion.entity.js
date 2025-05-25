@@ -13,10 +13,12 @@ const UsuarioReunion=new EntitySchema({
             primary: true
         },
         id_token:{
-            type: "int"
+            type: "int",
+            nullable: true
         },
         asistio:{
-            type: "boolean"
+            type: "boolean",
+            nullable: true
         },
         fecha_confirmacion_asistencia:{
             type: "date",

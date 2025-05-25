@@ -40,7 +40,7 @@ export async function getCuotaVecinal(req, res) {
         const [cuotas, errorCuotas] = await getcuotas_vecinalesService();
         if(errorCuotas) return handleErrorClient(res, 404, errorCuotas)
 
-        publicaciones.length === 0
+        cuotas.length === 0
         ? handleSuccess(res, 204)
         : handleSuccess(res, 200, "Cuotas encontradas", cuotas);
     } catch (error) {
@@ -62,7 +62,7 @@ export async function updateCuotaVecinal(req, res) {
         const [cuota, errorUpdateCuota] = await updatecuotas_vecinalesService({ id_cuota }, body);
         if (errorUpdateCuota) return handleErrorClient(res, 400, "Error actualizando la Cuota", errorUpdateCuota);
 
-        handleSuccess(res, 200, "Cuota actualizada", cuota);Delete
+        handleSuccess(res, 200, "Cuota actualizada", cuota);
     }catch (error) {
         handleErrorServer(res, 500, error.message);
     }

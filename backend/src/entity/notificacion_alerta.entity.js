@@ -1,4 +1,4 @@
-"use stric";
+"use strict";
 import {EntitySchema} from "typeorm";
 import Usuario from "../entity/user.entity.js";
 const Notificacion=new EntitySchema({
@@ -25,10 +25,14 @@ const Notificacion=new EntitySchema({
             type:"date",
             nullable:true
         },
+        fechaActualizacion:{
+            type:"date",
+            nullable:false
+        },
         estado_visualizacion:{
             type:"varchar",
             length:64
-        },
+        }
     },
     relations:{
         User:{

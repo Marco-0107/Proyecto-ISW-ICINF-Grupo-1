@@ -32,6 +32,10 @@ const Publicacion = new EntitySchema({
       type:"varchar",
       length:50
     },
+    fechaActualizacion:{
+      type:"date",
+      nullable: false
+    }
   },
   relations:{
     usuario:{

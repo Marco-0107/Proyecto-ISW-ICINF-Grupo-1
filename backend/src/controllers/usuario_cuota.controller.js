@@ -37,9 +37,10 @@ export async function getUsuarioCuota(req, res) {
 // Actualiza el estado de pago de una cuota para un usuario
 export async function UpdateEstadoPagoCuota(req, res) {
     try {
-        const { estado_pago } = req.body;
+        
+        const { id, id_cuota, estado_pago } = req.body;
 
-        const { error: queryError } = usuarioCuotaQueryValidation.validate({ id, id_cuota });
+        const { error: queryError } = usuarioCuotaQueryValidation.validate({ id, id_cuota, estado_pago });
 
         if (queryError) return handleErrorClient(res, 400, "Error en consulta", queryError.message);
 

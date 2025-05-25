@@ -14,8 +14,7 @@ const UsuarioCuota = new EntitySchema({
             primary: true
         },
         estado_pago: {
-            type: "varchar", //podria ser boolean?
-            length:50
+            type: "boolean", 
         },
     },
     relations:{
@@ -23,7 +22,7 @@ const UsuarioCuota = new EntitySchema({
             type: "many-to-one",
             target: "User",
             joinColumn:{
-                name:"id"
+            name:"id"
             },
             primary:true,
         },
@@ -31,7 +30,7 @@ const UsuarioCuota = new EntitySchema({
             type: "many-to-one",
             target: "cuotas_vecinales",
             joinColumn:{
-                name:"id_cuota"
+            name:"id_cuota"
             },
             primary:true,
         },

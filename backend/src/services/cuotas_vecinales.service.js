@@ -1,7 +1,7 @@
 "use strict";
 import Cuota from "../entity/cuotas_vecinales.entity.js";
 import Usuario from "../entity/user.entity.js";
-import UsuarioCuota from "../entity/Usuario_cuota.entity.js";
+import UsuarioCuota from "../entity/usuario_cuota.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
 // Obtener una cuota por ID
@@ -46,7 +46,7 @@ export async function updatecuotas_vecinalesService(query, body) {
         const cuotaRepository = AppDataSource.getRepository(Cuota);
 
         const cuotaFound = await cuotaRepository.findOne({
-        where: { id_reunion }
+        where: { id_cuota }
         });
 
         if (!cuotaFound) return [null, "Cuota no encontrada"];
@@ -78,6 +78,7 @@ export async function deletecuotas_vecinalesService(query) {
         const { id_cuota } = query;
 
         const cuotaRepository = AppDataSource.getRepository(Cuota);
+        const ucRepository = AppDataSource.getRepository(UsuarioCuota);
 
         const cuotaFound = await cuotaRepository.findOne({
         where: { id_cuota: id_cuota }
@@ -85,16 +86,18 @@ export async function deletecuotas_vecinalesService(query) {
 
         if (!cuotaFound) return [null, "Cuota no encontrada"];
 
+        await ucRepository.delete({ id_cuota });
+
         const deletedCuota = await cuotaRepository.remove(cuotaFound);
 
         return [deletedCuota, null];
     } catch (error) {
-        console.error("Error al eliminar la cuota:", error);
+        console.error("Error al eliminar la cuota, primero debe ser eliminada de usuario_cuota:", error);
         return [null, "Error interno del servidor"];
     }
 }
 // Crear Cuota y asignarla a todos los vecinos
-export async function createcuotas_vecinalesService(data) {
+export async function createcuotas_vecinalesService(body) {
         const cuotaRepository = AppDataSource.getRepository(Cuota);
         const UsuarioRepository = AppDataSource.getRepository(Usuario)
         const ucRepository = AppDataSource.getRepository(UsuarioCuota)
@@ -105,7 +108,7 @@ export async function createcuotas_vecinalesService(data) {
 
         const newCuota = cuotaRepository.create ({
             monto_c: body.monto_c,
-            fecha_emision: body.fecha_emision,
+            fecha_emision: new Date(),
             fechaActualizacion: new Date(),
         });
         const saveCuota = await cuotaRepository.save(newCuota);
@@ -118,9 +121,9 @@ export async function createcuotas_vecinalesService(data) {
         const asignar_cuota= vecinos_habilitados.map(vecino => { 
         
         return ucRepository.create({        //Recorro mi array uno por uno con el .map luego para cada vecino creamos un UsuarioCuota 
-            id_usuario: vecino.id_usuario,
+            id: vecino.id,
             id_cuota: saveCuota.id_cuota,
-            estado_pago: "pendiente",
+            estado_pago: "false",
             });
         });
 

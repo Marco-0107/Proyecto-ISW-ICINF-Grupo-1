@@ -15,6 +15,6 @@ router
 
 router
   .get("/detail/", getUsuarioCuota)
-  .patch("/detail/", UpdateEstadoPagoCuota);
+  .patch("/", UpdateEstadoPagoCuota);
 
 export default router;

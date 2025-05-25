@@ -17,6 +17,10 @@ const CuotasVecinales=new EntitySchema({
             type: "date",
             nullable: false
         },
+        fechaActualizacion:{
+            type: "date",
+            nullable: false
+        }
     },
 });
 export default CuotasVecinales;

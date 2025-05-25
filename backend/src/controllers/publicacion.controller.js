@@ -59,23 +59,23 @@ export async function updatePublicacion(req, res) {
         const { error: bodyError } = publicacionBodyValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
-        const [publicacion, errorUpdatePub] = await updatePublicacionesService({ id_publicacion }, body);
+        const [publicacion, errorUpdatePub] = await updatePublicacionService({ id_publicacion }, body);
         if (errorUpdatePub) return handleErrorClient(res, 400, "Error actualizando publicacion", errorUpdatePub);
 
         handleSuccess(res, 200, "Publicacion actualizada", publicacion);
     }catch (error) {
         handleErrorServer(res, 500, error.message);
-    }Delete
+    }
 }
 // Eliminar una públicacion
 export async function deletePublicacion(req, res) {
     try{
         const { id_publicacion } = req.query;
 
-        const { error } = publicacionQueryValidation.validate({ id });
+        const { error } = publicacionQueryValidation.validate({ id_publicacion });
         if (error) return handleErrorClient(res, 400, "Errror en consulta", error.message);
 
-        const [publicacion, errorDeletePub] = await deletePublicacionService({ id });
+        const [publicacion, errorDeletePub] = await deletePublicacionService({ id_publicacion });
         if (errorDeletePub) return handleErrorClient(res, 400, "Error eliminando la publicación", errorDeletePub);
 
         handleSuccess(res, 200, "Publicación eliminada", publicacion);

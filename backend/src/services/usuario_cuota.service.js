@@ -1,4 +1,4 @@
-//import UsuarioCuota from "../entity/usuario_cuota.entity.js";
+import UsuarioCuota from "../entity/usuario_cuota.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
 // Obtengo registro de cuota asignada a un usuario
@@ -28,7 +28,7 @@ export async function actualizarEstadoPagoCuotaService({ id, id_cuota, estado_pa
 
         registroFound.estado_pago = estado_pago;
 
-        const actualizado = await repo.save(registro);
+        const actualizado = await UcRepository.save(registroFound);
 
         return [actualizado, null];
 

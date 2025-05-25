@@ -11,12 +11,12 @@ export const notificacion_alertaQueryValidation = Joi.object({
         "integer.positive": "El id de la notificación debe ser positivo"
     }),
     titulo: Joi.string()
-    .min(50)
+    .min(3)
     .max(250)
     .messages({
         "string.empty": "El titulo no puede estar vacío",
         "string.base": "El titulo debe ser tipo Varchar",
-        "string.min": "El titulo debe tener como mínimo 50 caracteres",
+        "string.min": "El titulo debe tener como mínimo 3 caracteres",
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
@@ -59,12 +59,12 @@ export const notificacion_alertaBodyValidation = Joi.object({
         "integer.positive": "El id de la notificación debe ser positivo"
     }),
     titulo: Joi.string()
-    .min(50)
+    .min(3)
     .max(250)
     .messages({
         "string.empty": "El titulo no puede estar vacío",
         "string.base": "El titulo debe ser tipo Varchar",
-        "string.min": "El titulo debe tener como mínimo 50 caracteres",
+        "string.min": "El titulo debe tener como mínimo 3 caracteres",
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
@@ -114,14 +114,11 @@ export const notificacion_alertaBodyValidation = Joi.object({
         "number.integer": "El id debe ser un número entero.",
         "number.positive": "El id debe ser un número positivo.",
     })
-}).or(
-    "id_notificacion",  
+}).or(  
     "titulo",
     "descripción",
     "tipo",
-    "fecha",
-    "estado_visualizacion",
-    "id_usuario",
+    "estado_visualizacion"
   )
   .unknown(false)
   .messages({
