@@ -2,7 +2,7 @@
 import Joi from "joi";
 
 export const usuarioConvocatoriaQueryValidation = Joi.object({
-    id_usuario: Joi.number()
+    id: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -21,7 +21,7 @@ export const usuarioConvocatoriaQueryValidation = Joi.object({
 })
 
 export const usuarioConvocatoriaBodyValidation = Joi.object({
-    id_usuario: Joi.number()
+    id: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -38,7 +38,7 @@ export const usuarioConvocatoriaBodyValidation = Joi.object({
         "integer.positive": "El id de la convocatoria debe ser positivo"       
     })
 }).or(
-    "id_usuario",
+    "id",
     "id_convocatoria",
   )
   .unknown(false)

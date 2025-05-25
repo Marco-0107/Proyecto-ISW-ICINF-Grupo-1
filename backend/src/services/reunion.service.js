@@ -125,9 +125,12 @@ export async function createReunionService(body) {
         // Asignar la reunion a todos los vecinos
         const asignar_reunion= vecinos_habilitados.map(vecino => { 
         
-        return urRepository.create({        //Recorro mi array uno por uno con el .map luego para cada vecino creamos un UsuarioCuota 
+        return urRepository.create({        //Recorro mi array uno por uno con el .map luego para cada vecino creamos un UsuarioReunion 
             id: vecino.id,
-            id_reunion: saveReunion.id_reunion
+            id_reunion: saveReunion.id_reunion,
+            asistio: "false",
+            id_token: null,
+            fecha_confirmacion_asistencia: new Date()
             });
         });
 
@@ -137,42 +140,5 @@ export async function createReunionService(body) {
     } catch(error) {
             console.error("Error al asignar la reunión:", error);
         return [null, "Error interno del servidor:"];
-    }
-}
-
-//Registrar asistencia a una reunion con token  (Funcion adicional a las básicas)
-
-export async function registrarAsistenciaService(query) {
-    try{
-        const {id_usuario, id_reunion, numero_token} = query;
-
-        const urRepository = AppDataSource.getRepository(UsuarioReunion);
-        const tokenRepository = AppDataSource.getRepository(Token);
-
-        //Verifico que el token sea valido
-        const tokenFound = await tokenRepository.findOne({
-            where: [{ numero_token: numero_token }, { id_reunion: id_reunion }],
-        });
-
-        if (!tokenFound) return [null, "Token inválido o proceso de asistencia cerrado."];
-        
-        //Verificar si el usuario se encuentra habilitado para marcar asistencia.
-        const urFound = await urRepository.findOne({
-            where: [{ id_usuario: id_usuario }, { id_reunion: id_reunion }],
-        });
-        if (!urFound) return [null, "Usuario no habilitado para reunión"];
-
-        //verificar si el usuario ya marco asistencia.
-        if (urFound.asistio) return [null, "Usuario ya registro su asistencia anteiormente"];
-
-        //Marcar asistencia.
-        urFound.asistio = true;
-        urFound.fecha_confirmacion_asistencia = new Date();
-        urFound.id_token = tokenFound.id_token;
-
-        const asistenciaConfirmada = await urRepository.save(urFound);
-        return [asistenciaConfirmada, null];
-    } catch {
-        return [null, error.messsage];
     }
 }

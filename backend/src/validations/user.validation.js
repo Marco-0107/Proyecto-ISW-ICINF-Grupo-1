@@ -182,8 +182,8 @@ export const userBodyValidation = Joi.object({
     })
 })
   .or(
-    "nombres",
-    "apellidos",
+    "nombre",
+    "apellido",
     "email",
     "password",
     "newPassword",

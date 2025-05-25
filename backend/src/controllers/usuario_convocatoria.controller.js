@@ -44,7 +44,7 @@ export async function inscribirUsuarioEnConvocatoria(req, res) {
 
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [registro, errorCreateUConv] = await createUsuarioConvocatoriaService(req.body);
+        const [registro, errorCreateUConv] = await inscribirUsuarioEnConvocatoriaService(req.body);
 
         if (errorCreateUConv) return handleErrorClient(res, 400, errorCreateUConv);
 
@@ -63,7 +63,7 @@ export async function eliminarInscripcionConvocatoria(req, res) {
 
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [eliminado, errorDeleteUConv] = await deleteUsuarioConvocatoriaService({ id, id_convocatoria });
+        const [eliminado, errorDeleteUConv] = await eliminarInscripcionConvocatoriaService({ id, id_convocatoria });
         
         if (errorDeleteUConv) return handleErrorClient(res, 400, errorDeleteUConv);
 

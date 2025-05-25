@@ -5,8 +5,7 @@ import {
    getReunionesService,
    updateReunionService,
    deleteReunionService,
-   createReunionService,
-   registrarAsistenciaService,
+   createReunionService
 } from "../services/reunion.service.js";
 
 import {
@@ -100,22 +99,6 @@ export async function createReunion(req, res) {
         if (errorCreateReunion) return handleErrorClient(res, 404, "Error creando reunión", errorCreateReunion);
 
         handleSuccess(res, 201, "Reunión creada correctamente", reunion);
-    } catch (error) {
-        handleErrorServer(res, 500, error.message);
-    }
-}
-
-export async function registrarAsistencia(req, res) {
-    try{
-        const { body } = req;
-
-        const { error } = asistenciaBodyValidation.validate(body);
-        if (error) return handleErrorClient(res, 400, error.message);
-
-        const [asistencia, errorAsistencia] = await registrarAsistenciaService(body);
-        if (errorAsistencia) return handleErrorClient(res, 400, "Error registrando la asistencia", errorAsistencia);
-
-        handleSuccess(res, 200, "Asistencia registrada correctamente", asistencia);        
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }

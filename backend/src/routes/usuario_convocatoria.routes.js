@@ -15,8 +15,8 @@ router
     .use(isAdmin);
 
 router
-    .get("/detail/", getUsuarioConvocatoria)
-    .delete("/detail/", eliminarInscripcionConvocatoria)
+    .get("/detail/", getUsuarioConvocatoria) //id's en ruta
+    .delete("/detail/", eliminarInscripcionConvocatoria) //id's en ruta
     .post("/", inscribirUsuarioEnConvocatoria);
 
 export default router;

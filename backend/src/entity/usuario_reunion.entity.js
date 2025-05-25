@@ -16,13 +16,16 @@ const UsuarioReunion=new EntitySchema({
             type: "int",
             nullable: true
         },
+        numero_token:{
+            type:"int",
+            nullable:true
+        },
         asistio:{
             type: "boolean",
-            nullable: true
         },
         fecha_confirmacion_asistencia:{
             type: "date",
-            nullable: true      //  true???
+            nullable: true
         },
     },
     relations:{

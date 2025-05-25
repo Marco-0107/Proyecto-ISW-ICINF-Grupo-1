@@ -32,6 +32,6 @@ const UsuarioConvocatoria=new EntitySchema({
             },
             primary:true,
         },
-    },
+    }
 });
 export default UsuarioConvocatoria;

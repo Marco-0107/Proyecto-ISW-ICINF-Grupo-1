@@ -7,8 +7,7 @@ import {
   getReunion,
   getReuniones,
   updateReunion,
-  createReunion,
-  registrarAsistencia
+  createReunion
 } from "../controllers/reunion.controller.js";
 
 const router=Router();
@@ -23,5 +22,4 @@ router
     .patch("/detail/", updateReunion)
     .delete("/detail/", deleteReunion)
     .post("/", createReunion)
-    .post("/", registrarAsistencia);
 export default router;

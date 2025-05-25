@@ -1,8 +1,8 @@
 "use strict";
 import {
   getUsuarioReunionService,
-  asignarUsuarioAReunionService,
   marcarAsistenciaManualService,
+  registrarAsistenciaService
 } from "../services/usuario_reunion.service.js";
 
 import {
@@ -35,23 +35,6 @@ export async function getUsuarioReunion(req, res) {
     }
 }
 
-// Asigna un usuario a una reunión de manera manual
-export async function asignarUsuarioAReunion(req, res) {
-    try {
-        const { error } = usuarioReunionBodyValidation.validate(req.body);
-
-        if (error) return handleErrorClient(res, 400, error.message);
-
-        const [registro, errorAsignar] = await asignarUsuarioAReunionService(req.body);
-
-        if (errorAsignar) return handleErrorClient(res, 400, errorAsignar);
-
-        handleSuccess(res, 201, "Usuario asignado correctamente", registro);
-    } catch (error) {
-        handleErrorServer(res, 500, error.message);
-    }
-}
-
 // Marca asistencia manualmente (usado por presidenta si es necesario)
 export async function marcarAsistenciaManual(req, res) {
     try {
@@ -62,6 +45,22 @@ export async function marcarAsistenciaManual(req, res) {
         if (errorAsistenciaManual) return handleErrorClient(res, 400, error);
 
         handleSuccess(res, 200, "Asistencia marcada manualmente", registro);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
+}
+
+export async function registrarAsistencia(req, res) {
+    try{
+        const { body } = req;
+
+        const { error } = usuarioReunionBodyValidation.validate(body);
+        if (error) return handleErrorClient(res, 400, error.message);
+
+        const [asistencia, errorAsistencia] = await registrarAsistenciaService(body);
+        if (errorAsistencia) return handleErrorClient(res, 400, "Error registrando la asistencia", errorAsistencia);
+
+        handleSuccess(res, 200, "Asistencia registrada correctamente", asistencia);        
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }

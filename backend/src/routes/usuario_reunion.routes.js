@@ -4,8 +4,8 @@ import { isAdmin } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   getUsuarioReunion,
-  asignarUsuarioAReunion,
-  marcarAsistenciaManual
+  marcarAsistenciaManual,
+  registrarAsistencia
 } from "../controllers/usuario_reunion.controller.js";
 
 const router= Router();
@@ -17,6 +17,6 @@ router
 router
   .get("/detail/", getUsuarioReunion)
   .patch("/detail/", marcarAsistenciaManual)
-  .post("/detail/", asignarUsuarioAReunion);
+  .post("/", registrarAsistencia)
 
 export default router;

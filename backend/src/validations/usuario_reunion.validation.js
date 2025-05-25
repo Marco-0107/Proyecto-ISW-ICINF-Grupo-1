@@ -2,7 +2,7 @@
 import Joi from "joi";
 
 export const usuarioReunionQueryValidation = Joi.object({
-    id_usuario: Joi.number()
+    id: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -38,7 +38,7 @@ export const usuarioReunionQueryValidation = Joi.object({
 })
 
 export const usuarioReunionBodyValidation = Joi.object({
-     id_usuario: Joi.number()
+     id: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -67,6 +67,14 @@ export const usuarioReunionBodyValidation = Joi.object({
       "boolean.empty": "El estado de actividad no puede estar vacío",
       "boolean.base": "El estado de actividad debe ser de tipo boolean"
     }),
+    numero_token: Joi.number()
+        .integer()
+        .positive()
+        .messages({
+            "String.empty": "El numero de token no puede estar vacío",
+            "String.base": "El numero de token debe ser de tipo entero",
+            "String.positive": "El numero de token debe ser positivo"
+        }),
     fecha_confirmacion_asistencia: Joi.date()
     .iso()
     .max("now")
@@ -77,9 +85,10 @@ export const usuarioReunionBodyValidation = Joi.object({
         "Date.max": "La fecha de confirmación no puede tomar fechas posteriores a la actual"
     })
 }).or(
-    "id_usuario",
+    "id",
     "id_reunion",
     "id_token",
+    "numero_token",
     "asitio",
     "fecha_confirmacion_asistencia"
   )
