@@ -43,19 +43,18 @@ export async function updateMovimientoFinancieroService(query, body) {
 
         const mfRepository = AppDataSource.getRepository(MovimientoFinanciero);
 
-        const movimiento = await publicacionRepository.findOne({
+        const movimiento = await mfRepository.findOne({
         where: { id_movimiento }
         });
 
-    if (!movFound) return [null, "Movimiento no encontrado"];
+    if (!movimiento) return [null, "Movimiento no encontrado"];
 
         const dataUpdate = {
-            tipo: body.tipo,
             monto: body.monto,
             descripcion: body.descripcion,
             fecha_movimiento: body.fecha_movimiento,
-            estado: body.estado,
-            forma_pago: body.forma_pago,
+            tipo_transaccion: body.tipo_transaccion,
+            paga: body.paga,
             fechaActualizacion: new Date(),
         };
     
@@ -101,12 +100,11 @@ export async function createMovimientoFinancieroService(body) {
         const mfRepository = AppDataSource.getRepository(MovimientoFinanciero);
 
         const newMovimiento = mfRepository.create ({
-            tipo: body.tipo,
             monto: body.monto,
             descripcion: body.descripcion,
             fecha_movimiento: body.fecha_movimiento,
-            estado: body.estado,
-            forma_pago: body.forma_pago,
+            tipo_transaccion: body.tipo_transaccion,
+            paga: body.paga,
             fechaActualizacion: new Date(),
         });
 

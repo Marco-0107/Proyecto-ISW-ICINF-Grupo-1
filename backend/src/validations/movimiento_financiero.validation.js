@@ -29,7 +29,7 @@ export const movimiento_financieroQueryValidation = Joi.object({
         "String.min": "El estado debe contener más de 3 caracteres",
         "String.max": "El estado no debe contener más de 50 caracteres"
     }),
-    id_usuario: Joi.number()
+    id: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -96,9 +96,10 @@ export const movimiento_financieroBodyValidation = Joi.object({
         "String.min": "El estado debe contener más de 3 caracteres",
         "String.max": "El estado no debe contener más de 50 caracteres"
     }),
-    id_usuario: Joi.number()
+    id: Joi.number()
     .integer()
     .positive()
+    //.required()
     .messages({
       "number.base": "El id debe ser un número.",
       "number.integer": "El id debe ser un número entero.",
@@ -119,9 +120,9 @@ export const movimiento_financieroBodyValidation = Joi.object({
     "descripción",
     "fecha_movimiento",
     "estado",
-    "forma_pago",
+    //"forma_pago",
   )
-  .unknown(false)
+  .unknown(true)
   .messages({
     "object.unknown": "No se permiten propiedades adicionales.",
     "object.missing":

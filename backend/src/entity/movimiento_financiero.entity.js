@@ -10,10 +10,6 @@ const MovimientoFinanciero=new EntitySchema({
             primary:true,
             generated:true
         },
-        tipo_movimiento:{
-            type: "varchar",
-            length: 50
-        },
         monto:{
             type:"int"
         },
@@ -24,12 +20,16 @@ const MovimientoFinanciero=new EntitySchema({
             type:"date",
             nullable:false
         },
-        estado:{
+        tipo_transaccion:{
             type:"varchar",
             length:50
         },
         paga:{
             type:"boolean"
+        },
+        fechaActualizacion:{
+            type:"date",
+            nullable:false
         },
     },
     relations:{
@@ -39,6 +39,7 @@ const MovimientoFinanciero=new EntitySchema({
             joinColumn:{
                 name: "id"
             },
+            primary:true,
         },
         cuota:{
             type:"many-to-one",
@@ -46,7 +47,7 @@ const MovimientoFinanciero=new EntitySchema({
             joinColumn:{
                 name:"id_cuota"
             },
-            nullable:true,
+            primary:true,
         },
     },
 });
