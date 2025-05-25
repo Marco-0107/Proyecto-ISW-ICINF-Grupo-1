@@ -11,12 +11,12 @@ export const convocatoriaQueryValidation = Joi.object({
         "integer.positive": "El id de la convocatoria debe ser positivo"       
     }), 
     titulo: Joi.string()
-    .min(50)
+    .min(5)
     .max(250)
     .messages({
         "string.empty": "El titulo no puede estar vacío",
         "string.base": "El titulo debe ser tipo Varchar",
-        "string.min": "El titulo debe tener como mínimo 50 caracteres",
+        "string.min": "El titulo debe tener como mínimo 5 caracteres",
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     }),
@@ -48,7 +48,7 @@ export const convocatoriaBodyValidation = Joi.object({
         "integer.positive": "El id de la convocatoria debe ser positivo"       
     }), 
     titulo: Joi.string()
-    .min(50)
+    .min(5)
     .max(250)
     .messages({
         "string.empty": "El titulo no puede estar vacío",
@@ -91,15 +91,11 @@ export const convocatoriaBodyValidation = Joi.object({
         "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
         "date.greater": "La fecha de cierre no puede ser anterior a la fecha de inicio"
     }),
-    estado: Joi.string()
-    .min(3)
-    .max(50)
-    .messages({
-        "String.empty": "El estado no puede estar vacío",
-        "String.base": "El estado debe ser de tipo Varchar",
-        "String.min": "El estado debe contener más de 3 caracteres",
-        "String.max": "El estado no debe contener más de 50 caracteres"
-    })
+    estado: Joi.boolean()
+        .messages({
+          "boolean.empty": "El estado de la convocatoria no puede estar vacío",
+          "boolean.base": "El estado de la convocatoria debe ser de tipo boolean"
+        }),
 }).or(
     "id_publicacion",
     "titulo",

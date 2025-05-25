@@ -50,8 +50,8 @@ export async function updateconvocatoriaService(query, body) {
         if (!convocatoriaFound) return [null, "Convocataria no encontrada"];
 
         const dataUpdate = {
-            titulo: body.monto_c,
-            descripcion: body.fecha_emision,
+            titulo: body.titulo,
+            descripcion: body.descripcion,
             requisitos: body.requisitos,
             fecha_inicio: body.fecha_inicio,
             fecha_cierre: body.fecha_cierre,
@@ -61,14 +61,9 @@ export async function updateconvocatoriaService(query, body) {
     
         await convocatoriaRepository.update({ id_convocatoria }, dataUpdate);
 
-        const updatedConvocatoria = await convocatoriaRepository.findOne({
-        where: { id_convocatoria },
-        });
+        
 
-        if (!updatedConvocatoria)
-        return [null, "Convocatoria no econtrada despúes de actualizar"];
-
-        return [updatedConvocatoria, null];
+        return [dataUpdate, null];
     } catch (error){
         console.error("Error al actualizar la Convocatoria:", error);
         return [null, "Error interno del servidor"];
@@ -96,12 +91,12 @@ export async function deleteconvocatoriaService(query) {
     }
 }
 // Crear Convocatoria
-export async function createconvocatoriaService(data) {
+export async function createconvocatoriaService(body) {
     try{
         const convocatoriaRepository = AppDataSource.getRepository(Convocatoria);
         const newConvocatoria = convocatoriaRepository.create ({
-            titulo: body.monto_c,
-            descripcion: body.fecha_emision,
+            titulo: body.titulo,
+            descripcion: body.descripcion,
             requisitos: body.requisitos,
             fecha_inicio: body.fecha_inicio,
             fecha_cierre: body.fecha_cierre,

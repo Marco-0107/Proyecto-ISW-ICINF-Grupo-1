@@ -30,9 +30,12 @@ const Convocatoria = new EntitySchema({
             type: "date",
             nullable: false
         },
+        fechaActualizacion:{
+            type:"date",
+            nullable:false
+        },
         estado:{
-            type: "varchar",
-            length: 50
+            type: "boolean"
         },
     },
 });
