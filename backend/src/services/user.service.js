@@ -153,7 +153,7 @@ export async function createUserService(body) {
       telefono: body.telefono,
       password: hashedPassword,
       estado_activo: body.estado_activo, 
-      fecha_registro: body.fecha_registro,
+      fecha_registro: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
     });

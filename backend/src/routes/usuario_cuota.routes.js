@@ -14,7 +14,7 @@ router
   .use(isAdmin);
 
 router
-  .get("/detail/", getUsuarioCuota)
-  .patch("/", UpdateEstadoPagoCuota);
+  .get("/detail/", getUsuarioCuota) //id's en ruta
+  .patch("/", UpdateEstadoPagoCuota);//id's en ruta
 
 export default router;

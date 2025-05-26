@@ -24,13 +24,19 @@ const MovimientoFinanciero=new EntitySchema({
             type:"varchar",
             length:50
         },
-        paga:{
-            type:"boolean"
-        },
         fechaActualizacion:{
             type:"date",
             nullable:false
         },
+        id: {
+            type: "int",
+            nullable: true,
+        },
+        id_cuota: {
+            type: "int",
+            nullable: true,
+}
+
     },
     relations:{
         User:{

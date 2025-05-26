@@ -24,3 +24,5 @@ router
   .post("/", createUser);
 
 export default router;
+
+

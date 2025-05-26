@@ -54,7 +54,6 @@ export async function updateMovimientoFinancieroService(query, body) {
             descripcion: body.descripcion,
             fecha_movimiento: body.fecha_movimiento,
             tipo_transaccion: body.tipo_transaccion,
-            paga: body.paga,
             fechaActualizacion: new Date(),
         };
     
@@ -104,7 +103,6 @@ export async function createMovimientoFinancieroService(body) {
             descripcion: body.descripcion,
             fecha_movimiento: body.fecha_movimiento,
             tipo_transaccion: body.tipo_transaccion,
-            paga: body.paga,
             fechaActualizacion: new Date(),
         });
 
@@ -116,3 +114,4 @@ export async function createMovimientoFinancieroService(body) {
         return [null, "Error interno del servidor:"];
     }
 }
+
