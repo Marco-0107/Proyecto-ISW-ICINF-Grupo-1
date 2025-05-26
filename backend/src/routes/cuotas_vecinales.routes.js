@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   deleteCuotaVecinal,
@@ -12,15 +12,13 @@ import {
 
 const router = Router();
 
-router
-  .use(authenticateJwt)
-  .use(isAdmin);
+router.use(authenticateJwt);
 
 router
-  .get("/", getCuotasVecinales)
-  .get("/detail/", getCuotaVecinal)
-  .patch("/detail/", updateCuotaVecinal)
-  .delete("/detail/", deleteCuotaVecinal)
-  .post("/", createCuotaVecinal);
+  .get("/", authorizeRoles("admin", "presidente", "secretario", "tesorera"), getCuotasVecinales)
+  .get("/detail/", authorizeRoles("admin", "presidente", "secretario", "tesorera"), getCuotaVecinal)
+  .patch("/detail/", authorizeRoles("presidenta", "tesorera"),updateCuotaVecinal)
+  .delete("/detail/", authorizeRoles("admin"), deleteCuotaVecinal)
+  .post("/", authorizeRoles("tesorera", "presidenta"), createCuotaVecinal);
 
 export default router;

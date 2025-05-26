@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js"; 
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   deleteNotificacionAlerta,
@@ -12,15 +12,13 @@ import {
 
 const router = Router();
 
-router
-  .use(authenticateJwt)
-  .use(isAdmin);
+router.use(authenticateJwt);
 
 router
-  .get("/", getNotificacionesAlertas)
-  .get("/detail/", getNotificacionAlerta)
-  .patch("/detail/", updateNotificacionAlerta)
-  .delete("/detail/", deleteNotificacionAlerta)
-  .post("/", createNotificacionAlerta);
+  .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getNotificacionesAlertas)
+  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getNotificacionAlerta)
+  .patch("/detail/", authorizeRoles("presidenta"), updateNotificacionAlerta)
+  .delete("/detail/", authorizeRoles("admin"), deleteNotificacionAlerta)
+  .post("/", authorizeRoles("presidenta"), createNotificacionAlerta);
 
 export default router;

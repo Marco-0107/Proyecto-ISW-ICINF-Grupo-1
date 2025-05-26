@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import{
     eliminarInscripcionConvocatoria,
@@ -11,12 +11,11 @@ import{
 const router = Router();
 
 router
-    .use(authenticateJwt)
-    .use(isAdmin);
+    .use(authenticateJwt);
 
 router
-    .get("/detail/", getUsuarioConvocatoria) //id's en ruta
-    .delete("/detail/", eliminarInscripcionConvocatoria) //id's en ruta
-    .post("/", inscribirUsuarioEnConvocatoria);
+    .get("/detail/", authorizeRoles("vecino"), getUsuarioConvocatoria) //id's en ruta
+    .delete("/detail/", authorizeRoles("vecino"), eliminarInscripcionConvocatoria) //id's en ruta
+    .post("/", authorizeRoles("vecino"), inscribirUsuarioEnConvocatoria);
 
 export default router;
