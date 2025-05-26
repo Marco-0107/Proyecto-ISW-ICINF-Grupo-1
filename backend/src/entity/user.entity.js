@@ -1,19 +1,29 @@
 "use strict";
 import { EntitySchema } from "typeorm";
 
-const UserSchema = new EntitySchema({
+const User = new EntitySchema({
   name: "User",
-  tableName: "users",
+  tableName: "usuario",
   columns: {
     id: {
       type: "int",
       primary: true,
       generated: true,
     },
-    nombreCompleto: {
+    nombre: {
       type: "varchar",
       length: 255,
       nullable: false,
+    },
+    apellido: {
+      type: "varchar",
+      length: 255,
+      nullable: false,
+    },
+    direccion:{
+      type: "varchar",
+      length: 255,
+      nullable: false
     },
     rut: {
       type: "varchar",
@@ -21,31 +31,34 @@ const UserSchema = new EntitySchema({
       nullable: false,
       unique: true,
     },
+    telefono:{
+      type: "varchar",
+      length: 20,
+      nullable: false
+    },
     email: {
       type: "varchar",
       length: 255,
       nullable: false,
       unique: true,
     },
+    password: {
+      type: "varchar",
+      length: 255,
+      nullable: false
+    },
     rol: {
       type: "varchar",
       length: 50,
       nullable: false,
     },
-    password: {
-      type: "varchar",
+    estado_activo: {
+      type: "boolean",
       nullable: false,
     },
-    createdAt: {
-      type: "timestamp with time zone",
-      default: () => "CURRENT_TIMESTAMP",
-      nullable: false,
-    },
-    updatedAt: {
-      type: "timestamp with time zone",
-      default: () => "CURRENT_TIMESTAMP",
-      onUpdate: "CURRENT_TIMESTAMP",
-      nullable: false,
+    fecha_registro: {
+      type: "date",
+      nullable: false
     },
   },
   indices: [
@@ -67,4 +80,5 @@ const UserSchema = new EntitySchema({
   ],
 });
 
-export default UserSchema;
+
+export default (User);

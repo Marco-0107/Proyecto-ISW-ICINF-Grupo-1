@@ -71,11 +71,12 @@ export async function updateUserService(query, body) {
     }
 
     const dataUserUpdate = {
-      nombreCompleto: body.nombreCompleto,
+      nombre: body.nombre,
+      apellido: body.apellido,
+      direccion: body.direccion,
       rut: body.rut,
       email: body.email,
       rol: body.rol,
-      updatedAt: new Date(),
     };
 
     if (body.newPassword && body.newPassword.trim() !== "") {
@@ -124,6 +125,46 @@ export async function deleteUserService(query) {
     return [dataUser, null];
   } catch (error) {
     console.error("Error al eliminar un usuario:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
+
+export async function createUserService(body) {
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const existingUser = await userRepository.findOne({
+      where: [{ id: body.id }, { rut: body.rut }, { email: body.email }],
+    }); 
+
+    if (existingUser) {
+      return [null, "Ya existe un usuario con el mismo id, rut o email"];
+    }
+
+    // Encriptar la contraseña antes de guardar
+    const hashedPassword = await encryptPassword(body.password);
+
+    const newUser = userRepository.create({
+      nombre: body.nombre,
+      apellido: body.apellido,
+      direccion: body.direccion,
+      rut: body.rut,
+      email: body.email,
+      rol: body.rol,
+      telefono: body.telefono,
+      password: hashedPassword,
+      estado_activo: body.estado_activo, 
+      fecha_registro: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const userSaved = await userRepository.save(newUser);
+
+    const { password, ...userData } = userSaved;
+
+    return [userData, null];
+  } catch (error) {
+    console.error("Error al crear un usuario:", error);
     return [null, "Error interno del servidor"];
   }
 }
