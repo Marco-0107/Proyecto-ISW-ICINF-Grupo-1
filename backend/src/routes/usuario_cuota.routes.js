@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { authorizeRoles } from "../middlewares/authorization.middleware.js";
+import { authorizeRoles, soloPropietario } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   getUsuarioCuota,
