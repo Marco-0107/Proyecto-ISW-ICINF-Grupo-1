@@ -12,7 +12,7 @@ const router = Router();
 router.use(authenticateJwt);
 
 router
-  .get("/detail/", authorizeRoles("presidenta", "tesorera"), getUsuarioCuota) //id's en ruta
-  .patch("/", authorizeRoles("presidenta", "tesorera"), UpdateEstadoPagoCuota);//id's en ruta
+  .get("/detail/", authorizeRoles("admin", "presidenta", "tesorera", "vecino"),soloPropietario("id") ,getUsuarioCuota)//id's en ruta
+  .patch("/", authorizeRoles("admin", "presidenta", "tesorera"), UpdateEstadoPagoCuota);//id's en ruta
 
 export default router;

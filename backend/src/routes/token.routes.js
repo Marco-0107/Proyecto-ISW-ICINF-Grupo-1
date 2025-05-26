@@ -16,7 +16,7 @@ router.use(authenticateJwt);
 router
   .get("/", authorizeRoles("admin", "presidenta", "secretario"), getTokens)
   .get("/detail/", authorizeRoles("admin", "presidenta", "secretario"), getToken)
-  .patch("/detail/", authorizeRoles("presidenta"), closeTokens) 
-  .post("/", authorizeRoles("presidenta"), createToken);
+  .patch("/detail/", authorizeRoles("admin","presidenta"), closeTokens) 
+  .post("/", authorizeRoles("admin","presidenta"), createToken);
 
 export default router;

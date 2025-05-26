@@ -16,9 +16,9 @@ router
     .use(authenticateJwt);
 
 router
-    .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getReuniones)
-    .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getReunion)
-    .patch("/detail/", authorizeRoles("presidenta"),updateReunion)
-    .delete("/detail/", authorizeRoles("admin"), deleteReunion)
-    .post("/", authorizeRoles("presidenta", "admin", "vecino"), createReunion)
+    .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getReuniones)
+    .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getReunion)
+    .patch("/detail/", authorizeRoles("presidenta", "secretario"),updateReunion)
+    .delete("/detail/", authorizeRoles("admin", "presidenta", "secretario"), deleteReunion)
+    .post("/", authorizeRoles("presidenta", "admin"), createReunion)
 export default router;

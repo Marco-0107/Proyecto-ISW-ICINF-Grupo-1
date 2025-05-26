@@ -14,8 +14,8 @@ router
     .use(authenticateJwt);
 
 router
-    .get("/detail/", authorizeRoles("vecino"), getUsuarioConvocatoria) //id's en ruta
-    .delete("/detail/", authorizeRoles("vecino"), eliminarInscripcionConvocatoria) //id's en ruta
-    .post("/", authorizeRoles("vecino"), inscribirUsuarioEnConvocatoria);
+    .get("/detail/", authorizeRoles("admin", "vecino", "secretario"), getUsuarioConvocatoria) //id's en ruta
+    .delete("/detail/", authorizeRoles("admnin", "vecino", "secretario"), eliminarInscripcionConvocatoria) //id's en ruta
+    .post("/", authorizeRoles("admin", "vecino", "secretario"), inscribirUsuarioEnConvocatoria);
 
 export default router;

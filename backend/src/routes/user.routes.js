@@ -17,9 +17,9 @@ router.use(authenticateJwt);
 router
   .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera") ,getUsers)
   .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"),soloPropietario("id") ,getUser)
-  .patch("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), soloPropietario("id") ,updateUser)
+  .patch("/detail/", authorizeRoles("admin", "presidenta", "secretario", "vecino"), soloPropietario("id") ,updateUser)
   .delete("/detail/", authorizeRoles("admin") ,deleteUser)
-  .post("/", authorizeRoles("admin", "presidenta") ,createUser);
+  .post("/", authorizeRoles("admin") ,createUser);
 
 export default router;
 

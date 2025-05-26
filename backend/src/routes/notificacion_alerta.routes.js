@@ -17,8 +17,8 @@ router.use(authenticateJwt);
 router
   .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getNotificacionesAlertas)
   .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getNotificacionAlerta)
-  .patch("/detail/", authorizeRoles("presidenta"), updateNotificacionAlerta)
-  .delete("/detail/", authorizeRoles("admin"), deleteNotificacionAlerta)
-  .post("/", authorizeRoles("presidenta"), createNotificacionAlerta);
+  .patch("/detail/", authorizeRoles("admin","presidenta"), updateNotificacionAlerta)
+  .delete("/detail/", authorizeRoles("admin","presidente", "secretario", "tesorera"), deleteNotificacionAlerta)
+  .post("/", authorizeRoles("admin","presidente", "secretario", "tesorera", ), createNotificacionAlerta);
 
 export default router;

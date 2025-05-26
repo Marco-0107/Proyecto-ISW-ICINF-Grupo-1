@@ -17,8 +17,8 @@ router.use(authenticateJwt);
 router
   .get("/", authorizeRoles("admin", "presidenta", "tesorera"),getMovimientosFinancieros)
   .get("/detail/", authorizeRoles("admin", "presidenta", "tesorera"), getMovimientoFinanciero)
-  .patch("/detail/", authorizeRoles("presidenta", "tesorera") , updateMovimientoFinanciero)
-  .delete("/detail/", authorizeRoles("admin"), deleteMovimientoFinanciero)
-  .post("/", authorizeRoles("tesorera", "presidenta"), createMovimientoFinanciero);
+  .patch("/detail/", authorizeRoles("admin","presidenta", "tesorera") , updateMovimientoFinanciero)
+  .delete("/detail/", authorizeRoles("admin", "presidenta"), deleteMovimientoFinanciero)
+  .post("/", authorizeRoles("admin","tesorera", "presidenta"), createMovimientoFinanciero);
 
 export default router;

@@ -15,10 +15,10 @@ const router = Router();
 router.use(authenticateJwt);
 
 router
-  .get("/", authorizeRoles("admin", "presidente", "secretario", "tesorera"), getCuotasVecinales)
-  .get("/detail/", authorizeRoles("admin", "presidente", "secretario", "tesorera"), getCuotaVecinal)
-  .patch("/detail/", authorizeRoles("presidenta", "tesorera"),updateCuotaVecinal)
-  .delete("/detail/", authorizeRoles("admin"), deleteCuotaVecinal)
-  .post("/", authorizeRoles("tesorera", "presidenta"), createCuotaVecinal);
+  .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getCuotasVecinales)
+  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getCuotaVecinal)
+  .patch("/detail/", authorizeRoles("admin", "presidenta", "tesorera"),updateCuotaVecinal)
+  .delete("/detail/", authorizeRoles("admin", "presidenta", "tesorera"), deleteCuotaVecinal)
+  .post("/", authorizeRoles("admin","tesorera", "presidenta"), createCuotaVecinal);
 
 export default router;

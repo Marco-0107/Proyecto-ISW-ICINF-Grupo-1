@@ -14,7 +14,7 @@ router.use(authenticateJwt);
 
 router
   .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getUsuarioReunion)
-  .patch("/detail/", authorizeRoles("presidenta"), marcarAsistenciaManual)
-  .post("/", authorizeRoles("presidenta"), registrarAsistencia)
+  .patch("/detail/", authorizeRoles("admin", "presidenta", "secretaria"), marcarAsistenciaManual)
+  .post("/", authorizeRoles("admin", "presidenta" ), registrarAsistencia)
 
 export default router;

@@ -15,10 +15,10 @@ const router=Router();
 router.use(authenticateJwt);
 
 router
-    .get("/", authorizeRoles("admin", "presidenta", "tesorera"), getPublicaciones)
-    .get("/detail/", authorizeRoles("admin", "presidenta", "tesorera"), getPublicacion)
-    .patch("/detail/", authorizeRoles("presidenta"), updatePublicacion)
-    .delete("/detail/",authorizeRoles("admin"), deletePublicacion)
-    .post("/", authorizeRoles("presidenta"), createPublicacion);
+    .get("/", authorizeRoles("admin", "presidenta", "tesorera", "secretario", "vecino"), getPublicaciones)
+    .get("/detail/", authorizeRoles("admin", "presidenta", "tesorera", "secretario", "vecino"), getPublicacion)
+    .patch("/detail/", authorizeRoles("admin", "presidenta", "tesorera", "secretario"), updatePublicacion)
+    .delete("/detail/",authorizeRoles("admin", "presidenta", "tesorera", "secretario"), deletePublicacion)
+    .post("/", authorizeRoles("admin", "presidenta", "tesorera", "secretario"), createPublicacion);
 
 export default router;

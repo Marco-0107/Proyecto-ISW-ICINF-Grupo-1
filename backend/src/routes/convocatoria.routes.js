@@ -17,8 +17,8 @@ router.use(authenticateJwt);
 router
     .get("/", authorizeRoles("admin", "presidenta", "secretario", "vecino") ,getConvocatorias)
     .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "vecino") ,getConvocatoria)
-    .patch("/detail/", authorizeRoles("presidenta", "secretario") ,updateConvocatoria)
+    .patch("/detail/", authorizeRoles("admin", "presidenta", "secretario") ,updateConvocatoria)
     .delete("/detail/", authorizeRoles("admin") ,deleteConvocatoria)
-    .post("/", authorizeRoles("presidenta", "secretario"), createConvocatoria);
+    .post("/", authorizeRoles("admin","presidenta", "secretario"), createConvocatoria);
 
 export default router;
