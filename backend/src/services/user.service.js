@@ -114,7 +114,7 @@ export async function deleteUserService(query) {
 
     if (!userFound) return [null, "Usuario no encontrado"];
 
-    if (userFound.rol === "administrador") {
+    if (userFound.rol === "admin") {
       return [null, "No se puede eliminar un usuario con rol de administrador"];
     }
 

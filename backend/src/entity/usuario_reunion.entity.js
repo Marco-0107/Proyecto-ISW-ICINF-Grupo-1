@@ -1,5 +1,6 @@
-"use stric";
+"use strict";
 import {EntitySchema} from "typeorm";
+
 const UsuarioReunion=new EntitySchema({
     name: "UsuarioReunion",
     tableName: "usuario_reunion",
@@ -35,7 +36,7 @@ const UsuarioReunion=new EntitySchema({
             joinColumn:{
                 name:"id"
             },
-            primary:true,
+            onDelete: "NO ACTION",
         },
         Reunion:{
             type: "many-to-one",
@@ -43,8 +44,9 @@ const UsuarioReunion=new EntitySchema({
             joinColumn:{
                 name:"id_reunion"
             },
-            primary:true,
+            onDelete: "CASCADE",
         },
-    }
-});
-export default UsuarioReunion;
+    },
+  });
+
+  export default UsuarioReunion;

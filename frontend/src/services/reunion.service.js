@@ -1,75 +1,44 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '@context/AuthContext';
-import { getReuniones } from '@services/reunion.service';
-import '@styles/reuniones.css';
+import axios from './root.service.js';
 
-const Reuniones = () => {
-  const [reuniones, setReuniones] = useState([]);
-  const { user } = useAuth();
+// Obtener todas las reuniones
+export async function getReuniones() {
+  try {
+    const response = await axios.get('/reunion');
+    return response.data.data;
+  } catch (error) {
+    console.error('Error al obtener reuniones:', error);
+    return [];
+  }
+}
 
-  useEffect(() => {
-    const fetchReuniones = async () => {
-      try {
-        const data = await getReuniones();
-        setReuniones(data);
-      } catch (error) {
-        console.error("Error al obtener reuniones:", error);
-      }
-    };
-    fetchReuniones();
-  }, []);
+// Crear una nueva reunión
+export async function createReunion(reunionData) {
+  try {
+    const response = await axios.post('/reunion', reunionData);
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+}
 
-  const hoy = new Date().toISOString().split('T')[0];
+// Actualizar una reunión existente
+export async function updateReunion(id, reunionData) {
+  try {
+    const response = await axios.put(`/reunion/${id}`, reunionData);
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+}
 
-  const futuras = reuniones.filter(r => r.fecha_reunion > hoy);
-  const actuales = reuniones.filter(r => r.fecha_reunion.startsWith(hoy));
-  const pasadas = reuniones.filter(r => r.fecha_reunion < hoy);
-
-  const renderReunionCard = (reunion) => (
-    <div key={reunion.id_reunion} className="reunion-card">
-      <div className="reunion-info">
-        <p><strong>Lugar:</strong> {reunion.lugar}</p>
-        <p><strong>Fecha:</strong> {reunion.fecha_reunion.slice(0, 10)}</p>
-        <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
-      </div>
-      <div className="reunion-botones">
-        <button>Ver detalle</button>
-        {(user?.rol === 'presidenta' || user?.rol === 'admin') && (
-          <>
-            <button>Editar</button>
-            <button className="btn-delete">Eliminar</button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="reuniones-page">
-      <h1>Reuniones</h1>
-
-      {(user?.rol === 'presidenta' || user?.rol === 'admin') && (
-        <div className="crear-reunion-container">
-          <button className="btn-crear">+ Crear nueva reunión</button>
-        </div>
-      )}
-
-      <div className="seccion-reuniones">
-        <h2>Futuras</h2>
-        {futuras.map(renderReunionCard)}
-      </div>
-
-      <div className="seccion-reuniones">
-        <h2>Actuales</h2>
-        {actuales.map(renderReunionCard)}
-      </div>
-
-      <div className="seccion-reuniones">
-        <h2>Pasadas</h2>
-        {pasadas.map(renderReunionCard)}
-      </div>
-    </div>
-  );
-};
-
-export default Reuniones;
+// Eliminar una reunión
+export const deleteReunion = async (id_reunion) => {
+  try {
+    const response = await axios.delete(`/reunion/detail/`, { 
+     params: { id_reunion },
+  });
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+}

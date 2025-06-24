@@ -17,7 +17,7 @@ const Reunion=new EntitySchema({
             type: "text"
         },
         fecha_reunion:{
-            type:"date",
+            type:"timestamp",
             nullable:false
         },
         objetivo:{
@@ -27,7 +27,7 @@ const Reunion=new EntitySchema({
             type: "text"
         },
         fechaActualizacion:{
-            type: "date"
+            type: "timestamp"
         }
     },
 });
