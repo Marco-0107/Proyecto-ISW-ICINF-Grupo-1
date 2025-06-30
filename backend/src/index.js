@@ -8,7 +8,7 @@ import passport from "passport";
 import express, { json, urlencoded } from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { cookieKey, HOST, PORT } from "./config/configEnv.js";
+import { cookieKey, HOST, PORT, SOCKET_HOST, SOCKET_PORT} from "./config/configEnv.js";
 import { connectDB } from "./config/configDb.js";
 import { createUsers } from "./config/initialSetup.js";
 import { passportJwtSetup } from "./auth/passport.auth.js";
@@ -45,8 +45,8 @@ async function setupSocketIO() {
     });
   });
 
-  socketServer.listen(3001, () => {
-    console.log("Socket.io corriendo en http://localhost:3001");
+  socketServer.listen(SOCKET_PORT, () => {
+    console.log(`Socket.io corriendo en http://${SOCKET_HOST}:${SOCKET_PORT}`);
   });
 }
 
@@ -56,26 +56,9 @@ async function setupServer() {
 
     app.disable("x-powered-by");
 
-    app.use(
-      cors({
-        credentials: true,
-        origin: true,
-      }),
-    );
-
-    app.use(
-      urlencoded({
-        extended: true,
-        limit: "1mb",
-      }),
-    );
-
-    app.use(
-      json({
-        limit: "1mb",
-      }),
-    );
-
+    app.use(cors({ credentials: true, origin: true }));
+    app.use(urlencoded({ extended: true, limit: "1mb" }));
+    app.use(json({ limit: "1mb" }));
     app.use(cookieParser());
     app.use(morgan("dev"));
 
@@ -96,7 +79,6 @@ async function setupServer() {
     app.use(passport.session());
 
     passportJwtSetup();
-
     app.use("/api", indexRoutes);
 
     app.listen(PORT, () => {
