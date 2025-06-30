@@ -22,23 +22,39 @@ export async function createReunion(reunionData) {
 }
 
 // Actualizar una reunión existente
-export async function updateReunion(id, reunionData) {
+export const updateReunion = async (id_reunion, payload) => {
   try {
-    const response = await axios.put(`/reunion/${id}`, reunionData);
+    const response = await axios.patch(`/reunion/detail/?`,payload, {
+     params: { id_reunion }
+  });
+    return response.data.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// Eliminar una reunión
+export const deleteReunion = async (id_reunion) => {
+  try {
+    const response = await axios.delete(`/reunion/detail/?`, { 
+     params: { id_reunion },
+  });
     return response.data.data;
   } catch (error) {
     throw error.response?.data || error;
   }
 }
 
-// Eliminar una reunión
-export const deleteReunion = async (id_reunion) => {
+// Listar los usuarios que pertenecen a UNA reunión
+
+export async function getUsuariosReunion(id_reunion) {
   try {
-    const response = await axios.delete(`/reunion/detail/`, { 
-     params: { id_reunion },
-  });
+    const response = await axios.get(`/usuario-reunion/detail/all`, {
+      params: { id_reunion }
+    });
     return response.data.data;
   } catch (error) {
-    throw error.response?.data || error;
+    console.error("Error al obtener usuarios de la reunión:", error);
+    return [];
   }
 }

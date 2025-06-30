@@ -4,15 +4,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from '@services/root.service';
 import useDeleteReunion from '@hooks/reuniones/useDeleteReunion.jsx';
+import useEditReunion from '@hooks/reuniones/useEditReunion.jsx';
 import TimePicker from 'react-time-picker';
 import 'react-time-picker/dist/TimePicker.css';
 import '@styles/reuniones.css';
 
 const Reuniones = () => {
+
   const [reuniones, setReuniones] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [fechaHoraActual, setFechaHoraActual] = useState(new Date());
+
   const [formData, setFormData] = useState({
     fecha: '',
     hora: '',
@@ -22,8 +25,12 @@ const Reuniones = () => {
     observaciones: '',
   });
 
+  const [editId, setEditId] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+
   const { user } = useAuth();
-  const { eliminarReunion, loading } = useDeleteReunion();
+  const { eliminarReunion, loading: loadingDelete } = useDeleteReunion();
+  const { editarReunion, loading: loadingEdit } = useEditReunion();
 
   const hoy = new Date().toLocaleDateString('fr-CA');
   const futuras = reuniones.filter(r => r.fecha_reunion > hoy);
@@ -38,82 +45,76 @@ const Reuniones = () => {
 
   const fetchReuniones = async () => {
     try {
-      const response = await axios.get("/reunion");
-      setReuniones(response.data.data);
+      const { data } = await axios.get("/reunion");
+      setReuniones(data.data);
     } catch (error) {
       console.error("Error al cargar reuniones:", error);
     }
   };
 
-  const formatearFechaDDMMYYYY = (date) => {
-    // Ajusta la fecha antes de renderizar
-    const adjustedDate = new Date(date);
-    adjustedDate.setHours(adjustedDate.getHours() - 4); // Ajuste de 4 horas
-    return adjustedDate.toLocaleDateString('es-CL', {
+  const formatearFechaDDMMYYYY = date => {
+    const adj = new Date(date);
+    adj.setHours(adj.getHours() - 4);
+    return adj.toLocaleDateString('es-CL', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
   };
 
-  const formatearHoraHHMMSS = (date) => {
-    const adjustedDate = new Date(date);
-    adjustedDate.setHours(adjustedDate.getHours());
-    return adjustedDate.toLocaleTimeString('es-CL', {
+  const formatearHoraHHMMSS = date =>
+    new Date(date).toLocaleTimeString('es-CL', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
     });
-  };
 
-  const formatearFechaSinUTC = (fechaISO) => {
-    return fechaISO.split('-').reverse().join('-');
-  };
+  const formatearFechaSinUTC = iso =>
+    iso.split('-').reverse().join('-');
 
-  const handleDateClick = (date) => {
-    const isoDate = date.toLocaleDateString('fr-CA'); // YYYY-MM-DD
+  const handleDateClick = date => {
+    const isoDate = date.toLocaleDateString('fr-CA');
+
     setSelectedDate(date);
-    setFormData({ ...formData, fecha: isoDate });
+    setFormData(f => ({ ...f, fecha: isoDate }));
     setShowForm(true);
+
+    setEditId(null);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(f => ({ ...f, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     if (!formData.hora) {
-      alert("Debes seleccionar una hora para la reunión.");
+      alert("Debes seleccionar una hora.");
       return;
     }
 
     const fechaString = `${formData.fecha}T${formData.hora}:00`;
-    const ahora = new Date();
 
-    if (new Date(fechaString) < ahora) {
-      alert("No puedes agendar una reunión en el pasado.");
+    if (new Date(fechaString) < new Date()) {
+      alert("No puedes agendar en el pasado.");
       return;
     }
 
-    console.log("Fecha enviada al backend:", fechaString);
-
-    const payload = {
-      lugar: formData.lugar,
-      descripcion: formData.descripcion,
-      fecha_reunion: fechaString,
-      objetivo: formData.objetivo,
-      observaciones: formData.observaciones,
-      fechaActualizacion: new Date().toISOString(),
-    };
-
     try {
-      const response = await axios.post("/reunion", payload);
-      console.log("Respuesta backend:", response);
-      alert("Reunión creada correctamente");
+      await axios.post("/reunion", {
+        lugar: formData.lugar,
+        descripcion: formData.descripcion,
+        fecha_reunion: fechaString,
+        objetivo: formData.objetivo,
+        observaciones: formData.observaciones,
+        fechaActualizacion: new Date().toISOString(),
+      });
+
+      alert("Reunión creada");
+
       setShowForm(false);
       setFormData({
         fecha: '',
@@ -124,38 +125,198 @@ const Reuniones = () => {
         observaciones: '',
       });
       fetchReuniones();
-    } catch (error) {
-      console.error("Error al crear reunión:", error);
-      alert("Error al crear reunión. Revisa la consola.");
+    }
+    catch (err) {
+      console.error(err);
+      alert("Error al crear reunión");
     }
   };
 
-  const renderReunionCard = (reunion) => (
-    <div key={reunion.id_reunion} className="reunion-card">
-      <div className="reunion-info">
-        <p><strong>Lugar:</strong> {reunion.lugar}</p>
-        <p>
-          <strong>Fecha:</strong> {formatearFechaDDMMYYYY(new Date(reunion.fecha_reunion))} a las {formatearHoraHHMMSS(new Date(reunion.fecha_reunion)) || "00:00"} hrs
-        </p>
-        <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
-      </div>
-      <div className="reunion-botones">
-        <button>Ver detalle</button>
-        {(user?.rol === 'presidenta' || user?.rol === 'admin') && (
+  const handleEditar = r => {
+    setEditId(r.id_reunion);
+
+    const fechaObj = new Date(r.fecha_reunion);
+    const isoDate = fechaObj.toISOString().slice(0, 10);
+    const hh = String(fechaObj.getHours()).padStart(2, '0');
+    const mm = String(fechaObj.getMinutes()).padStart(2, '0');
+
+    setEditFormData({
+      fecha: isoDate,
+      hora: `${hh}:${mm}`,
+      lugar: r.lugar,
+      descripcion: r.descripcion,
+      objetivo: r.objetivo,
+      observaciones: r.observaciones,
+    });
+  };
+
+  const handleGuardarEdicion = async e => {
+    e.preventDefault();
+
+    const { fecha, hora, lugar, descripcion, objetivo, observaciones } = editFormData;
+
+    const fechaReu = `${fecha}T${hora}:00`;
+
+    if (new Date(fechaReu) < new Date()) {
+      alert("No puedes agendar en el pasado.");
+      return;
+    }
+
+    try {
+      await editarReunion(editId, {
+        fecha_reunion: fechaReu,
+        lugar,
+        descripcion,
+        objetivo,
+        observaciones
+      });
+
+      setEditId(null);
+      fetchReuniones();
+    }
+    catch {
+      alert("Error guardando cambios");
+    }
+  };
+
+  const renderReunionCard = r => {
+    const isEditing = editId === r.id_reunion;
+
+    return (
+      <div key={r.id_reunion} className="reunion-card">
+
+        <div className="reunion-info">
+          <p><strong>Lugar:</strong> {r.lugar}</p>
+          <p>
+            <strong>Fecha:</strong>{" "}
+            {formatearFechaDDMMYYYY(r.fecha_reunion)}
+            {" a las "}
+            {formatearHoraHHMMSS(r.fecha_reunion)} hr
+          </p>
+          <p><strong>Objetivo:</strong> {r.objetivo}</p>
+        </div>
+
+        {["presidenta", "admin", "vecino"].includes(user?.rol?.toLowerCase()) && (
+          <button
+            onClick={() => {
+              if (["presidenta", "admin"].includes(user?.rol?.toLowerCase())) {
+                localStorage.setItem("reunion_en_curso", r.id_reunion);
+              }
+              window.location.href = `/detalle-reunion/${r.id_reunion}`;
+            }}
+          >
+            {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) ? "Ingresar a Reunión" : "Ver Reunión"}
+          </button>
+        )}
+
+        {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) && (
           <>
-            <button>Editar</button>
+            <button onClick={() => handleEditar(r)}>Editar</button>
             <button
               className="btn-delete"
-              disabled={loading}
-              onClick={() => eliminarReunion(reunion.id_reunion, fetchReuniones)}
+              disabled={loadingDelete}
+              onClick={() => eliminarReunion(r.id_reunion, fetchReuniones)}
             >
-              {loading ? "Eliminando..." : "Eliminar"}
+              {loadingDelete ? "Eliminando..." : "Eliminar"}
             </button>
           </>
         )}
+
+        {isEditing && (
+          <form className="edit-reunion-form" onSubmit={handleGuardarEdicion}>
+            <label>Fecha:</label>
+            <input
+              type="date"
+              name="fecha"
+              value={editFormData.fecha}
+              onChange={e =>
+                setEditFormData({
+                  ...editFormData,
+                  fecha: e.target.value
+                })
+              }
+              required
+            />
+
+            <label>Hora:</label>
+            <TimePicker
+              onChange={v =>
+                setEditFormData({
+                  ...editFormData,
+                  hora: v
+                })
+              }
+              value={editFormData.hora}
+              format="HH:mm"
+              disableClock
+              style={{ width: '4000px' }}
+            />
+
+            <label>Lugar:</label>
+            <input
+              type="text"
+              name="lugar"
+              value={editFormData.lugar}
+              onChange={e =>
+                setEditFormData({
+                  ...editFormData,
+                  lugar: e.target.value
+                })
+              }
+              required
+            />
+
+            <label>Descripción:</label>
+            <textarea
+              name="descripcion"
+              value={editFormData.descripcion}
+              onChange={e =>
+                setEditFormData({
+                  ...editFormData,
+                  descripcion: e.target.value
+                })
+              }
+              required
+            />
+
+            <label>Objetivo:</label>
+            <textarea
+              name="objetivo"
+              value={editFormData.objetivo}
+              onChange={e =>
+                setEditFormData({
+                  ...editFormData,
+                  objetivo: e.target.value
+                })
+              }
+              required
+            />
+
+            <label>Observaciones:</label>
+            <textarea
+              name="observaciones"
+              value={editFormData.observaciones}
+              onChange={e =>
+                setEditFormData({
+                  ...editFormData,
+                  observaciones: e.target.value
+                })
+              }
+              required
+            />
+
+            <div className="edit-form-buttons">
+              <button type="submit">Guardar</button>
+              <button type="button" onClick={() => setEditId(null)}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        )}
+
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="reuniones-page">
@@ -166,7 +327,7 @@ const Reuniones = () => {
 
       <h1>Reuniones</h1>
 
-      {(user?.rol === 'presidenta' || user?.rol === 'admin') && (
+      {(user?.rol === "presidenta" || user?.rol === "admin") && (
         <div className="crear-reunion-container">
           <h3>Selecciona una fecha para agendar reunión:</h3>
           <DatePicker
@@ -182,14 +343,18 @@ const Reuniones = () => {
         <div className="formulario-reunion">
           <h3>Crear nueva reunión</h3>
           <form onSubmit={handleSubmit}>
-            <p><strong>Fecha seleccionada:</strong> {formatearFechaSinUTC(formData.fecha)}</p>
 
-            <label>Hora (24 hrs):</label>
+            <p>
+              <strong>Fecha seleccionada:</strong>{" "}
+              {formatearFechaSinUTC(formData.fecha)}
+            </p>
+
+            <label>Hora:</label>
             <TimePicker
-              onChange={(value) => setFormData(prev => ({ ...prev, hora: value }))}
+              onChange={v => setFormData(f => ({ ...f, hora: v }))}
               value={formData.hora}
               format="HH:mm"
-              disableClock={true}
+              disableClock
             />
 
             <label>Lugar:</label>
@@ -225,8 +390,17 @@ const Reuniones = () => {
               required
             />
 
-            <button type="submit" className="btn-submit">Crear reunión</button>
-            <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>Cancelar</button>
+            <button type="submit" className="btn-submit">
+              Crear reunión
+            </button>
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={() => setShowForm(false)}
+            >
+              Cancelar
+            </button>
+
           </form>
         </div>
       )}

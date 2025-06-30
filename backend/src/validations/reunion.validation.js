@@ -89,13 +89,13 @@ export const reunionBodyValidation = Joi.object({
     }),
     observaciones: Joi.string()
         .min(10)
-        .max(1000)
-        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
+        .max(3000)
+        .pattern(/^[\s\S]*$/) 
         .messages({
-            "String.empty": "Las observaciones puede estar vacío",
-            "String.base": "Las observaciones debe ser tipo TEXT",
-            "String.min": "Las observaciones debe contener mínimo 10 caracteres",
-            "String.max": "Las observaciones puede contener máximo 1000 caracteres"
+            "String.empty": "Las observaciones no pueden estar vacías",
+            "String.base": "Las observaciones debe ser texto",
+            "String.min": "Las observaciones debe contener al menos 10 caracteres",
+            "String.max": "Las observaciones puede contener hasta 3000 caracteres"
         }),
     fechaActualizacion: Joi.date()
     .iso()

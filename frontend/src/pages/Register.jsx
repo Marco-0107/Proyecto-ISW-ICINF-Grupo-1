@@ -20,7 +20,7 @@ const registerSubmit = async (data) => {
         if (response.status === 'Success') {
             showSuccessAlert('¡Registrado!','Usuario registrado exitosamente.');
             setTimeout(() => {
-                navigate('/auth');
+                navigate();
             }, 3000)
         } else if (response.status === 'Client error') {
             errorData(response.details);
