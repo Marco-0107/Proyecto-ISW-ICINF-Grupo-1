@@ -6,6 +6,7 @@ import Users from '@pages/Users';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import Reuniones from '@pages/Reuniones';
+import DetalleReunion from '@pages/DetalleReunion';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: '/reuniones',
         element: <Reuniones />
+      },
+      {
+        path: '/detalle-reunion/:id',
+        element: <DetalleReunion />
       }
     ]
   },

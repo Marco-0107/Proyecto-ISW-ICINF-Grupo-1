@@ -25,7 +25,6 @@ const Reuniones = () => {
     observaciones: '',
   });
 
-  const [expandedId, setExpandedId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
@@ -53,7 +52,6 @@ const Reuniones = () => {
     }
   };
 
-
   const formatearFechaDDMMYYYY = date => {
     const adj = new Date(date);
     adj.setHours(adj.getHours() - 4);
@@ -64,7 +62,6 @@ const Reuniones = () => {
     });
   };
 
-
   const formatearHoraHHMMSS = date =>
     new Date(date).toLocaleTimeString('es-CL', {
       hour12: false,
@@ -72,7 +69,6 @@ const Reuniones = () => {
       minute: '2-digit',
       second: '2-digit'
     });
-
 
   const formatearFechaSinUTC = iso =>
     iso.split('-').reverse().join('-');
@@ -85,15 +81,12 @@ const Reuniones = () => {
     setShowForm(true);
 
     setEditId(null);
-    setExpandedId(null);
   };
-
 
   const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(f => ({ ...f, [name]: value }));
   };
-
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -139,15 +132,8 @@ const Reuniones = () => {
     }
   };
 
-  const handleVerDetalle = id => {
-    setExpandedId(expandedId === id ? null : id);
-    setEditId(null);
-  };
-
-
   const handleEditar = r => {
     setEditId(r.id_reunion);
-    setExpandedId(null);
 
     const fechaObj = new Date(r.fecha_reunion);
     const isoDate = fechaObj.toISOString().slice(0, 10);
@@ -163,7 +149,6 @@ const Reuniones = () => {
       observaciones: r.observaciones,
     });
   };
-
 
   const handleGuardarEdicion = async e => {
     e.preventDefault();
@@ -194,9 +179,7 @@ const Reuniones = () => {
     }
   };
 
-
   const renderReunionCard = r => {
-    const isExpanded = expandedId === r.id_reunion;
     const isEditing = editId === r.id_reunion;
 
     return (
@@ -213,33 +196,31 @@ const Reuniones = () => {
           <p><strong>Objetivo:</strong> {r.objetivo}</p>
         </div>
 
-        <div className="reunion-botones">
-          <button onClick={() => handleVerDetalle(r.id_reunion)}>
-            {isExpanded ? "Ocultar" : "Ver detalle"}
+        {["presidenta", "admin", "vecino"].includes(user?.rol?.toLowerCase()) && (
+          <button
+            onClick={() => {
+              if (["presidenta", "admin"].includes(user?.rol?.toLowerCase())) {
+                localStorage.setItem("reunion_en_curso", r.id_reunion);
+              }
+              window.location.href = `/detalle-reunion/${r.id_reunion}`;
+            }}
+          >
+            {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) ? "Ingresar a Reunión" : "Ver Reunión"}
           </button>
-
-          {(user?.rol === "presidenta" || user?.rol === "admin") && (
-            <>
-              <button onClick={() => handleEditar(r)}>Editar</button>
-              <button
-                className="btn-delete"
-                disabled={loadingDelete}
-                onClick={() => eliminarReunion(r.id_reunion, fetchReuniones)}
-              >
-                {loadingDelete ? "Eliminando..." : "Eliminar"}
-              </button>
-            </>
-          )}
-        </div>
-
-
-        {isExpanded && !isEditing && (
-          <div className="detalle-reunion">
-            <p><strong>Descripción:</strong> {r.descripcion}</p>
-            <p><strong>Observaciones:</strong> {r.observaciones}</p>
-          </div>
         )}
 
+        {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) && (
+          <>
+            <button onClick={() => handleEditar(r)}>Editar</button>
+            <button
+              className="btn-delete"
+              disabled={loadingDelete}
+              onClick={() => eliminarReunion(r.id_reunion, fetchReuniones)}
+            >
+              {loadingDelete ? "Eliminando..." : "Eliminar"}
+            </button>
+          </>
+        )}
 
         {isEditing && (
           <form className="edit-reunion-form" onSubmit={handleGuardarEdicion}>
@@ -333,11 +314,9 @@ const Reuniones = () => {
           </form>
         )}
 
-
       </div>
     );
   };
-
 
   return (
     <div className="reuniones-page">

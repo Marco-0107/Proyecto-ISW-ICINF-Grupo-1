@@ -10,7 +10,8 @@ export async function getUsuariosReunionService({ id_reunion }) {
     const urRepository = AppDataSource.getRepository(UsuarioReunion);
 
     const registros = await urRepository.find({
-      where: { id_reunion }
+      where: { id_reunion },
+      relations: ["User"]
     });
 
     return [registros, null];

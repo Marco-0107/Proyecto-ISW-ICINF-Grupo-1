@@ -44,3 +44,17 @@ export const deleteReunion = async (id_reunion) => {
     throw error.response?.data || error;
   }
 }
+
+// Listar los usuarios que pertenecen a UNA reunión
+
+export async function getUsuariosReunion(id_reunion) {
+  try {
+    const response = await axios.get(`/usuario-reunion/detail/all`, {
+      params: { id_reunion }
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error("Error al obtener usuarios de la reunión:", error);
+    return [];
+  }
+}
