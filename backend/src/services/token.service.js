@@ -8,6 +8,7 @@ export async function getTokenService({ id_token }) {
 
         const tokenFound = await tokenRepository.findOne({
         where: { id_token: id_token },
+        Reunion: { id_reunion },
         });
 
         if (!tokenFound) return [null, "Token no encontrado"];
@@ -17,14 +18,15 @@ export async function getTokenService({ id_token }) {
     } catch (error) {
         console.error("Error al obtener el token", error);
         return [null, "Error interno del servidor"];
-  }
+    }
 }
 // Obtengo los tokens por ID
 export async function getTokensService() {
     try {
         const tokenRepository = AppDataSource.getRepository(Token);
-
-        const tokens = await tokenRepository.find();
+        const tokens = await tokenRepository.find({
+            relations: ["Reunion"], 
+        });
 
         if (!tokens || tokens.length === 0) return [null, "No hay Tokens"];
 
@@ -35,6 +37,7 @@ export async function getTokensService() {
         return [null, "Error interno del servidor"];
     }
 }
+
 // Cerrar un Token
 export async function closeTokenService({id_token}) {
     try {
@@ -58,25 +61,24 @@ export async function closeTokenService({id_token}) {
     }
 }
 // Crear Token
-export async function createTokenService({id, id_reunion}) {
+export async function createTokenService({ id_reunion }) {
     try{
         const tokenRepository = AppDataSource.getRepository(Token);
 
         const tokenExistente = await tokenRepository.findOne({
             where: {
-            id_reunion,
-            estado: "activo",
+                Reunion: { id_reunion },
+                estado: "activo",
             }
         });
 
-        if (tokenExistente) return [null, "Ya existe un token activo para esta reunión"]
+        if (tokenExistente) return [null, "Ya existe un token activo para esta reunión"];
 
         const newToken = tokenRepository.create ({
             numero_token: generarTokenCuatroDigitos(),
             fecha_generacion: new Date(),
             estado: "activo",
-            id,
-            id_reunion,
+            Reunion: { id_reunion }
         });
 
         const guardado = await tokenRepository.save(newToken);

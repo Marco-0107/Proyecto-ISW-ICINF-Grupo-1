@@ -18,3 +18,5 @@ export const PASSWORD = process.env.PASSWORD;
 export const DATABASE = process.env.DATABASE;
 export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 export const cookieKey = process.env.cookieKey;
+export const SOCKET_HOST = process.env.SOCKET_HOST || "localhost";
+export const SOCKET_PORT = process.env.SOCKET_PORT || 3001;
