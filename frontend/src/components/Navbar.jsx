@@ -70,6 +70,20 @@ const Navbar = () => {
                             Reuniones
                         </NavLink>
                     </li>
+                    {(userRole === 'admin' || userRole === 'presidenta') && (
+                     <li>
+                        <NavLink 
+                            to="/tokens" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Tokens
+                        </NavLink>
+                    </li>
+                    )}
                     {userRole === 'admin' && (
                     <li>
                         <NavLink 

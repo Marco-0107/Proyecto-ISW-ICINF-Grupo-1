@@ -73,11 +73,11 @@ export async function closeTokens(req, res) {
 // Creo el Token
 export async function createToken(req, res) {
     try{
-        const { id, id_reunion } = req.body;
+        const { id_reunion } = req.body;
 
-        if (!id || !id_reunion) return handleErrorClient(res, 400, "Faltan datos obligatorios");
+        if (!id_reunion) return handleErrorClient(res, 400, "Faltan datos obligatorios");
 
-        const [token, errorCreateToken] = await createTokenService({ id : id_reunion });
+        const [token, errorCreateToken] = await createTokenService({ id_reunion });
         if (errorCreateToken) return handleErrorClient(res, 400, "Error creando el Token", errorCreateToken);
 
         handleSuccess(res, 201, "Token creado correctamente ", token);

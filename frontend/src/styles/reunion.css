@@ -1,6 +1,7 @@
 .reunion-page {
   display: flex;
   height: 100vh;
+  margin-top: 50px;
 }
 
 .sidebar {

@@ -32,7 +32,6 @@ export function authorizeRoles(...rolesPermitidos) {
         );
       }
 
-      // Reemplaza req.user.rol por el actualizado desde la BD, si querés:
       req.user.rol = rolActual;
       next();
     } catch (error) {
@@ -43,13 +42,18 @@ export function authorizeRoles(...rolesPermitidos) {
 
 
 // Middleware que permite modificar solo su propia info (usado por vecinos)
-export function soloPropietario(param = "id") {
+export function soloPropietarioSoloSiVecino(param = "id") {
   return (req, res, next) => {
     const idEnRuta = req.params[param] || req.query[param];
     const esVecino = req.user.rol === "vecino";
+
+    if (!esVecino) {
+      return next();
+    }
+
     const esPropietario = parseInt(idEnRuta) === req.user.id;
 
-    if (esVecino && esPropietario) {
+    if (esPropietario) {
       return next();
     }
 
@@ -61,4 +65,5 @@ export function soloPropietario(param = "id") {
     );
   };
 }
+
 
