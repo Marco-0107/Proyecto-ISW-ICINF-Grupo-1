@@ -2,7 +2,7 @@
 import Joi from "joi";
 
 export const usuarioReunionQueryValidation = Joi.object({
-    id: Joi.number()
+    id_usuario: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -38,7 +38,7 @@ export const usuarioReunionQueryValidation = Joi.object({
 })
 
 export const usuarioReunionBodyValidation = Joi.object({
-     id: Joi.number()
+     id_usuario: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -85,7 +85,7 @@ export const usuarioReunionBodyValidation = Joi.object({
         "Date.max": "La fecha de confirmación no puede tomar fechas posteriores a la actual"
     })
 }).or(
-    "id",
+    "id_usuario",
     "id_reunion",
     "id_token",
     "numero_token",

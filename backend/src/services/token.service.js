@@ -1,18 +1,19 @@
 import Token from "../entity/token.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
-// Obtener un Token por ID
-export async function getTokenService({ id_token }) {
+export async function getTokenService({ id_token, numero_token }) {
     try {
         const tokenRepository = AppDataSource.getRepository(Token);
 
         const tokenFound = await tokenRepository.findOne({
-        where: { id_token: id_token },
-        Reunion: { id_reunion },
+            where: [
+                id_token ? { id_token: id_token } : {},
+                numero_token ? { numero_token: numero_token } : {},
+            ],
+            select: ["id_token", "numero_token", "estado", "fecha_generacion", "id_reunion"],
         });
 
         if (!tokenFound) return [null, "Token no encontrado"];
-
         return [tokenFound, null];
 
     } catch (error) {

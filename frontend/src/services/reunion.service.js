@@ -50,7 +50,8 @@ export const deleteReunion = async (id_reunion) => {
 export async function getUsuariosReunion(id_reunion) {
   try {
     const response = await axios.get(`/usuario-reunion/detail/all`, {
-      params: { id_reunion }
+      params: { id_reunion },
+      relations: ["User"],
     });
     return response.data.data;
   } catch (error) {

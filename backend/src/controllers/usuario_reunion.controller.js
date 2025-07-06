@@ -40,13 +40,13 @@ export async function getUsuariosReunion(req, res) {
 // Obtengo registro de un usuario en una reunión
 export async function getUsuarioReunion(req, res) {
     try {
-        const { id, id_reunion } = req.query;
+        const { id_usuario, id_reunion } = req.query;
 
-        const { error } = usuarioReunionQueryValidation.validate({ id, id_reunion });
+        const { error } = usuarioReunionQueryValidation.validate({ id_usuario, id_reunion });
 
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [registro, errorUsuarioReunion] = await getUsuarioReunionService({ id, id_reunion });
+        const [registro, errorUsuarioReunion] = await getUsuarioReunionService({ id_usuario, id_reunion });
 
         if (errorUsuarioReunion) return handleErrorClient(res, 404, errorUsuarioReunion);
 
@@ -59,11 +59,11 @@ export async function getUsuarioReunion(req, res) {
 // Marca asistencia manualmente (usado por presidenta si es necesario)
 export async function marcarAsistenciaManual(req, res) {
     try {
-        const { id, id_reunion } = req.query;
+        const { id_usuario, id_reunion } = req.query;
 
-        const [registro, errorAsistenciaManual] = await marcarAsistenciaManualService({ id, id_reunion });
+        const [registro, errorAsistenciaManual] = await marcarAsistenciaManualService({ id_usuario, id_reunion });
 
-        if (errorAsistenciaManual) return handleErrorClient(res, 400, error);
+        if (errorAsistenciaManual) return handleErrorClient(res, 400, errorAsistenciaManual);
 
         handleSuccess(res, 200, "Asistencia marcada manualmente", registro);
     } catch (error) {

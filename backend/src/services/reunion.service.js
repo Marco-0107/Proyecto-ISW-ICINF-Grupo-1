@@ -126,7 +126,7 @@ export async function createReunionService(body) {
         const asignar_reunion= vecinos_habilitados.map(vecino => { 
         
         return urRepository.create({        //Recorro mi array uno por uno con el .map luego para cada vecino creamos un UsuarioReunion 
-            id: vecino.id,
+            id_usuario: vecino.id,
             id_reunion: saveReunion.id_reunion,
             asistio: "false",
             id_token: null,
