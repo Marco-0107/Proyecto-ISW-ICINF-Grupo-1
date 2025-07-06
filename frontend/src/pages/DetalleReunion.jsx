@@ -231,8 +231,17 @@ const DetalleReunion = () => {
                                 <span>RUT: {u.User?.rut}</span><br />
                                 {!isVecino && <span>Rol: {u.User?.rol}</span>}<br />
                                 {u.asistio
-                                    ? <span style={{ color: "green" }}>Presente ✅</span>
-                                    : <span style={{ color: "red" }}>No ha confirmado ❌</span>
+                                    ? (
+                                        <>
+                                            <span style={{ color: "green" }}>Presente ✅</span><br />
+                                            <span style={{ fontSize: "12px" }}>
+                                                Confirmado el {new Date(u.fecha_confirmacion_asistencia).toLocaleString()}
+                                            </span>
+                                        </>
+                                    )
+                                    : (
+                                        <span style={{ color: "red" }}>No ha confirmado ❌</span>
+                                    )
                                 }
                                 {isPresidenta && !isVecino && (
                                     <button
