@@ -11,6 +11,8 @@ import DetalleReunion from '@pages/DetalleReunion';
 import Movfin from '@pages/movfin';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
+import Publicacion from '@pages/DetallePublicacion.jsx';
+import DetallePublicacion from '@pages/DetallePublicacion.jsx';
 
 const router = createBrowserRouter([
   {
@@ -45,7 +47,15 @@ const router = createBrowserRouter([
             <Tokens />
           </ProtectedRoute>
         ),
-      }
+      },
+      {
+        path: '/publicacion',
+        element: <Publicacion />
+      },
+      {
+        path: '/detalle-publicacion/:id',
+        element: <DetallePublicacion />
+      },
 
     ]
   },

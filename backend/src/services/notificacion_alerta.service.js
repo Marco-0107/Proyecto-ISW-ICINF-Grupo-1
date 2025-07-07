@@ -106,7 +106,7 @@ export async function createNotificacionAlertaService(body) {
             descripcion: body.descripcion,
             tipo: body.tipo,
             fecha: new Date(),
-            estado_visualizacion: body.estado_visualizacion,
+            estado_visualizacion: 'NO_VISTA',
             fechaActualizacion: new Date(),
         });
 
