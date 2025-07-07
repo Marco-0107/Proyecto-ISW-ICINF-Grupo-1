@@ -196,7 +196,7 @@ const Reuniones = () => {
           <p><strong>Objetivo:</strong> {r.objetivo}</p>
         </div>
 
-        {["presidenta", "admin", "vecino"].includes(user?.rol?.toLowerCase()) && (
+        {["presidenta", "admin", "vecino","tesorera","secretario"].includes(user?.rol?.toLowerCase()) && (
           <button
             onClick={() => {
               if (["presidenta", "admin"].includes(user?.rol?.toLowerCase())) {

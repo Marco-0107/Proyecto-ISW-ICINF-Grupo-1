@@ -18,16 +18,16 @@ import {
     handleSuccess,
 } from "../handlers/responseHandlers.js";
 
-// Obtengo Token por id 
+// Obtengo Token por id o numero_token
 
 export async function getToken(req, res) {
     try {
-        const { id_token } = req.query;
+        const { id_token, numero_token } = req.query;
 
-        const { error } = tokenQueryValidation.validate({ id_token });
+        const { error } = tokenQueryValidation.validate({ id_token, numero_token });
         if (error) return handleErrorClient(res, 400, error.message);
 
-        const [token, errorToken] = await getTokenService ({ id_token });
+        const [token, errorToken] = await getTokenService ({ id_token, numero_token });
         if (errorToken) return handleErrorClient(res, 404, errorToken);
         
         handleSuccess(res, 200, "Token encontrado", token);

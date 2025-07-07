@@ -5,7 +5,7 @@ const UsuarioReunion=new EntitySchema({
     name: "UsuarioReunion",
     tableName: "usuario_reunion",
     columns:{
-        id:{
+        id_usuario:{
             type: "int",
             primary: true
         },
@@ -25,7 +25,7 @@ const UsuarioReunion=new EntitySchema({
             type: "boolean",
         },
         fecha_confirmacion_asistencia:{
-            type: "date",
+            type:"timestamp",
             nullable: true
         },
     },
@@ -34,7 +34,7 @@ const UsuarioReunion=new EntitySchema({
             type: "many-to-one",
             target: "User",
             joinColumn:{
-                name:"id"
+                name:"id_usuario"
             },
             onDelete: "NO ACTION",
         },
@@ -49,4 +49,4 @@ const UsuarioReunion=new EntitySchema({
     },
   });
 
-  export default UsuarioReunion;
+export default UsuarioReunion;

@@ -22,6 +22,10 @@ const Token= new EntitySchema({
             type:"varchar",
             length: 50
         },
+        id_reunion:{
+            type:"int",
+            nullable: false,
+        }
     },
     relations:{
         Reunion:{

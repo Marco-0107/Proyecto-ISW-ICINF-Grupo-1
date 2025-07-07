@@ -14,9 +14,9 @@ const router= Router();
 router.use(authenticateJwt);
 
 router
-  .get("/detail/all", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getUsuariosReunion)
-  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera"), getUsuarioReunion)
+  .get("/detail/all", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getUsuariosReunion)
+  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getUsuarioReunion)
   .patch("/detail/", authorizeRoles("admin", "presidenta", "secretaria"), marcarAsistenciaManual)
-  .post("/", authorizeRoles("admin", "presidenta" ), registrarAsistencia)
+  .post("/", authorizeRoles("admin", "presidenta", "vecino" ), registrarAsistencia)
 
 export default router;

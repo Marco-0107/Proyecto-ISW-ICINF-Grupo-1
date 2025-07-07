@@ -54,7 +54,7 @@ const Tokens = () => {
   const columns = [
     { title: "ID", field: "id_token", width: 80 },
     { title: "Número", field: "numero_token", width: 120 },
-    { title: "ID Reunión", field: "Reunion.id_reunion", width: 120 }, // acceso anidado
+    { title: "ID Reunión", field: "Reunion.id_reunion", width: 120 },
     { title: "Estado", field: "estado", width: 100 },
     {
       title: "Fecha de creación",
