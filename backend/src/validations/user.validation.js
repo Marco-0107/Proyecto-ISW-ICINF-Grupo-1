@@ -197,5 +197,5 @@ export const userBodyValidation = Joi.object({
   .messages({
     "object.unknown": "No se permiten propiedades adicionales.",
     "object.missing":
-      "Debes proporcionar al menos un campo: nombreCompleto, email, password, newPassword, rut o rol, dirección"
+      "Debes proporcionar al menos un campo: nombre, apellido, email, password, rut, rol, dirección"
   });

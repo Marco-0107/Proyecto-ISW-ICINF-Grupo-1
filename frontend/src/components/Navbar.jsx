@@ -84,7 +84,7 @@ const Navbar = () => {
                         </NavLink>
                     </li>
                     )}
-                    {userRole === 'admin' && (
+                    {
                     <li>
                         <NavLink 
                             to="/users" 
@@ -95,6 +95,20 @@ const Navbar = () => {
                             activeClassName="active"
                         >
                             Usuarios
+                        </NavLink>
+                    </li>
+                    }
+                    {(userRole === 'admin' || userRole === 'tesorera' || userRole === 'secretario' || userRole === 'presidenta') && (
+                    <li>
+                        <NavLink 
+                            to="/movfin" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Movimiento Financiero
                         </NavLink>
                     </li>
                     )}

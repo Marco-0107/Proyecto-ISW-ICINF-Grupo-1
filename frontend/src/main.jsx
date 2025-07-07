@@ -8,6 +8,7 @@ import Root from '@pages/Root';
 import Reuniones from '@pages/Reuniones';
 import Tokens from '@pages/Tokens';
 import DetalleReunion from '@pages/DetalleReunion';
+import Movfin from '@pages/movfin';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -23,11 +24,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/users',
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Users />
-          </ProtectedRoute>
-        ),
+        element: <Users />
       },
       {
         path: '/reuniones',
@@ -36,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: '/detalle-reunion/:id',
         element: <DetalleReunion />
+      },
+      {
+        path: '/movfin',
+        element: <Movfin/>
       },
       {
         path: '/tokens',
