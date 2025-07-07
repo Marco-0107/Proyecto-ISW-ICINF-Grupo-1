@@ -2,52 +2,71 @@ import UsuarioReunion from "../entity/usuario_reunion.entity.js";
 import Token from "../entity/token.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
-// Retorna un registro de asistencia entre un usuario y una reunión
-export async function getUsuarioReunionService({ id, id_reunion }) {
-    try {
-        const UrRepository = AppDataSource.getRepository(UsuarioReunion);
 
-        const registro = await UrRepository.findOneBy({ id, id_reunion });
+
+// Retorna todos los usuarios que pertenecen a una reunion.
+export async function getUsuariosReunionService({ id_reunion }) {
+  try {
+    const urRepository = AppDataSource.getRepository(UsuarioReunion);
+
+    const registros = await urRepository.find({
+      where: { id_reunion },
+      relations: ["User"]
+    });
+
+    return [registros, null];
+
+  } catch (error) {
+    console.error("Error al obtener usuarios de la reunión:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
+
+// Retorna un registro entre un usuario y una reunión
+export async function getUsuarioReunionService({ id_usuario, id_reunion }) {
+  try {
+    const UrRepository = AppDataSource.getRepository(UsuarioReunion);
+
+    const registro = await UrRepository.findOneBy({ id_usuario, id_reunion });
 
     if (!registro) return [null, "El usuario no está vinculado a esta reunión"];
 
     return [registro, null];
 
-    } catch (error) {
-        console.error("Error al obtener el token", error);
-        return [null, "Error interno del servidor"];
-    }
- }
+  } catch (error) {
+    console.error("Error al obtener el token", error);
+    return [null, "Error interno del servidor"];
+  }
+}
 
 // Marca asistencia de forma manual (Por la presidenta) en caso de que no puedan poner el token
-export async function marcarAsistenciaManualService({ id, id_reunion }) {
-    try {
-        const UrRepository = AppDataSource.getRepository(UsuarioReunion);
+export async function marcarAsistenciaManualService({ id_usuario, id_reunion }) {
+  try {
+    const UrRepository = AppDataSource.getRepository(UsuarioReunion);
 
-        const registro = await repo.findOneBy({ id, id_reunion });
-        
-        if (!registro) return [null, "No existe asignación previa a esta reunión"];
+    const registro = await UrRepository.findOneBy({ id_usuario, id_reunion });
 
-        if (registro.asistio) return [null, "El usuario ya tiene asistencia registrada"];
+    if (!registro) return [null, "No existe asignación previa a esta reunión"];
 
-        registro.asistio = true;
-        registro.fecha_confirmacion_asistencia = new Date();
-        registro.id_token = null;
+    registro.asistio = !registro.asistio;
+    registro.fecha_confirmacion_asistencia = registro.asistio ? new Date() : null;
+    registro.id_token = null;
+    registro.numero_token =null;
 
-        const actualizado = await repo.save(registro);
+    const actualizado = await UrRepository.save(registro);
 
-        return [actualizado, null];
+    return [actualizado, null];
 
-    } catch (error) {
-        console.error("Error al marcar la asistencia del usuario", error);
-        return [null, "Error interno del servidor"];
-    }
+  } catch (error) {
+    console.error("Error al marcar la asistencia del usuario", error);
+    return [null, "Error interno del servidor"];
+  }
 }
 
 //Registrar asistencia a una reunion con token  (Funcion adicional a las básicas)
 export async function registrarAsistenciaService(query) {
   try {
-    const { id, id_reunion, numero_token, id_token } = query;
+    const { id_usuario, id_reunion, numero_token, id_token } = query;
 
     const urRepository = AppDataSource.getRepository(UsuarioReunion);
     const tokenRepository = AppDataSource.getRepository(Token);
@@ -62,7 +81,7 @@ export async function registrarAsistenciaService(query) {
 
     // Buscar si el usuario está asignado a esa reunión
     const urFound = await urRepository.findOne({
-      where: { id , id_reunion },
+      where: { id_usuario, id_reunion },
     });
 
     if (!urFound) return [null, "Usuario no habilitado para reunión"];

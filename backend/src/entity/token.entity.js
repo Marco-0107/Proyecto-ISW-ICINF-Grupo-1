@@ -15,22 +15,26 @@ const Token= new EntitySchema({
             length:50
         },
         fecha_generacion:{
-            type: "date",
+            type: "timestamp",
             nullable: false
         },
         estado:{
             type:"varchar",
             length: 50
         },
+        id_reunion:{
+            type:"int",
+            nullable: false,
+        }
     },
     relations:{
-        User:{
-            type:"many-to-one",
-            target: "User",
-            joinColumn: {
-                name: "id"
+        Reunion:{
+            type: "many-to-one",
+            target: "Reunion",
+            joinColumn:{
+                name:"id_reunion"
             },
-            primary:true,
+            onDelete: "CASCADE",
         },
     },
 });

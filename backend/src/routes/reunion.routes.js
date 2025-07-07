@@ -18,7 +18,7 @@ router
 router
     .get("/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getReuniones)
     .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "tesorera", "vecino"), getReunion)
-    .patch("/detail/", authorizeRoles("presidenta", "secretario"),updateReunion)
+    .patch("/detail/", authorizeRoles("admin", "presidenta", "secretario"),updateReunion)
     .delete("/detail/", authorizeRoles("admin", "presidenta", "secretario"), deleteReunion)
     .post("/", authorizeRoles("presidenta", "admin"), createReunion)
 export default router;

@@ -30,7 +30,8 @@ export async function loginService(user) {
     }
 
     const payload = {
-      nombreCompleto: userFound.nombreCompleto,
+      nombre: userFound.nombre,
+      apellido: userFound.apellido,
       email: userFound.email,
       rut: userFound.rut,
       rol: userFound.rol,
@@ -52,7 +53,7 @@ export async function registerService(user) {
   try {
     const userRepository = AppDataSource.getRepository(User);
 
-    const { nombreCompleto, rut, email } = user;
+    const { nombre, apellido, rut, email } = user;
 
     const createErrorMessage = (dataInfo, message) => ({
       dataInfo,
@@ -76,7 +77,8 @@ export async function registerService(user) {
     if (existingRutUser) return [null, createErrorMessage("rut", "Rut ya asociado a una cuenta")];
 
     const newUser = userRepository.create({
-      nombreCompleto,
+      nombre,
+      apellido,
       email,
       rut,
       password: await encryptPassword(user.password),

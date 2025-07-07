@@ -14,8 +14,8 @@ const router = Router();
 router.use(authenticateJwt);
 
 router
-  .get("/", authorizeRoles("admin", "presidenta", "secretario"), getTokens)
-  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario"), getToken)
+  .get("/", authorizeRoles("admin", "presidenta", "secretario", "vecino"), getTokens)
+  .get("/detail/", authorizeRoles("admin", "presidenta", "secretario", "vecino"), getToken)
   .patch("/detail/", authorizeRoles("admin","presidenta"), closeTokens) 
   .post("/", authorizeRoles("admin","presidenta"), createToken);
 
