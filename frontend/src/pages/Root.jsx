@@ -13,9 +13,9 @@ return (
 function PageRoot() {
 return (
     <>
-        <div className="app-layout">
+        <div className="min-h-screen flex">
             <Sidebar />
-            <main className="main-content">
+            <main className="flex-1 lg:ml-10 p-4">
                 <Outlet />
             </main>
         </div>
