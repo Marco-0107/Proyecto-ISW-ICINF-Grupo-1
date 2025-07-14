@@ -15,12 +15,14 @@ import usuarioReunionRoutes from "./usuario_reunion.routes.js";
 import usuarioCuotaRoutes from "./usuario_cuota.routes.js";
 import usuarioConvocatoriaRoutes from "./usuario_convocatoria.routes.js";
 import archivoRoutes from "./archivo.routes.js"
+import emailRoutes from "./email.routes.js";
 
 const router = Router();
 
 router
     .use("/auth", authRoutes)
     .use ("/archivo", archivoRoutes)
+    .use("/email", emailRoutes)
     .use("/user", userRoutes)
     .use("/publicacion", publicacionRoutes)
     .use("/reunion", reunionRoutes)
