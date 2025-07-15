@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Navbar from '@components/Navbar';
+import Sidebar from '@components/SideBar';
 import { AuthProvider } from '@context/AuthContext';
 
 function Root()  {
@@ -13,8 +13,12 @@ return (
 function PageRoot() {
 return (
     <>
-        <Navbar />
-        <Outlet />
+        <div className="min-h-screen flex">
+            <Sidebar />
+            <main className="flex-1 lg:ml-10 p-4">
+                <Outlet />
+            </main>
+        </div>
     </>
 );
 }
