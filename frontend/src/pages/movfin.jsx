@@ -118,7 +118,7 @@ const Movimientos = () => {
     return (
       <div key={item.id_movimiento} className="movimiento-card">
         {isEditing ? (
-          <form className="edit-movimiento-form" onSubmit={handleGuardarEdicion}>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-1" onSubmit={handleGuardarEdicion}>
             <label>Monto:</label>
             <input
               type="number"
@@ -141,7 +141,7 @@ const Movimientos = () => {
               <option value="ingreso">Ingreso</option>
               <option value="egreso">Egreso</option>
             </select>
-            <div className="edit-form-buttons">
+            <div className="bg-white p-6 rounded-md shadow-md mb-6">
               <button type="submit">Guardar</button>
               <button type="button" onClick={() => setEditId(null)}>Cancelar</button>
             </div>
@@ -153,9 +153,11 @@ const Movimientos = () => {
             <p><strong>Tipo:</strong> {item.tipo_transaccion}</p>
             <p><strong>Descripción:</strong> {item.descripcion}</p>
             <p><strong>Fecha:</strong> {formatearFecha(item.fecha_movimiento)} {formatearHora(item.fecha_movimiento)}</p>
-            <button onClick={() => handleEditar(item)}>Editar</button>
+            <button 
+              className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-1 px-3 rounded"
+              onClick={() => handleEditar(item)}>Editar</button>
             <button
-              className="btn-delete"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded"
               onClick={() => eliminarMovimiento(item.id_movimiento)}
             >
               Eliminar
@@ -176,20 +178,16 @@ const Movimientos = () => {
         mov.filter(item => item && item.id_movimiento).map(renderMovimientoCard)
       )}
 
-      <button onClick={() => setMostrarFormulario(!mostrarFormulario)}>
+      <button onClick={() => setMostrarFormulario(!mostrarFormulario)} className="mb-2 text-sm font-semibold text-blue-600 hover:underline">
         {mostrarFormulario ? "Cancelar" : "Nuevo movimiento"}
       </button>
 
       {mostrarFormulario && (
         <form onSubmit={handleCrearMovimiento}>
-          <label>Monto:</label>
-          <input
-            type="number"
-            value={nuevoMovimiento.monto}
-            onChange={e => setNuevoMovimiento({ ...nuevoMovimiento, monto: e.target.value })}
-            required
-          />
-
+          <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700">Monto:</label>
+          <input type="number" value={nuevoMovimiento.monto} onChange={e => setNuevoMovimiento({ ...nuevoMovimiento, monto: e.target.value })} required/>
+        </div>
           <label>Descripción:</label>
           <input
             type="text"
@@ -207,7 +205,9 @@ const Movimientos = () => {
             <option value="egreso">Egreso</option>
           </select>
 
+          <div className="col-span-2 flex gap-2">
           <button type="submit">Guardar Movimiento</button>
+          </div>
         </form>
       )}
 
