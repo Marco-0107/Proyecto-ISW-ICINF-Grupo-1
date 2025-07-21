@@ -5,16 +5,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from '@services/root.service';
 import useDeleteReunion from '@hooks/reuniones/useDeleteReunion.jsx';
 import useEditReunion from '@hooks/reuniones/useEditReunion.jsx';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
-import '@styles/reuniones.css';
 
 const Reuniones = () => {
-
   const [reuniones, setReuniones] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [fechaHoraActual, setFechaHoraActual] = useState(new Date());
+  const [mensaje, setMensaje] = useState(null);
 
   const [formData, setFormData] = useState({
     fecha: '',
@@ -25,17 +24,14 @@ const Reuniones = () => {
     observaciones: '',
   });
 
-  const [editId, setEditId] = useState(null);
-  const [editFormData, setEditFormData] = useState({});
+  const [mostrarPasadas, setMostrarPasadas] = useState(false);
+  const [filtroFechaPasadas, setFiltroFechaPasadas] = useState("");
+  const [filtroMes, setFiltroMes] = useState("");
+  const [filtroAnio, setFiltroAnio] = useState("");
 
   const { user } = useAuth();
   const { eliminarReunion, loading: loadingDelete } = useDeleteReunion();
-  const { editarReunion, loading: loadingEdit } = useEditReunion();
-
-  const hoy = new Date().toLocaleDateString('fr-CA');
-  const futuras = reuniones.filter(r => r.fecha_reunion > hoy);
-  const actuales = reuniones.filter(r => r.fecha_reunion.startsWith(hoy));
-  const pasadas = reuniones.filter(r => r.fecha_reunion < hoy);
+  const { editarReunion } = useEditReunion();
 
   useEffect(() => {
     fetchReuniones();
@@ -52,373 +48,235 @@ const Reuniones = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const fechaCompleta = new Date(`${selectedDate.toISOString().split('T')[0]}T${formData.hora}`);
+    try {
+      if (isEditing) {
+        await editarReunion(editId, {
+          fecha_reunion: fechaCompleta.toISOString(),
+          lugar: formData.lugar,
+          descripcion: formData.descripcion,
+          objetivo: formData.objetivo,
+          observaciones: formData.observaciones,
+        }, fetchReuniones);
+        setMensaje("Reunión editada correctamente.");
+        resetForm();
+      } else {
+        await axios.post("/reunion", {
+          fecha_reunion: fechaCompleta.toISOString(),
+          lugar: formData.lugar,
+          descripcion: formData.descripcion,
+          objetivo: formData.objetivo,
+          observaciones: formData.observaciones,
+        });
+        setMensaje("Reunión creada correctamente.");
+        fetchReuniones();
+        resetForm();
+      }
+    } catch (error) {
+      console.error("Error al guardar reunión:", error);
+      alert("Error al crear la reunión.");
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ fecha: '', hora: '', lugar: '', descripcion: '', objetivo: '', observaciones: '' });
+    setSelectedDate(new Date());
+    setShowForm(false);
+    setIsEditing(false);
+    setEditId(null);
+    setTimeout(() => setMensaje(null), 3000);
+  };
+
   const formatearFechaDDMMYYYY = date => {
     const adj = new Date(date);
     adj.setHours(adj.getHours() - 4);
-    return adj.toLocaleDateString('es-CL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return adj.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
-  const formatearHoraHHMMSS = date =>
-    new Date(date).toLocaleTimeString('es-CL', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
+  const formatearHoraHHMMSS = date => new Date(date).toLocaleTimeString('es-CL', {
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 
-  const formatearFechaSinUTC = iso =>
-    iso.split('-').reverse().join('-');
+  const ahora = new Date();
+  const futuras = reuniones.filter(r => new Date(r.fecha_reunion) > ahora);
+  const actuales = reuniones.filter(r => {
+    const fecha = new Date(r.fecha_reunion);
+    const fin = new Date(fecha);
+    fin.setHours(fin.getHours() + 3);
+    return ahora >= fecha && ahora <= fin;
+  });
+  const pasadas = reuniones.filter(r => new Date(r.fecha_reunion) < ahora && !actuales.includes(r));
 
-  const handleDateClick = date => {
-    const isoDate = date.toLocaleDateString('fr-CA');
-
-    setSelectedDate(date);
-    setFormData(f => ({ ...f, fecha: isoDate }));
-    setShowForm(true);
-
-    setEditId(null);
-  };
-
-  const handleInputChange = e => {
-    const { name, value } = e.target;
-    setFormData(f => ({ ...f, [name]: value }));
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-
-    if (!formData.hora) {
-      alert("Debes seleccionar una hora.");
-      return;
-    }
-
-    const fechaString = `${formData.fecha}T${formData.hora}:00`;
-
-    if (new Date(fechaString) < new Date()) {
-      alert("No puedes agendar en el pasado.");
-      return;
-    }
-
-    try {
-      await axios.post("/reunion", {
-        lugar: formData.lugar,
-        descripcion: formData.descripcion,
-        fecha_reunion: fechaString,
-        objetivo: formData.objetivo,
-        observaciones: formData.observaciones,
-        fechaActualizacion: new Date().toISOString(),
-      });
-
-      alert("Reunión creada");
-
-      setShowForm(false);
-      setFormData({
-        fecha: '',
-        hora: '',
-        lugar: '',
-        descripcion: '',
-        objetivo: '',
-        observaciones: '',
-      });
-      fetchReuniones();
-    }
-    catch (err) {
-      console.error(err);
-      alert("Error al crear reunión");
-    }
-  };
-
-  const handleEditar = r => {
-    setEditId(r.id_reunion);
-
-    const fechaObj = new Date(r.fecha_reunion);
-    const isoDate = fechaObj.toISOString().slice(0, 10);
-    const hh = String(fechaObj.getHours()).padStart(2, '0');
-    const mm = String(fechaObj.getMinutes()).padStart(2, '0');
-
-    setEditFormData({
-      fecha: isoDate,
-      hora: `${hh}:${mm}`,
-      lugar: r.lugar,
-      descripcion: r.descripcion,
-      objetivo: r.objetivo,
-      observaciones: r.observaciones,
-    });
-  };
-
-  const handleGuardarEdicion = async e => {
-    e.preventDefault();
-
-    const { fecha, hora, lugar, descripcion, objetivo, observaciones } = editFormData;
-
-    const fechaReu = `${fecha}T${hora}:00`;
-
-    if (new Date(fechaReu) < new Date()) {
-      alert("No puedes agendar en el pasado.");
-      return;
-    }
-
-    try {
-      await editarReunion(editId, {
-        fecha_reunion: fechaReu,
-        lugar,
-        descripcion,
-        objetivo,
-        observaciones
-      });
-
-      setEditId(null);
-      fetchReuniones();
-    }
-    catch {
-      alert("Error guardando cambios");
-    }
-  };
+  const pasadasFiltradas = pasadas.filter((r) => {
+    const fecha = r.fecha_reunion;
+    const cumpleFecha = filtroFechaPasadas ? fecha.startsWith(filtroFechaPasadas) : true;
+    const cumpleMes = filtroMes ? fecha.slice(5, 7) === filtroMes : true;
+    const cumpleAnio = filtroAnio ? fecha.slice(0, 4) === filtroAnio : true;
+    return cumpleFecha && cumpleMes && cumpleAnio;
+  });
 
   const renderReunionCard = r => {
-    const isEditing = editId === r.id_reunion;
+    const fecha = new Date(r.fecha_reunion);
+    const fin = new Date(fecha);
+    fin.setHours(fin.getHours() + 3);
+    const esActualOPasada = ahora >= fecha;
 
     return (
-      <div key={r.id_reunion} className="reunion-card">
-
-        <div className="reunion-info">
+      <div key={r.id_reunion} className="border p-4 rounded-md shadow-sm mb-4 bg-white">
+        <div className="mb-2">
           <p><strong>Lugar:</strong> {r.lugar}</p>
-          <p>
-            <strong>Fecha:</strong>{" "}
-            {formatearFechaDDMMYYYY(r.fecha_reunion)}
-            {" a las "}
-            {formatearHoraHHMMSS(r.fecha_reunion)} hr
-          </p>
+          <p><strong>Fecha:</strong> {formatearFechaDDMMYYYY(r.fecha_reunion)} a las {formatearHoraHHMMSS(r.fecha_reunion)} hrs</p>
           <p><strong>Objetivo:</strong> {r.objetivo}</p>
         </div>
-
-        {["presidenta", "admin", "vecino","tesorera","secretario"].includes(user?.rol?.toLowerCase()) && (
-          <button
-            onClick={() => {
-              if (["presidenta", "admin"].includes(user?.rol?.toLowerCase())) {
+        <div className="flex flex-wrap gap-2">
+          {user && ["presidenta", "admin", "vecino", "tesorera", "secretario"].includes(user.rol?.toLowerCase()) && esActualOPasada && (
+            <button onClick={() => {
+              if (["presidenta", "admin"].includes(user.rol?.toLowerCase())) {
                 localStorage.setItem("reunion_en_curso", r.id_reunion);
               }
               window.location.href = `/detalle-reunion/${r.id_reunion}`;
             }}
-          >
-            {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) ? "Ingresar a Reunión" : "Ver Reunión"}
-          </button>
-        )}
-
-        {["presidenta", "admin"].includes(user?.rol?.toLowerCase()) && (
-          <>
-            <button onClick={() => handleEditar(r)}>Editar</button>
-            <button
-              className="btn-delete"
-              disabled={loadingDelete}
-              onClick={() => eliminarReunion(r.id_reunion, fetchReuniones)}
-            >
-              {loadingDelete ? "Eliminando..." : "Eliminar"}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
+              {user.rol?.toLowerCase() === "presidenta" || user.rol?.toLowerCase() === "admin" ? "Ingresar a Reunión" : "Ver Reunión"}
             </button>
-          </>
-        )}
-
-        {isEditing && (
-          <form className="edit-reunion-form" onSubmit={handleGuardarEdicion}>
-            <label>Fecha:</label>
-            <input
-              type="date"
-              name="fecha"
-              value={editFormData.fecha}
-              onChange={e =>
-                setEditFormData({
-                  ...editFormData,
-                  fecha: e.target.value
-                })
-              }
-              required
-            />
-
-            <label>Hora:</label>
-            <TimePicker
-              onChange={v =>
-                setEditFormData({
-                  ...editFormData,
-                  hora: v
-                })
-              }
-              value={editFormData.hora}
-              format="HH:mm"
-              disableClock
-              style={{ width: '4000px' }}
-            />
-
-            <label>Lugar:</label>
-            <input
-              type="text"
-              name="lugar"
-              value={editFormData.lugar}
-              onChange={e =>
-                setEditFormData({
-                  ...editFormData,
-                  lugar: e.target.value
-                })
-              }
-              required
-            />
-
-            <label>Descripción:</label>
-            <textarea
-              name="descripcion"
-              value={editFormData.descripcion}
-              onChange={e =>
-                setEditFormData({
-                  ...editFormData,
-                  descripcion: e.target.value
-                })
-              }
-              required
-            />
-
-            <label>Objetivo:</label>
-            <textarea
-              name="objetivo"
-              value={editFormData.objetivo}
-              onChange={e =>
-                setEditFormData({
-                  ...editFormData,
-                  objetivo: e.target.value
-                })
-              }
-              required
-            />
-
-            <label>Observaciones:</label>
-            <textarea
-              name="observaciones"
-              value={editFormData.observaciones}
-              onChange={e =>
-                setEditFormData({
-                  ...editFormData,
-                  observaciones: e.target.value
-                })
-              }
-              required
-            />
-
-            <div className="edit-form-buttons">
-              <button type="submit">Guardar</button>
-              <button type="button" onClick={() => setEditId(null)}>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        )}
-
+          )}
+          {user && ["presidenta", "admin"].includes(user.rol?.toLowerCase()) && (
+            <>
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  setEditId(r.id_reunion);
+                  setShowForm(true);
+                  setSelectedDate(new Date(r.fecha_reunion));
+                  setFormData({
+                    hora: formatearHoraHHMMSS(r.fecha_reunion),
+                    lugar: r.lugar,
+                    descripcion: r.descripcion,
+                    objetivo: r.objetivo,
+                    observaciones: r.observaciones,
+                    fecha: r.fecha_reunion.split('T')[0],
+                  });
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded">Editar</button>
+              <button
+                onClick={() => eliminarReunion(r.id_reunion, fetchReuniones)}
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded">
+                {loadingDelete ? "Eliminando..." : "Eliminar"}</button>
+            </>
+          )}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="reuniones-page">
-      <div className="fecha-hora-actual">
-        <p><strong>Fecha:</strong> {formatearFechaDDMMYYYY(fechaHoraActual)}</p>
-        <p><strong>Hora:</strong> {formatearHoraHHMMSS(fechaHoraActual)}</p>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <div className="bg-white px-4 py-2 rounded-md shadow-md border text-gray-800">
+          <p className="text-sm font-medium">📅 Fecha actual: {formatearFechaDDMMYYYY(fechaHoraActual)}</p>
+          <p className="text-sm font-medium">⏰ Hora actual: {formatearHoraHHMMSS(fechaHoraActual)}</p>
+        </div>
+        {(user?.rol === "presidenta" || user?.rol === "admin") && (
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+            onClick={() => {
+              setShowForm(!showForm);
+              setIsEditing(false);
+              setFormData({ fecha: '', hora: '', lugar: '', descripcion: '', objetivo: '', observaciones: '' });
+            }}>
+            + Nueva reunión
+          </button>
+        )}
       </div>
 
-      <h1>Reuniones</h1>
-
-      {(user?.rol === "presidenta" || user?.rol === "admin") && (
-        <div className="crear-reunion-container">
-          <h3>Selecciona una fecha para agendar reunión:</h3>
-          <DatePicker
-            selected={selectedDate}
-            onChange={handleDateClick}
-            dateFormat="dd-MM-yyyy"
-            inline
-          />
-        </div>
-      )}
+      {mensaje && <div className="mb-4 text-green-700 font-semibold">{mensaje}</div>}
 
       {showForm && (
-        <div className="formulario-reunion">
-          <h3>Crear nueva reunión</h3>
-          <form onSubmit={handleSubmit}>
-
-            <p>
-              <strong>Fecha seleccionada:</strong>{" "}
-              {formatearFechaSinUTC(formData.fecha)}
-            </p>
-
-            <label>Hora:</label>
-            <TimePicker
-              onChange={v => setFormData(f => ({ ...f, hora: v }))}
-              value={formData.hora}
-              format="HH:mm"
-              disableClock
-            />
-
-            <label>Lugar:</label>
-            <input
-              type="text"
-              name="lugar"
-              value={formData.lugar}
-              onChange={handleInputChange}
-              required
-            />
-
-            <label>Descripción:</label>
-            <textarea
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleInputChange}
-              required
-            />
-
-            <label>Objetivo:</label>
-            <textarea
-              name="objetivo"
-              value={formData.objetivo}
-              onChange={handleInputChange}
-              required
-            />
-
-            <label>Observaciones:</label>
-            <textarea
-              name="observaciones"
-              value={formData.observaciones}
-              onChange={handleInputChange}
-              required
-            />
-
-            <button type="submit" className="btn-submit">
-              Crear reunión
-            </button>
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={() => setShowForm(false)}
-            >
-              Cancelar
-            </button>
-
+        <div className="bg-white p-6 rounded-md shadow-md mb-6">
+          <h2 className="text-lg font-semibold mb-4">{isEditing ? 'Editar reunión' : 'Crear nueva reunión'}</h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700">Fecha y hora:</label>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => {
+                  setSelectedDate(date);
+                  setFormData((prev) => ({
+                    ...prev,
+                    hora: date.toTimeString().slice(0, 5),
+                  }));
+                }}
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                dateFormat="dd-MM-yyyy HH:mm"
+                placeholderText="Selecciona fecha y hora"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700">Lugar:</label>
+              <input type="text" name="lugar" value={formData.lugar} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Descripción:</label>
+              <textarea name="descripcion" value={formData.descripcion} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Objetivo:</label>
+              <textarea name="objetivo" value={formData.objetivo} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700">Observaciones:</label>
+              <textarea name="observaciones" value={formData.observaciones} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+            </div>
+            <div className="col-span-2 flex gap-2">
+              <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">{isEditing ? 'Guardar cambios' : 'Crear reunión'}</button>
+              <button type="button" onClick={resetForm} className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded">Cancelar</button>
+            </div>
           </form>
         </div>
       )}
 
-      <div className="seccion-reuniones">
-        <h2>Futuras</h2>
-        {futuras.map(renderReunionCard)}
-      </div>
+      <h2 className="text-xl font-bold mb-2">Futuras</h2>
+      {futuras.map(renderReunionCard)}
 
-      <div className="seccion-reuniones">
-        <h2>Actuales</h2>
-        {actuales.map(renderReunionCard)}
-      </div>
+      <h2 className="text-xl font-bold mt-6 mb-2">Actuales</h2>
+      {actuales.map(renderReunionCard)}
 
-      <div className="seccion-reuniones">
-        <h2>Pasadas</h2>
-        {pasadas.map(renderReunionCard)}
-      </div>
+      <h2 className="text-xl font-bold mt-6 mb-2">Pasadas</h2>
+      <button onClick={() => setMostrarPasadas(!mostrarPasadas)} className="mb-2 text-sm font-semibold text-blue-600 hover:underline">
+        {mostrarPasadas ? "Ocultar reuniones pasadas" : `Ver reuniones pasadas (${pasadas.length})`}
+      </button>
+
+      {mostrarPasadas && (
+        <div className="mb-4 space-y-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Filtrar por fecha exacta:</label>
+            <input type="date" value={filtroFechaPasadas} onChange={(e) => setFiltroFechaPasadas(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Filtrar por mes (MM):</label>
+            <input type="text" maxLength={2} placeholder="Ej: 07" value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Filtrar por año (AAAA):</label>
+            <input type="text" maxLength={4} placeholder="Ej: 2025" value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+          </div>
+        </div>
+      )}
+
+      {mostrarPasadas && pasadasFiltradas.map(renderReunionCard)}
     </div>
   );
 };

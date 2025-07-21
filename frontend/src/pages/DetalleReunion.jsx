@@ -5,6 +5,7 @@ import axios from "@services/root.service";
 import { getUsuariosReunion } from "@services/reunion.service";
 import useEditReunion from "@hooks/reuniones/useEditReunion.jsx";
 import TimePicker from "react-time-picker";
+import CarruselUsuarios from "@components/CarruselUsuarios";
 import "@styles/reunion.css";
 import "react-time-picker/dist/TimePicker.css";
 import { io } from "socket.io-client";
@@ -207,224 +208,195 @@ const DetalleReunion = () => {
         }
     };
 
+    const handleToggleAsistencia = async (usuario) => {
+        if (!confirm(`¿Deseas ${usuario.asistio ? "quitar" : "marcar"} asistencia de ${usuario.User?.nombre} ${usuario.User?.apellido}?`)) {
+            return;
+        }
+
+        try {
+            await axios.patch(`/usuario-reunion/detail/?id_usuario=${usuario.id_usuario}&id_reunion=${id}`);
+            cargarDatos();
+        } catch (error) {
+            alert("Error al actualizar la asistencia");
+            console.error(error);
+        }
+    };
+
     if (!reunion) return <p>Cargando reunión...</p>;
 
     return (
-        <div className="reunion-page">
-            <div className="sidebar">
-                <h3>Participantes</h3>
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                    {(
-                        isVecino
-                            ? usuariosReunion.filter(u => u.User?.rut === user.rut)
-                            : usuariosReunion
-                    ).length > 0 ? (
-                        (isVecino
-                            ? usuariosReunion.filter(u => u.User?.rut === user.rut)
-                            : usuariosReunion
-                        ).map(u => (
-                            <li
-                                key={u.id_usuario}
-                                style={{ marginBottom: 15, borderBottom: "1px solid #ccc", paddingBottom: 10 }}
-                            >
-                                <strong>{u.User?.nombre} {u.User?.apellido}</strong><br />
-                                <span>RUT: {u.User?.rut}</span><br />
-                                {!isVecino && <span>Rol: {u.User?.rol}</span>}<br />
-                                {u.asistio
-                                    ? (
-                                        <>
-                                            <span style={{ color: "green" }}>Presente ✅</span><br />
-                                            <span style={{ fontSize: "12px" }}>
-                                                Confirmado el {new Date(u.fecha_confirmacion_asistencia).toLocaleString()}
-                                            </span>
-                                        </>
-                                    )
-                                    : (
-                                        <span style={{ color: "red" }}>No ha confirmado ❌</span>
-                                    )
-                                }
-                                {isPresidenta && !isVecino && (
-                                    <button
-                                        style={{ marginTop: 8, fontSize: "0.8rem" }}
-                                        onClick={async () => {
-                                            if (!confirm(`¿Deseas ${u.asistio ? "quitar" : "marcar"} asistencia?`)) return;
-                                            await axios.patch(
-                                                `/usuario-reunion/detail/?id_usuario=${u.id_usuario}&id_reunion=${id}`
-                                            );
-                                            cargarDatos();
-                                        }}
-                                    >
-                                        {u.asistio ? "❌ Quitar asistencia" : "✅ Marcar asistencia"}
-                                    </button>
-                                )}
-                            </li>
-                        ))
-                    ) : (
-                        <li>No hay usuarios registrados aún</li>
-                    )}
-                </ul>
-            </div>
+        <div className="min-h-screen w-full bg-gray-50 px-6 py-6 flex flex-col gap-6">
+            {/* Carrusel de usuarios */}
+            <CarruselUsuarios
+                usuarios={isVecino ? usuariosReunion.filter(u => u.User?.rut === user.rut) : usuariosReunion}
+                isVecino={isVecino}
+                isPresidenta={isPresidenta}
+                onToggleAsistencia={handleToggleAsistencia}
+            />
 
-            <div className="chat">
+            {/* Detalle de reunión */}
+            <div className="w-full max-w-4xl bg-white shadow rounded p-6 space-y-6">
+                {/* Botón token */}
                 {isPresidenta && !tokenActivo && (
-                    <button onClick={generarToken} style={{ marginBottom: "1rem" }}>
+                    <button onClick={generarToken} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
                         🎟️ Generar token de asistencia
                     </button>
                 )}
+
                 {tokenActivo && (
-                    <div style={{ marginBottom: "1rem", padding: "0.5rem", background: "#eef", borderRadius: 5 }}>
+                    <div className="p-3 bg-blue-100 rounded space-y-2">
                         <strong>🎟️ Token actual:</strong> {tokenActivo.numero_token}
-                        <button
-                            onClick={() => {
-                                navigator.clipboard.writeText(tokenActivo.numero_token);
-                                alert("Token copiado al portapapeles");
-                            }}
-                            style={{ marginLeft: "1rem", padding: "5px 10px", borderRadius: 4, cursor: "pointer" }}
-                        >
-                            Copiar token
-                        </button>
-                        <div style={{ marginTop: 4 }}>
-                            <strong>Estado:</strong>{" "}
-                            <span style={{ color: tokenActivo.estado === "activo" ? "green" : "red" }}>
+                        <div className="flex gap-2 items-center">
+                            <button
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(tokenActivo.numero_token);
+                                    alert("Token copiado al portapapeles");
+                                }}
+                            >
+                                Copiar token
+                            </button>
+                            <span className={tokenActivo.estado === "activo" ? "text-green-600" : "text-red-600"}>
                                 {tokenActivo.estado === "activo" ? "Activo ✅" : "Cerrado ❌"}
                             </span>
                         </div>
-                        {tokenActivo.estado === "activo" && isPresidenta && (
-                            <button
-                                onClick={async () => {
-                                    if (!confirm("¿Estás seguro de cerrar este token?")) return;
-                                    try {
-                                        await axios.patch(`/token/detail/?id_token=${tokenActivo.id_token}`, { estado: "cerrado" });
-                                        alert("✅ Token cerrado correctamente.");
-                                        setTokenActivo({ ...tokenActivo, estado: "cerrado" });
-                                        cargarDatos();
-                                    } catch {
-                                        alert("❌ Error al cerrar el token.");
-                                    }
-                                }}
-                                style={{ marginTop: 4, backgroundColor: "#fdd", border: "1px solid #f00", padding: "5px 10px", borderRadius: 4, cursor: "pointer" }}
-                            >
-                                ❌ Cerrar token de asistencia
-                            </button>
-                        )}
                     </div>
                 )}
 
+                {/* Confirmación por vecino */}
                 {isVecino && (
-                    <div style={{ background: "#eef", padding: "1rem", borderRadius: 8, marginBottom: "1rem" }}>
-                        <h3>Confirmar asistencia con token</h3>
+                    <div className="bg-blue-100 p-4 rounded">
+                        <h3 className="font-semibold mb-2">Confirmar asistencia con token</h3>
                         <input
                             type="text"
                             value={tokenIngresado}
                             onChange={e => setTokenIngresado(e.target.value)}
                             placeholder="Ingresa el token entregado"
-                            style={{ marginRight: "0.5rem" }}
+                            className="border border-gray-300 rounded p-2 mr-2"
                         />
-                        <button onClick={marcarAsistencia}>Validar</button>
+                        <button onClick={marcarAsistencia} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
+                            Validar
+                        </button>
                         {mensajeAsistencia && (
-                            <p style={{ marginTop: "0.5rem", color: mensajeAsistencia.includes("✅") ? "green" : "red" }}>
+                            <p className={`mt-2 ${mensajeAsistencia.includes("✅") ? "text-green-600" : "text-red-600"}`}>
                                 {mensajeAsistencia}
                             </p>
                         )}
                     </div>
                 )}
 
-                <h2>Detalle de la Reunión</h2>
-                <p><strong>Lugar:</strong> {reunion.lugar}</p>
-                <p><strong>Fecha:</strong> {new Date(reunion.fecha_reunion).toLocaleString()}</p>
-                <p><strong>Descripción:</strong> {reunion.descripcion}</p>
-                <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
-                <p><strong>Última actualización:</strong> {reunion.fechaActualizacion ? new Date(reunion.fechaActualizacion).toLocaleString() : "—"}</p>
-
-                <hr />
-                <h3>Anotaciones Importantes</h3>
-                <div
-                    ref={observacionesRef}
-                    className="observaciones-box"
-                    style={{ background: "#f4f4f4", padding: 10, borderRadius: 5, marginBottom: "1rem", height: 200, overflowY: "auto" }}
-                >
-                    {reunion.observaciones
-                        ? reunion.observaciones.trim().split("\n").filter(l => l.trim()).map((l, i) => (
-                            <div key={i} style={{ marginBottom: 4, padding: 4, borderBottom: "1px solid #ddd" }}>
-                                {l}
-                            </div>
-                        ))
-                        : <i>No hay observaciones aún.</i>
-                    }
+                {/* Información de la reunión */}
+                <div>
+                    <h2 className="text-xl font-bold">Detalle de la Reunión</h2>
+                    <p><strong>Lugar:</strong> {reunion.lugar}</p>
+                    <p><strong>Fecha:</strong> {new Date(reunion.fecha_reunion).toLocaleString()}</p>
+                    <p><strong>Descripción:</strong> {reunion.descripcion}</p>
+                    <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
+                    <p><strong>Última actualización:</strong> {reunion.fechaActualizacion ? new Date(reunion.fechaActualizacion).toLocaleString() : "—"}</p>
                 </div>
 
-                {(isSecretario || isPresidenta) && (
-                    <>
-                        <textarea
-                            placeholder="Escribe una observación para todos los vecinos..."
-                            value={nuevoMensaje}
-                            onChange={(e) => setNuevoMensaje(e.target.value)}
-                            rows={3}
-                        />
-                        <button onClick={enviarObservacion}>Agregar observación</button>
-                    </>
-                )}
+                {/* Observaciones */}
+                <div>
+                    <h3 className="font-semibold mb-2">Anotaciones Importantes</h3>
+                    <div
+                        ref={observacionesRef}
+                        className="bg-gray-100 p-3 rounded h-52 overflow-y-auto"
+                    >
+                        {reunion.observaciones
+                            ? reunion.observaciones.trim().split("\n").filter(l => l.trim()).map((l, i) => (
+                                <div key={i} className="mb-1 pb-1 border-b border-gray-300">{l}</div>
+                            ))
+                            : <i>No hay observaciones aún.</i>
+                        }
+                    </div>
 
+                    {(isSecretario || isPresidenta) && (
+                        <>
+                            <textarea
+                                placeholder="Escribe una observación..."
+                                value={nuevoMensaje}
+                                onChange={(e) => setNuevoMensaje(e.target.value)}
+                                rows={3}
+                                className="w-full border border-gray-300 rounded p-2 mt-2"
+                            />
+                            <button
+                                onClick={enviarObservacion}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded mt-1"
+                            >
+                                Agregar observación
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {/* Editar reunión */}
                 {isPresidenta && (
-                    <>
-                        <hr />
-                        <h3>Editar datos de la reunión</h3>
+                    <div className="mt-4">
+                        <h3 className="font-semibold mb-2">Editar datos de la reunión</h3>
                         {!editMode ? (
-                            <button onClick={handleEditarClick}>Editar reunión</button>
+                            <button
+                                onClick={handleEditarClick}
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded"
+                            >
+                                Editar reunión
+                            </button>
                         ) : (
-                            <form onSubmit={handleGuardarEdicion}>
-                                <label>
-                                    Fecha:
-                                    <input
-                                        type="date"
-                                        value={editFormData.fecha}
-                                        onChange={(e) => setEditFormData({ ...editFormData, fecha: e.target.value })}
-                                        required
-                                    />
-                                </label>
-                                <label>
-                                    Hora:
-                                    <TimePicker
-                                        onChange={(value) => setEditFormData({ ...editFormData, hora: value })}
-                                        value={editFormData.hora}
-                                        disableClock
-                                    />
-                                </label>
-                                <label>
-                                    Lugar:
-                                    <input
-                                        type="text"
-                                        value={editFormData.lugar}
-                                        onChange={(e) => setEditFormData({ ...editFormData, lugar: e.target.value })}
-                                        required
-                                    />
-                                </label>
-                                <label>
-                                    Descripción:
-                                    <textarea
-                                        value={editFormData.descripcion}
-                                        onChange={(e) => setEditFormData({ ...editFormData, descripcion: e.target.value })}
-                                    />
-                                </label>
-                                <label>
-                                    Objetivo:
-                                    <textarea
-                                        value={editFormData.objetivo}
-                                        onChange={(e) => setEditFormData({ ...editFormData, objetivo: e.target.value })}
-                                    />
-                                </label>
-                                <button type="submit">Guardar cambios</button>
-                                <button type="button" onClick={() => setEditMode(false)}>Cancelar</button>
+                            <form onSubmit={handleGuardarEdicion} className="space-y-2">
+                                <input
+                                    type="date"
+                                    value={editFormData.fecha}
+                                    onChange={e => setEditFormData({ ...editFormData, fecha: e.target.value })}
+                                    required
+                                    className="block border border-gray-300 rounded p-2"
+                                />
+                                <TimePicker
+                                    onChange={value => setEditFormData({ ...editFormData, hora: value })}
+                                    value={editFormData.hora}
+                                    disableClock
+                                    className="block w-full"
+                                />
+                                <input
+                                    type="text"
+                                    value={editFormData.lugar}
+                                    onChange={e => setEditFormData({ ...editFormData, lugar: e.target.value })}
+                                    required
+                                    className="block border border-gray-300 rounded p-2 w-full"
+                                />
+                                <textarea
+                                    value={editFormData.descripcion}
+                                    onChange={e => setEditFormData({ ...editFormData, descripcion: e.target.value })}
+                                    className="block border border-gray-300 rounded p-2 w-full"
+                                />
+                                <textarea
+                                    value={editFormData.objetivo}
+                                    onChange={e => setEditFormData({ ...editFormData, objetivo: e.target.value })}
+                                    className="block border border-gray-300 rounded p-2 w-full"
+                                />
+                                <div className="flex gap-2">
+                                    <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded">
+                                        Guardar cambios
+                                    </button>
+                                    <button type="button" onClick={() => setEditMode(false)} className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-1 px-3 rounded">
+                                        Cancelar
+                                    </button>
+                                </div>
                             </form>
                         )}
-                    </>
+                    </div>
                 )}
-                <div style={{ marginTop: "2rem" }}>
-                    <button onClick={handleFinalizar}>Salir de la Reunión</button>
+
+                {/* Botón salir */}
+                <div className="mt-4">
+                    <button
+                        onClick={handleFinalizar}
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+                    >
+                        Salir de la Reunión
+                    </button>
                 </div>
             </div>
         </div>
     );
-};
+}
 
 export default DetalleReunion;
