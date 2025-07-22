@@ -53,35 +53,61 @@ const Reuniones = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleEditar = (r) => {
+    setIsEditing(true);
+    setEditId(r.id_reunion);
+    setShowForm(true);
+
+    const fechaObj = new Date(r.fecha_reunion);
+    const fechaStr = fechaObj.toISOString().slice(0, 10);
+    const horaStr = fechaObj.toTimeString().slice(0, 5);
+
+    setSelectedDate(fechaObj);
+
+    setFormData({
+      fecha: fechaStr,
+      hora: horaStr,
+      lugar: r.lugar,
+      descripcion: r.descripcion,
+      objetivo: r.objetivo,
+      observaciones: r.observaciones,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const fechaCompleta = new Date(`${selectedDate.toISOString().split('T')[0]}T${formData.hora}`);
+
+    const fechaCompleta = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      parseInt(formData.hora.split(':')[0]),
+      parseInt(formData.hora.split(':')[1])
+    );
+
+    const payload = {
+      fecha_reunion: fechaCompleta.toISOString(),
+      lugar: formData.lugar,
+      descripcion: formData.descripcion,
+      objetivo: formData.objetivo,
+      observaciones: formData.observaciones,
+      fechaActualizacion: new Date().toISOString(),
+    };
+
     try {
       if (isEditing) {
-        await editarReunion(editId, {
-          fecha_reunion: fechaCompleta.toISOString(),
-          lugar: formData.lugar,
-          descripcion: formData.descripcion,
-          objetivo: formData.objetivo,
-          observaciones: formData.observaciones,
-        }, fetchReuniones);
+        await editarReunion(editId, payload, fetchReuniones);
         setMensaje("Reunión editada correctamente.");
-        resetForm();
       } else {
-        await axios.post("/reunion", {
-          fecha_reunion: fechaCompleta.toISOString(),
-          lugar: formData.lugar,
-          descripcion: formData.descripcion,
-          objetivo: formData.objetivo,
-          observaciones: formData.observaciones,
-        });
+        await axios.post("/reunion", payload);
         setMensaje("Reunión creada correctamente.");
-        fetchReuniones();
-        resetForm();
       }
+
+      fetchReuniones();
+      resetForm();
     } catch (error) {
       console.error("Error al guardar reunión:", error);
-      alert("Error al crear la reunión.");
+      alert("Error al guardar la reunión.");
     }
   };
 
@@ -94,18 +120,23 @@ const Reuniones = () => {
     setTimeout(() => setMensaje(null), 3000);
   };
 
-  const formatearFechaDDMMYYYY = date => {
-    const adj = new Date(date);
-    adj.setHours(adj.getHours() - 4);
-    return adj.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
+  const formatearFechaDDMMYYYY = (date) =>
+    new Date(date).toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      timeZone: 'America/Santiago',
+    });
 
-  const formatearHoraHHMMSS = date => new Date(date).toLocaleTimeString('es-CL', {
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
+  const formatearHoraHHMMSS = (date) =>
+    new Date(date).toLocaleTimeString('es-CL', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'America/Santiago',
+    });
+
 
   const ahora = new Date();
   const futuras = reuniones.filter(r => new Date(r.fecha_reunion) > ahora);
@@ -115,7 +146,9 @@ const Reuniones = () => {
     fin.setHours(fin.getHours() + 3);
     return ahora >= fecha && ahora <= fin;
   });
-  const pasadas = reuniones.filter(r => new Date(r.fecha_reunion) < ahora && !actuales.includes(r));
+  const pasadas = reuniones
+    .filter(r => new Date(r.fecha_reunion) < ahora && !actuales.includes(r))
+    .sort((a, b) => new Date(b.fecha_reunion) - new Date(a.fecha_reunion));
 
   const pasadasFiltradas = pasadas.filter((r) => {
     const fecha = r.fecha_reunion;
@@ -132,7 +165,7 @@ const Reuniones = () => {
     const esActualOPasada = ahora >= fecha;
 
     return (
-      <div key={r.id_reunion} className="border p-4 rounded-md shadow-sm mb-4 bg-white">
+      <div key={r.id_reunion} className="border p-4 rounded-md shadow-sm mb-4 bg-white w-full max-w-2xl">
         <div className="mb-2">
           <p><strong>Lugar:</strong> {r.lugar}</p>
           <p><strong>Fecha:</strong> {formatearFechaDDMMYYYY(r.fecha_reunion)} a las {formatearHoraHHMMSS(r.fecha_reunion)} hrs</p>
@@ -260,20 +293,40 @@ const Reuniones = () => {
       </button>
 
       {mostrarPasadas && (
-        <div className="mb-4 space-y-2">
+        <div className="mb-4 flex flex-wrap gap-4 items-end">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Filtrar por fecha exacta:</label>
-            <input type="date" value={filtroFechaPasadas} onChange={(e) => setFiltroFechaPasadas(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha exacta:</label>
+            <input
+              type="date"
+              value={filtroFechaPasadas}
+              onChange={(e) => setFiltroFechaPasadas(e.target.value)}
+              className="border border-gray-300 rounded-md p-2 w-[160px]"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Filtrar por mes (MM):</label>
-            <input type="text" maxLength={2} placeholder="Ej: 07" value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mes (MM):</label>
+            <input
+              type="text"
+              maxLength={2}
+              placeholder="Ej: 07"
+              value={filtroMes}
+              onChange={(e) => setFiltroMes(e.target.value)}
+              className="border border-gray-300 rounded-md p-2 w-[80px]"
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Filtrar por año (AAAA):</label>
-            <input type="text" maxLength={4} placeholder="Ej: 2025" value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} className="mt-1 block w-64 border border-gray-300 rounded-md shadow-sm p-2" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Año (AAAA):</label>
+            <input
+              type="text"
+              maxLength={4}
+              placeholder="Ej: 2025"
+              value={filtroAnio}
+              onChange={(e) => setFiltroAnio(e.target.value)}
+              className="border border-gray-300 rounded-md p-2 w-[100px]"
+            />
           </div>
         </div>
+
       )}
 
       {mostrarPasadas && pasadasFiltradas.map(renderReunionCard)}

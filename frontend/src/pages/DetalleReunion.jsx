@@ -6,7 +6,6 @@ import { getUsuariosReunion } from "@services/reunion.service";
 import useEditReunion from "@hooks/reuniones/useEditReunion.jsx";
 import TimePicker from "react-time-picker";
 import CarruselUsuarios from "@components/CarruselUsuarios";
-import "@styles/reunion.css";
 import "react-time-picker/dist/TimePicker.css";
 import { io } from "socket.io-client";
 
@@ -27,6 +26,7 @@ const DetalleReunion = () => {
     const [tokenIngresado, setTokenIngresado] = useState("");
     const [mensajeAsistencia, setMensajeAsistencia] = useState("");
     const [tokenActivo, setTokenActivo] = useState(null);
+    const [fechaConfirmacion, setFechaConfirmacion] = useState(null);
 
     const role = user?.rol?.toLowerCase();
     const isVecino = role === "vecino";
@@ -150,6 +150,7 @@ const DetalleReunion = () => {
                 id_token: token.id_token,
             });
             setMensajeAsistencia("✅ Asistencia registrada correctamente");
+            setFechaConfirmacion(new Date());
             cargarDatos();
         } catch (error) {
             setMensajeAsistencia(error.response?.data?.message || "❌ Error al validar asistencia");
@@ -189,7 +190,7 @@ const DetalleReunion = () => {
 
     const enviarObservacion = async () => {
         if (!nuevoMensaje.trim()) return;
-        if (!isSecretario && !isPresidenta) return alert("Solo secretario/tesorero, presidenta o admin pueden enviar observaciones.");
+        if (!isSecretario && !isPresidenta && !isTesorera && !isAdmin) return alert("Solo secretario/tesorera, presidenta o admin pueden enviar observaciones.");
         const form = `[${new Date().toLocaleTimeString()}] ${user?.nombre || "Usuario"} (${user?.rol}): ${limpiarTexto(nuevoMensaje)}\n`;
         const nuevas = (reunion?.observaciones || "") + form;
         try {
@@ -225,174 +226,258 @@ const DetalleReunion = () => {
     if (!reunion) return <p>Cargando reunión...</p>;
 
     return (
-        <div className="min-h-screen w-full bg-gray-50 px-6 py-6 flex flex-col gap-6">
-            {/* Carrusel de usuarios */}
-            <CarruselUsuarios
-                usuarios={isVecino ? usuariosReunion.filter(u => u.User?.rut === user.rut) : usuariosReunion}
-                isVecino={isVecino}
-                isPresidenta={isPresidenta}
-                onToggleAsistencia={handleToggleAsistencia}
-            />
+        <div className="min-h-screen bg-gray-50 py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Carrusel de usuarios */}
+                <CarruselUsuarios
+                    usuarios={isVecino ? usuariosReunion.filter(u => u.User?.rut === user.rut) : usuariosReunion}
+                    isVecino={isVecino}
+                    isPresidenta={isPresidenta}
+                    onToggleAsistencia={handleToggleAsistencia}
+                />
 
-            {/* Detalle de reunión */}
-            <div className="w-full max-w-4xl bg-white shadow rounded p-6 space-y-6">
-                {/* Botón token */}
-                {isPresidenta && !tokenActivo && (
-                    <button onClick={generarToken} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
-                        🎟️ Generar token de asistencia
-                    </button>
-                )}
+                {/* Detalle de reunión */}
+                <div className="mt-6 bg-white shadow rounded-lg p-6 space-y-6">
+                    {/* Botón token */}
+                    {isPresidenta && !tokenActivo && (
+                        <button onClick={generarToken} className="bg-green-600 hover:bg-green-700 text-black font-semibold py-2 px-4 rounded">
+                            🎟️ Generar token de asistencia
+                        </button>
+                    )}
 
-                {tokenActivo && (
-                    <div className="p-3 bg-blue-100 rounded space-y-2">
-                        <strong>🎟️ Token actual:</strong> {tokenActivo.numero_token}
-                        <div className="flex gap-2 items-center">
-                            <button
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(tokenActivo.numero_token);
-                                    alert("Token copiado al portapapeles");
+                    {tokenActivo && (
+                        <div className="p-3 bg-blue-100 rounded space-y-2">
+                            <strong>🎟️ Token actual:</strong> {tokenActivo.numero_token}
+                            <div className="flex gap-2 items-center">
+                                <button
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(tokenActivo.numero_token);
+                                        alert("Token copiado al portapapeles");
+                                    }}
+                                >
+                                    Copiar token
+                                </button>
+                                <span className={tokenActivo.estado === "activo" ? "text-green-600" : "text-red-600"}>
+                                    {tokenActivo.estado === "activo" ? "Activo ✅" : "Cerrado ❌"}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Confirmación por vecino */}
+                    {isVecino && (
+                        <div className="bg-blue-100 p-4 rounded">
+                            <h3 className="font-semibold mb-2">Confirmar asistencia con token</h3>
+                            <input
+                                type="text"
+                                value={tokenIngresado}
+                                onChange={e => setTokenIngresado(e.target.value)}
+                                placeholder="Ingresa el token entregado"
+                                className="border border-gray-300 rounded p-2 mr-2"
+                            />
+                            <button onClick={marcarAsistencia} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
+                                Validar
+                            </button>
+                            {mensajeAsistencia && (
+                                <p className={`mt-2 ${mensajeAsistencia.includes("✅") ? "text-green-600" : "text-red-600"}`}>
+                                    {mensajeAsistencia}
+                                </p>
+                            )}
+                            {fechaConfirmacion && mensajeAsistencia.includes("✅") && (
+                                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded">
+                                    <p className="text-green-800 font-semibold">✅ Asistencia confirmada</p>
+                                    <p className="text-green-700 text-sm">
+                                        Fecha y hora de confirmación: {fechaConfirmacion.toLocaleString()}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Información de la reunión */}
+                    <div>
+                        <h2 className="text-xl font-bold">Detalle de la Reunión</h2>
+                        <p><strong>Lugar:</strong> {reunion.lugar}</p>
+                        <p><strong>Fecha:</strong> {new Date(reunion.fecha_reunion).toLocaleString()}</p>
+                        <p><strong>Descripción:</strong> {reunion.descripcion}</p>
+                        <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
+                        <p><strong>Última actualización:</strong> {reunion.fechaActualizacion ? new Date(reunion.fechaActualizacion).toLocaleString() : "—"}</p>
+                    </div>
+
+                    {/* Observaciones */}
+                    <div>
+                        <h3 className="font-semibold mb-2">Anotaciones Importantes</h3>
+                        <div
+                            ref={observacionesRef}
+                            className="bg-gray-100 p-3 rounded h-52 overflow-y-auto"
+                        >
+                            {reunion.observaciones
+                                ? reunion.observaciones.trim().split("\n").filter(l => l.trim()).map((l, i) => (
+                                    <div key={i} className="mb-1 pb-1 border-b border-gray-300">{l}</div>
+                                ))
+                                : <i>No hay observaciones aún.</i>
+                            }
+                        </div>
+
+                        {(isSecretario || isPresidenta) && (
+                            <>
+                                <textarea
+                                    placeholder="Escribe una observación..."
+                                    value={nuevoMensaje}
+                                    onChange={(e) => setNuevoMensaje(e.target.value)}
+                                    rows={3}
+                                    className="w-full border border-gray-300 rounded p-2 mt-2"
+                                />
+                                <button
+                                    onClick={enviarObservacion}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded mt-1"
+                                >
+                                    Agregar observación
+                                </button>
+                            </>
+                        )}
+                    </div>
+                    {isPresidenta && (
+                        <div className="mt-6 bg-white p-4 rounded border">
+                            <h3 className="font-semibold mb-2"> Para subir el acta, recuerde que el archivo debe ser .pdf y debe llamarse de esta forma acta</h3>
+                            <form
+                                onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const file = e.target.acta.files[0];
+                                    if (!file) return alert("Selecciona un archivo");
+
+                                    const formData = new FormData();
+                                    formData.append("archivo", file);
+                                    formData.append("tipo", "actas");
+                                    formData.append("id", id);
+                                    formData.append("nombre", `Acta Reunion ${id}`);
+
+
+                                    try {
+                                        const res = await axios.post("/archivo", formData, {
+                                            headers: { "Content-Type": "multipart/form-data" },
+                                        });
+
+                                        const actaURL = res.data?.data?.archivo;
+
+                                        await axios.patch(`/reunion/archivo-acta/${id}`, {
+                                            archivo_acta: actaURL,
+                                        });
+
+                                        alert("✅ Acta subida y asociada a la reunión correctamente");
+                                        setReunion(prev => ({ ...prev, archivo_acta: actaURL }));
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert("❌ Error al subir o guardar el acta");
+                                    }
                                 }}
                             >
-                                Copiar token
-                            </button>
-                            <span className={tokenActivo.estado === "activo" ? "text-green-600" : "text-red-600"}>
-                                {tokenActivo.estado === "activo" ? "Activo ✅" : "Cerrado ❌"}
-                            </span>
-                        </div>
-                    </div>
-                )}
 
-                {/* Confirmación por vecino */}
-                {isVecino && (
-                    <div className="bg-blue-100 p-4 rounded">
-                        <h3 className="font-semibold mb-2">Confirmar asistencia con token</h3>
-                        <input
-                            type="text"
-                            value={tokenIngresado}
-                            onChange={e => setTokenIngresado(e.target.value)}
-                            placeholder="Ingresa el token entregado"
-                            className="border border-gray-300 rounded p-2 mr-2"
-                        />
-                        <button onClick={marcarAsistencia} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
-                            Validar
-                        </button>
-                        {mensajeAsistencia && (
-                            <p className={`mt-2 ${mensajeAsistencia.includes("✅") ? "text-green-600" : "text-red-600"}`}>
-                                {mensajeAsistencia}
-                            </p>
-                        )}
-                    </div>
-                )}
+                                <label
+                                    htmlFor="acta"
+                                    className="block w-fit cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded shadow-sm transition"
+                                >
+                                    Seleccionar Acta 📎
+                                    <input
+                                        id="acta"
+                                        name="acta"
+                                        type="file"
+                                        accept=".pdf"
+                                        required
+                                        className="hidden"
+                                    />
+                                </label>
 
-                {/* Información de la reunión */}
-                <div>
-                    <h2 className="text-xl font-bold">Detalle de la Reunión</h2>
-                    <p><strong>Lugar:</strong> {reunion.lugar}</p>
-                    <p><strong>Fecha:</strong> {new Date(reunion.fecha_reunion).toLocaleString()}</p>
-                    <p><strong>Descripción:</strong> {reunion.descripcion}</p>
-                    <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
-                    <p><strong>Última actualización:</strong> {reunion.fechaActualizacion ? new Date(reunion.fechaActualizacion).toLocaleString() : "—"}</p>
-                </div>
-
-                {/* Observaciones */}
-                <div>
-                    <h3 className="font-semibold mb-2">Anotaciones Importantes</h3>
-                    <div
-                        ref={observacionesRef}
-                        className="bg-gray-100 p-3 rounded h-52 overflow-y-auto"
-                    >
-                        {reunion.observaciones
-                            ? reunion.observaciones.trim().split("\n").filter(l => l.trim()).map((l, i) => (
-                                <div key={i} className="mb-1 pb-1 border-b border-gray-300">{l}</div>
-                            ))
-                            : <i>No hay observaciones aún.</i>
-                        }
-                    </div>
-
-                    {(isSecretario || isPresidenta) && (
-                        <>
-                            <textarea
-                                placeholder="Escribe una observación..."
-                                value={nuevoMensaje}
-                                onChange={(e) => setNuevoMensaje(e.target.value)}
-                                rows={3}
-                                className="w-full border border-gray-300 rounded p-2 mt-2"
-                            />
-                            <button
-                                onClick={enviarObservacion}
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded mt-1"
-                            >
-                                Agregar observación
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                {/* Editar reunión */}
-                {isPresidenta && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Editar datos de la reunión</h3>
-                        {!editMode ? (
-                            <button
-                                onClick={handleEditarClick}
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded"
-                            >
-                                Editar reunión
-                            </button>
-                        ) : (
-                            <form onSubmit={handleGuardarEdicion} className="space-y-2">
-                                <input
-                                    type="date"
-                                    value={editFormData.fecha}
-                                    onChange={e => setEditFormData({ ...editFormData, fecha: e.target.value })}
-                                    required
-                                    className="block border border-gray-300 rounded p-2"
-                                />
-                                <TimePicker
-                                    onChange={value => setEditFormData({ ...editFormData, hora: value })}
-                                    value={editFormData.hora}
-                                    disableClock
-                                    className="block w-full"
-                                />
-                                <input
-                                    type="text"
-                                    value={editFormData.lugar}
-                                    onChange={e => setEditFormData({ ...editFormData, lugar: e.target.value })}
-                                    required
-                                    className="block border border-gray-300 rounded p-2 w-full"
-                                />
-                                <textarea
-                                    value={editFormData.descripcion}
-                                    onChange={e => setEditFormData({ ...editFormData, descripcion: e.target.value })}
-                                    className="block border border-gray-300 rounded p-2 w-full"
-                                />
-                                <textarea
-                                    value={editFormData.objetivo}
-                                    onChange={e => setEditFormData({ ...editFormData, objetivo: e.target.value })}
-                                    className="block border border-gray-300 rounded p-2 w-full"
-                                />
-                                <div className="flex gap-2">
-                                    <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded">
-                                        Guardar cambios
-                                    </button>
-                                    <button type="button" onClick={() => setEditMode(false)} className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-1 px-3 rounded">
-                                        Cancelar
-                                    </button>
-                                </div>
+                                <button
+                                    type="submit"
+                                    className="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded transition"
+                                >
+                                    Subir Acta
+                                </button>
                             </form>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
 
-                {/* Botón salir */}
-                <div className="mt-4">
-                    <button
-                        onClick={handleFinalizar}
-                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
-                    >
-                        Salir de la Reunión
-                    </button>
+                    {/* Bloque de descarga (visible para todos si hay acta) */}
+                    {reunion.archivo_acta && (
+                        <div className="mt-6 bg-white p-4 rounded border">
+                            <h3 className="font-semibold">Acta de la Reunión</h3>
+                            <a
+                                href={reunion.archivo_acta}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline"
+                            >
+                                📄 Descargar Acta
+                            </a>
+                        </div>
+                    )}
+
+                    {/* Editar reunión */}
+                    {isPresidenta && (
+                        <div className="mt-4">
+                            {!editMode ? (
+                                <button
+                                    onClick={handleEditarClick}
+                                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded"
+                                >
+                                    Editar reunión
+                                </button>
+                            ) : (
+                                <form onSubmit={handleGuardarEdicion} className="space-y-2">
+                                    <input
+                                        type="date"
+                                        value={editFormData.fecha}
+                                        onChange={e => setEditFormData({ ...editFormData, fecha: e.target.value })}
+                                        required
+                                        className="block border border-gray-300 rounded p-2"
+                                    />
+                                    <TimePicker
+                                        onChange={value => setEditFormData({ ...editFormData, hora: value })}
+                                        value={editFormData.hora}
+                                        disableClock
+                                        className="block w-full"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={editFormData.lugar}
+                                        onChange={e => setEditFormData({ ...editFormData, lugar: e.target.value })}
+                                        required
+                                        className="block border border-gray-300 rounded p-2 w-full"
+                                    />
+                                    <textarea
+                                        value={editFormData.descripcion}
+                                        onChange={e => setEditFormData({ ...editFormData, descripcion: e.target.value })}
+                                        className="block border border-gray-300 rounded p-2 w-full"
+                                    />
+                                    <textarea
+                                        value={editFormData.objetivo}
+                                        onChange={e => setEditFormData({ ...editFormData, objetivo: e.target.value })}
+                                        className="block border border-gray-300 rounded p-2 w-full"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded">
+                                            Guardar cambios
+                                        </button>
+                                        <button type="button" onClick={() => setEditMode(false)} className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-1 px-3 rounded">
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Botón salir */}
+                    <div className="mt-4">
+                        <button
+                            onClick={handleFinalizar}
+                            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+                        >
+                            Salir de la Reunión
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

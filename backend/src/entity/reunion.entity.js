@@ -28,7 +28,12 @@ const Reunion=new EntitySchema({
         },
         fechaActualizacion:{
             type: "timestamp"
-        }
+        },
+        archivo_acta: {
+            type: "varchar",
+            length: 500,
+            nullable: true,
+        },
     },
 });
 export default Reunion;

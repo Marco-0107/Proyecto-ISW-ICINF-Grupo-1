@@ -24,14 +24,16 @@ export async function createReunion(reunionData) {
 // Actualizar una reunión existente
 export const updateReunion = async (id_reunion, payload) => {
   try {
-    const response = await axios.patch(`/reunion/detail/?`,payload, {
-     params: { id_reunion }
-  });
+    const fullPayload = { ...payload, id_reunion }; 
+    const response = await axios.patch(`/reunion/detail/`, fullPayload, {
+      params: { id_reunion },
+    });
     return response.data.data;
   } catch (error) {
     throw error.response?.data || error;
   }
 };
+
 
 // Eliminar una reunión
 export const deleteReunion = async (id_reunion) => {

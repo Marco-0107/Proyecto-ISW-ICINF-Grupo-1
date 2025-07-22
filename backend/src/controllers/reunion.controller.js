@@ -5,11 +5,13 @@ import {
    getReunionesService,
    updateReunionService,
    deleteReunionService,
-   createReunionService
+   createReunionService,
+   updateArchivoActaService
 } from "../services/reunion.service.js";
 
 import {
     reunionBodyValidation,
+    reunionEditValidation,
     reunionQueryValidation,
 } from "../validations/reunion.validation.js"
 
@@ -57,10 +59,8 @@ export async function updateReunion(req, res) {
         const { id_reunion } = req.query;
         const { body } = req;
 
-        const { error: queryError } = reunionQueryValidation.validate({ id_reunion });
-        if (queryError) return handleErrorClient(res, 400, "Error en consulta", queryError.message);
 
-        const { error: bodyError } = reunionBodyValidation.validate(body);
+        const { error: bodyError } = reunionEditValidation.validate(body);
         if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
         
         const [reunion, errorUpdateReunion] = await updateReunionService({ id_reunion }, body);
@@ -86,6 +86,23 @@ export async function deleteReunion(req, res) {
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
+}
+// Cargar acta a la reunion
+export async function updateArchivoActa(req, res) {
+  const { id_reunion } = req.params;
+  const { archivo_acta } = req.body;
+
+  if (!archivo_acta) {
+    return res.status(400).json({ message: "Falta la URL del acta" });
+  }
+
+  const [reunionUpdated, error] = await updateArchivoActaService(id_reunion, archivo_acta);
+  if (error) return res.status(404).json({ message: error });
+
+  res.status(200).json({
+    message: "✅ Acta guardada correctamente",
+    data: reunionUpdated,
+  });
 }
 // Crear una Reunion
 export async function createReunion(req, res) {
