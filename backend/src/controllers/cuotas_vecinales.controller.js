@@ -95,7 +95,7 @@ export async function createCuotaVecinal(req, res) {
         if (errorCreateCuota) return handleErrorClient(res, 404, "Error creando Cuota", errorCreateCuota);
 
         handleSuccess(res, 201, "Cuota creada correctamente", cuota);
-    } catch {
+    } catch(error) {
         handleErrorServer(res, 500, error.message);
     }
 }

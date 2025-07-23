@@ -66,6 +66,12 @@ const Sidebar = () => {
             label: "Movimientos Financieros",
             icon: DollarSign,
             show: userRole === 'admin' || userRole === 'tesorera' || userRole === 'secretario' || userRole === 'presidenta'
+        },
+        {
+            to: "/cuotas",
+            label: "Mis cuotas",
+            icon: DollarSign,
+            show: userRole == 'admin' || userRole === 'vecino'
         }
     ];
 
