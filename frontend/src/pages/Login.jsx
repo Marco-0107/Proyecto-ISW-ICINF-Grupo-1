@@ -100,7 +100,7 @@ const Login = () => {
     return (
         <div className="min-h-screen flex">
             {/* Panel izquierdo - Bienvenida */}
-            <div className="flex-1 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-start pl-16 pr-12 relative overflow-hidden">
+            <div className="flex-1 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-start pl-16 pr-12 relative overflow-hidden">
 
                 {/* Círculo decorativo */}
                 <div className="absolute -right-40 -top-32 w-96 h-96 bg-white bg-opacity-10 rounded-full"></div>
@@ -111,7 +111,7 @@ const Login = () => {
                         Bienvenid@ de nuevo!
                     </h1>
                     <div className="w-12 h-1 bg-white mb-6"></div>
-                    <p className="text-blue-100 text-lg leading-relaxed mb-8">
+                    <p className="text-black-200 text-lg leading-relaxed mb-8">
                         Recuerda iniciar sesión con las credenciales que le fueron otorgadas
                         por la directiva, en caso de olvidar las credenciales, comunicarse
                         directamente con ellos.
@@ -128,7 +128,7 @@ const Login = () => {
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
                         <h2 className="text-3xl font-bold text-gray-800 mb-2">Iniciar Sesión</h2>
-                        <div className="w-12 h-1 bg-blue-500 mx-auto"></div>
+                        <div className="w-12 h-1 bg-green-500 mx-auto"></div>
                     </div>
 
                     <form onSubmit={loginSubmit} className="space-y-6">
@@ -190,7 +190,7 @@ const Login = () => {
                             disabled={isLoading}
                             className={`w-full py-4 rounded-lg font-semibold text-white transition-all duration-200 ${isLoading
                                 ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-blue-500 hover:bg-blue-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
+                                : 'bg-green-500 hover:bg-blue-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
                                 }`}
                         >
                             {isLoading ? (
