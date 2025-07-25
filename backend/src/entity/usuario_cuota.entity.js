@@ -26,7 +26,7 @@ const UsuarioCuota = new EntitySchema({
             },
             primary:true,
         },
-        cuotas_vecinales:{
+        cuota:{
             type: "many-to-one",
             target: "cuotas_vecinales",
             joinColumn:{

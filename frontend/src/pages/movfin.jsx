@@ -3,6 +3,8 @@ import { deleteMovimiento, getMovimientos, updateMovimiento } from '../services/
 import { createMovimiento } from '../services/movimiento.service';
 import useDeleteMovimiento from '../hooks/movimientos/useDeleteMovimiento.jsx';
 import useUpdateMovimiento from '../hooks/movimientos/useEditMovimiento.jsx';
+import { updateCuota } from '../services/cuotas.service.js';
+import useMarcarCuotaPagada from '../hooks/cuotas/useUpdateStateCuota.jsx';
 import { useAuth } from '../context/AuthContext';
 import '@styles/movfin.css';
 
@@ -19,9 +21,14 @@ const Movimientos = () => {
   const [editId, setEditId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
+  const [marcarCuota, setMarcarCuota] = useState(false);
+  const [rutVecino, setRutVecino] = useState("");
+  const [idCuota, setIdCuota] = useState("");
+
+  const { marcarCuotaPagada, loading: cuotaLoading, error: cuotaError } = useMarcarCuotaPagada();
   const { editarMovimiento, loading: loadingEdit } = useUpdateMovimiento();
   const { eliminarMovimiento, loading: loadingDelete } = useDeleteMovimiento();
-  const { user } = useAuth;
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchMovimientos();
@@ -63,9 +70,27 @@ const Movimientos = () => {
         fecha_movimiento: new Date().toISOString(),
       });
 
-      alert("Movimiento creado");
+      if (marcarCuota && rutVecino.trim() !== "") {
+
+
+        const resultado = await marcarCuotaPagada(rutVecino);
+        if(resultado.success) {
+          alert(`Movimiento creado y ${resultado.message}`);
+        }else {
+          alert(`Movimiento creado, pero hubo un error con la cuota: ${resultado.error}`);
+        }
+      } else if (marcarCuota) {
+        alert("Para marcar la cuota, debe ingresar el RUT del vecino");
+        return;
+      } else {
+        alert("Movimiento creado");
+      }
+
       setNuevoMovimiento({ monto: '', descripcion: '', tipo_transaccion: 'ingreso' });
       setMostrarFormulario(false);
+      setMarcarCuota(false);
+      setRutVecino("");
+      setIdCuota("");
       fetchMovimientos();
     } catch (error) {
       console.error("Error completo:", error)
@@ -122,62 +147,58 @@ const Movimientos = () => {
     const isEditing = editId === item.id_movimiento;
 
     return (
-      <div className='bg-gray-50 p-6 rounded-lg w-full '>
-        <div key={item.id_movimiento} className="movimiento-card bg-gray-100 p-4 rounded border shadow mb-4 w-full md:w-1/2">
-          {isEditing ? (
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-1" onSubmit={handleGuardarEdicion}>
-              <label>Monto:</label>
-              <input
-                type="number"
-                value={editFormData.monto}
-                onChange={e => setEditFormData({ ...editFormData, monto: e.target.value })}
-                required
-              />
-              <label>Descripción:</label>
-              <input
-                type="text"
-                value={editFormData.descripcion}
-                onChange={e => setEditFormData({ ...editFormData, descripcion: e.target.value })}
-                required
-              />
-              <label>Tipo:</label>
-              <select
-                value={editFormData.tipo_transaccion}
-                onChange={e => setEditFormData({ ...editFormData, tipo_transaccion: e.target.value })}
-              >
-                <option value="ingreso">Ingreso</option>
-                <option value="egreso">Egreso</option>
-              </select>
-              <div>
-                <button type="submit" className='bg-blue-600 text-white px-2 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>Guardar</button>
-                <button type="button" onClick={() => setEditId(null)} className='bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>Cancelar</button>
-              </div>
-            </form>
-          ) : (
+      <div key={item.id_movimiento} className="bg-gray-50 p-4 rounded border shadow mb-4 w-full md:w-1/2">
+        {isEditing ? (
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-1" onSubmit={handleGuardarEdicion}>
+            <label>Monto:</label>
+            <input
+              type="number"
+              value={editFormData.monto}
+              onChange={e => setEditFormData({ ...editFormData, monto: e.target.value })}
+              required
+            />
+            <label>Descripción:</label>
+            <input
+              type="text"
+              value={editFormData.descripcion}
+              onChange={e => setEditFormData({ ...editFormData, descripcion: e.target.value })}
+              required
+            />
+            <label>Tipo:</label>
+            <select
+              value={editFormData.tipo_transaccion}
+              onChange={e => setEditFormData({ ...editFormData, tipo_transaccion: e.target.value })}
+            >
+              <option value="ingreso">Ingreso</option>
+              <option value="egreso">Egreso</option>
+            </select>
+            <div>
+              <button type="submit" className='bg-blue-600 text-white px-2 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>Guardar</button>
+              <button type="button" onClick={() => setEditId(null)} className='bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>Cancelar</button>
+            </div>
+          </form>
+        ) : (
 
-            <>
-              <p><strong>Monto:</strong> {item.monto.toLocaleString('es-CL')}</p>
-              <p><strong>Tipo:</strong> {colocarMayus(item.tipo_transaccion)}</p>
-              <p><strong>Descripción:</strong> {colocarMayus(item.descripcion)}</p>
-              <p><strong>Fecha:</strong> {formatearFecha(item.fecha_movimiento)} - {formatearHora(item.fecha_movimiento)}</p>
-              <button
-                className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-1 px-3 rounded"
-                onClick={() => handleEditar(item)}>Editar</button>
-              <button
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded"
-                onClick={() => eliminarMovimiento(item.id_movimiento)}
-              >
-                Eliminar
-              </button>
-            </>
-          )}
-        </div>
+          <>
+            <p><strong>Monto:</strong> {item.monto.toLocaleString('es-CL')}</p>
+            <p><strong>Tipo:</strong> {colocarMayus(item.tipo_transaccion)}</p>
+            <p><strong>Descripción:</strong> {colocarMayus(item.descripcion)}</p>
+            <p><strong>Fecha:</strong> {formatearFecha(item.fecha_movimiento)} - {formatearHora(item.fecha_movimiento)}</p>
+            <button
+              className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-1 px-2 rounded"
+              onClick={() => handleEditar(item)}>Editar</button>
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded"
+              onClick={() => eliminarMovimiento(item.id_movimiento)}>Eliminar</button>
+          </>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="movfin-page">
+    <div className="movfin-page p-4 pt-0">
+      <h1 className='text-2xl font-bold text-center mt-0 mb-4'>Gestión de Movimientos Financieros</h1>
       {mov.length === 0 ? (
         <p>No hay movimientos registrados.</p>
       ) : (
@@ -210,11 +231,26 @@ const Movimientos = () => {
             <option value="ingreso">Ingreso</option>
             <option value="egreso">Egreso</option>
           </select>
-          <button type="submit" className='bg-blue-600 text-white px-4 py-2 rounded'>Guardar Movimiento</button>
-        </form>
+
+          <label>Pago de cuota</label>
+          <input type="checkbox" checked={marcarCuota} onChange={(e) => setMarcarCuota(e.target.checked)}
+            className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+          />
+
+          {marcarCuota && (
+            <div className="mt-3">
+              <label className="block text-sm font-medium">Rut del Vecino</label>
+              <input type="text" value={rutVecino} onChange={(e) => setRutVecino(e.target.value)}
+                placeholder="Ej: 11.222.333-4"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg max-w-md"
+                required />
+            </div>
+          )}
+          <button type="submit" className='bg-blue-600 text-white px-4 py-2 rounded'>Guardar Movimiento</button>        </form>
       )}
 
-      <div className="px-6 py-1 bg-gray-50 w-1/2 max-w-md min-h-fit">
+      <div className="px-3 bg-gray-50 w-1/2 max-w-md min-h-fit rounded border">
+        <h1 className='font-semibold'>Balance</h1>
         <p><strong>Total Ingresos:</strong> ${totalIngresos.toLocaleString('es-CL')}</p>
         <p><strong>Total Egresos:</strong> ${totalEgresos.toLocaleString('es-CL')}</p>
         <p><strong>Saldo Final:</strong> ${saldoFinal.toLocaleString('es-CL')}</p>
