@@ -17,7 +17,7 @@ export async function subidaArchivo(req, res) {
       return handleErrorClient(res, 400, "Archivo no subido");
     }
     // Construye la URL completa para acceder al archivo subido
-    const baseUrl = `http://${HOST}:${PORT}/api/src/upload/`;
+    const baseUrl = `http://${HOST}:${PORT}/api/src/upload/actas/`;
     // Obtiene el nombre del archivo y lo añade a la URL base
     archivoPath = baseUrl + path.basename(archivoPath);
 

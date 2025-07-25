@@ -122,8 +122,8 @@ const Login = () => {
             {/* Panel derecho - Formulario */}
             <div className="flex-1 bg-gray-50 flex items-center justify-center p-12 relative">
                 {/* Círculos decorativos */}
-                <div className="absolute top-20 right-20 w-32 h-32 bg-gray-200 rounded-full opacity-30"></div>
-                <div className="absolute bottom-32 left-20 w-24 h-24 bg-gray-300 rounded-full opacity-20"></div>
+                <div className="absolute top-20 right-20 w-32 h-32 bg-gray-200 rounded-full opacity-600"></div>
+                <div className="absolute bottom-32 left-20 w-24 h-24 bg-gray-300 rounded-full opacity-400"></div>
 
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
@@ -140,7 +140,7 @@ const Login = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="ejemplo@gmail.com"
-                                className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400 ${errors.email || errorEmail
+                                className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors placeholder-gray-400 ${errors.email || errorEmail
                                         ? 'border-red-300 bg-red-50'
                                         : 'border-gray-200'
                                     }`}
@@ -163,7 +163,7 @@ const Login = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     placeholder="Ingresa tu contraseña..."
-                                    className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400 pr-12 ${errors.password || errorPassword
+                                    className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors placeholder-gray-400 pr-12 ${errors.password || errorPassword
                                         ? 'border-red-300 bg-red-50'
                                         : 'border-gray-200'
                                         }`}
@@ -190,7 +190,7 @@ const Login = () => {
                             disabled={isLoading}
                             className={`w-full py-4 rounded-lg font-semibold text-white transition-all duration-200 ${isLoading
                                 ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-green-500 hover:bg-blue-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
+                                : 'bg-green-500 hover:bg-green-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
                                 }`}
                         >
                             {isLoading ? (
