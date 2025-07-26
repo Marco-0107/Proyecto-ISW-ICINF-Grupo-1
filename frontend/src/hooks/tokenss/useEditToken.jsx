@@ -1,16 +1,14 @@
 import axios from "@services/root.service";
 
-const useEditToken = (fetchTokens) => {
+const useEditToken = () => {
     const cerrarToken = async (id_token) => {
         try {
             await axios.patch(`/token/detail/?id_token=${id_token}`, {
                 estado: "cerrado"
             });
-            alert("Token cerrado correctamente");
-            fetchTokens(); 
+            return { success: true, message: "Token cerrado correctamente" };
         } catch (error) {
-            console.error("Error al cerrar el token:", error);
-            alert("No se pudo cerrar el token");
+            return { success: false, message: "No se pudo cerrar el token" };
         }
     };
 

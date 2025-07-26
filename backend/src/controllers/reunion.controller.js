@@ -59,11 +59,14 @@ export async function updateReunion(req, res) {
         const { id_reunion } = req.query;
         const { body } = req;
 
-
         const { error: bodyError } = reunionEditValidation.validate(body);
-        if (bodyError) return handleErrorClient(res, 400, "Error en datos", bodyError.message);
+        if (bodyError) {
+            return handleErrorClient(res, 400, "Error en datos", bodyError.message);
+        }
         
-        const [reunion, errorUpdateReunion] = await updateReunionService({ id_reunion }, body);
+        const { id_reunion: _, ...bodyData } = body;
+        
+        const [reunion, errorUpdateReunion] = await updateReunionService({ id_reunion }, bodyData);
         if (errorUpdateReunion) return handleErrorClient(res, 400, "Error actualizando reunión", errorUpdateReunion);
 
         handleSuccess(res, 200, "Reunión actualizada", reunion);
@@ -109,7 +112,9 @@ export async function createReunion(req, res) {
     try{
         const { body } = req;
 
-        const { error } = reunionBodyValidation.validate(body);
+        const { error } = reunionBodyValidation.validate(body, { 
+            context: { now: new Date() } 
+        });
         if (error) return handleErrorClient(res, 400, "Datos invalidos", error.message);
 
         const [reunion, errorCreateReunion] = await createReunionService(body);

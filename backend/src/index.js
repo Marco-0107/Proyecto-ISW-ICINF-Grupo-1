@@ -26,10 +26,12 @@ async function setupSocketIO() {
   });
 
   io.on("connection", (socket) => {
-    console.log("Usuario conectado:", socket.id);
-
     socket.on("mensaje", (data) => {
       socket.to(data.sala).emit("mensaje", data.mensaje);
+    });
+
+    socket.on("mensajeObservaciones", (data) => {
+      socket.to(data.sala).emit("mensajeObservaciones", data.mensaje);
     });
 
     socket.on("unirseSala", (salaId) => {
@@ -41,7 +43,6 @@ async function setupSocketIO() {
     });
 
     socket.on("disconnect", () => {
-      console.log("Usuario desconectado:", socket.id);
     });
   });
 

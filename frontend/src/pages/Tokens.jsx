@@ -1,5 +1,7 @@
 import Table from '@components/Table';
 import Search from '@components/Search';
+import ToastNotification from '@components/ToastNotification';
+import ConfirmModal from '@components/ConfirmModal';
 import { useState, useEffect } from 'react';
 import useGetTokens from '@hooks/tokenss/useGetTokens';
 import useEditToken from '@hooks/tokenss/useEditToken';
@@ -12,12 +14,60 @@ const Tokens = () => {
   const { tokens, fetchTokens, setTokens } = useGetTokens();
   const { reuniones } = useGetReunionesActivas();
   const { user } = useAuth();  
-  const { cerrarToken } = useEditToken(fetchTokens);
-
+  const { cerrarToken } = useEditToken();
   const [idReunion, setIdReunion] = useState('');
   const [filter, setFilter] = useState('');
   const [idUsuario, setIdUsuario] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState({
+    message: '',
+    type: 'success',
+    isVisible: false
+  });
+
+  const [confirmModal, setConfirmModal] = useState({
+    isVisible: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    type: 'warning'
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const hideToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  const showConfirmModal = (title, message, onConfirm, type = 'warning') => {
+    setConfirmModal({
+      isVisible: true,
+      title,
+      message,
+      onConfirm,
+      type
+    });
+  };
+
+  const hideConfirmModal = () => {
+    setConfirmModal(prev => ({ ...prev, isVisible: false }));
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmModal.onConfirm) {
+      confirmModal.onConfirm();
+    }
+    hideConfirmModal();
+  };
+
+  const fetchTokensAndHideToast = async () => {
+    await fetchTokens();
+    setTimeout(() => {
+      hideToast();
+    }, 2000);
+  };
 
   // Obtener ID del usuario logeado por su RUT
   useEffect(() => {
@@ -28,7 +78,6 @@ const Tokens = () => {
         });
         setIdUsuario(data.data.id);
       } catch (error) {
-        console.error("Error al obtener ID del usuario:", error);
       }
     };
 
@@ -39,7 +88,7 @@ const Tokens = () => {
 
   const handleCrear = async () => {
     if (!idReunion || !idUsuario) {
-      alert('Selecciona una reunión y asegúrate de que el usuario esté identificado');
+      showToast('Selecciona una reunión y asegúrate de que el usuario esté identificado', 'error');
       return;
     }
     
@@ -48,9 +97,10 @@ const Tokens = () => {
       const nuevo = await createToken(idUsuario, idReunion);
       setTokens([...tokens, nuevo]);
       setIdReunion('');
-      alert('✅ Token creado exitosamente');
+      showToast('✅ Token creado exitosamente', 'success');
+      fetchTokensAndHideToast();
     } catch (error) {
-      alert(error.response?.data?.message || 'Error al crear token');
+      showToast(error.response?.data?.message || 'Error al crear token', 'error');
     } finally {
       setLoading(false);
     }
@@ -140,8 +190,20 @@ const Tokens = () => {
           button.textContent = "Cerrar";
           button.className = "bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded text-sm transition-colors";
           button.onclick = () => {
-            const confirmar = window.confirm(`¿Estás seguro de cerrar el token #${row.numero_token}?`);
-            if (confirmar) cerrarToken(row.id_token);
+            showConfirmModal(
+              "Cerrar Token",
+              `¿Estás seguro de cerrar el token #${row.numero_token}? Esta acción no se puede deshacer.`,
+              async () => {
+                const result = await cerrarToken(row.id_token);
+                if (result.success) {
+                  showToast(result.message, 'success');
+                  fetchTokensAndHideToast();
+                } else {
+                  showToast(result.message, 'error');
+                }
+              },
+              'danger'
+            );
           };
         } else {
           button.textContent = "Cerrado";
@@ -278,6 +340,25 @@ const Tokens = () => {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notification */}
+      <ToastNotification
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+        duration={4000}
+      />
+      
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isVisible={confirmModal.isVisible}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={handleConfirmAction}
+        onCancel={hideConfirmModal}
+        type={confirmModal.type}
+      />
     </div>
   );
 };

@@ -16,15 +16,13 @@ const Reunion=new EntitySchema({
         descripcion:{
             type: "text"
         },
+        observaciones:{
+            type: "text",
+            nullable: true
+        },
         fecha_reunion:{
             type:"timestamp",
             nullable:false
-        },
-        objetivo:{
-            type: "text"
-        },
-        observaciones:{
-            type: "text"
         },
         fechaActualizacion:{
             type: "timestamp"

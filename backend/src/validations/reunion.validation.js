@@ -19,14 +19,21 @@ export const reunionQueryValidation = Joi.object({
             "integer.positive": "El id debe ser positivo"        
         }),
     lugar: Joi.string()
-       .min(5)
-       .max(255)
-       .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
+       .min(3)
+       .max(100)
+       .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\-'.#]+$/)
        .messages({
-        "string.empty": "El lugar no puede estar vacía",
-        "string.base": "El lugar debe ser de tipo Varchar",
-        "string.min": "El lugar debe tener mínimo 5 caracteres",
-        "string.max": "El lugar debe tener como máximo 255 caracteres"
+        "string.empty": "El lugar no puede estar vacío",
+        "string.base": "El lugar debe ser de tipo texto",
+        "string.min": "El lugar debe tener mínimo 3 caracteres",
+        "string.max": "El lugar debe tener como máximo 100 caracteres"
+       }),
+    observaciones: Joi.string()
+       .max(1000)
+       .allow('', null)
+       .messages({
+        "string.base": "Las observaciones deben ser de tipo texto",
+        "string.max": "Las observaciones pueden contener máximo 1000 caracteres"
        }),
     fecha_reunion: Joi.date()
     .iso()
@@ -49,53 +56,59 @@ export const reunionBodyValidation = Joi.object({
             "integer.positive": "El id debe ser positivo"        
         }), 
     lugar: Joi.string()
-       .min(5)
-       .max(255)
-       .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
+       .min(3)
+       .max(100)
+       .pattern(/^(?=.*[a-zA-Z0-9])[\w\s\-'.#áéíóúÁÉÍÓÚñÑ]+$/)
+       .required()
        .messages({
-        "string.empty": "El lugar no puede estar vacía",
-        "string.base": "El lugar debe ser de tipo Varchar",
-        "string.min": "El lugar debe tener mínimo 5 caracteres",
-        "string.max": "El lugar debe tener como máximo 255 caracteres"
+        "string.empty": "El lugar no puede estar vacío",
+        "string.base": "El lugar debe ser de tipo texto",
+        "string.min": "El lugar debe tener mínimo 3 caracteres",
+        "string.max": "El lugar debe tener como máximo 100 caracteres",
+        "string.pattern.base": "El lugar debe contener al menos una letra o número",
+        "any.required": "El lugar es obligatorio"
        }),
     descripcion: Joi.string()
        .min(10)
-       .max(1000)
+       .max(500)
+       .pattern(/^(?=.*[a-zA-Z0-9])[\w\s\-'.#áéíóúÁÉÍÓÚñÑ]+$/)
+       .required()
        .messages({
-        "String.empty": "La descripción no puede estar vacía",
-        "String.base": "La descripción debe ser de tipo TEXT",
-        "String.min": "La descripción debe contener mínimo 10 caracteres",
-        "String.max": "La descripción puede contener máximo 1000 caracteres"
+        "string.empty": "La descripción no puede estar vacía",
+        "string.base": "La descripción debe ser de tipo texto",
+        "string.min": "La descripción debe contener mínimo 10 caracteres",
+        "string.max": "La descripción puede contener máximo 500 caracteres",
+        "string.pattern.base": "La descripción debe contener al menos una letra o número",
+        "any.required": "La descripción es obligatoria"
+       }),
+    observaciones: Joi.string()
+       .max(1000)
+       .allow('', null)
+       .messages({
+        "string.base": "Las observaciones deben ser de tipo texto",
+        "string.max": "Las observaciones pueden contener máximo 1000 caracteres"
        }),
     fecha_reunion: Joi.date()
     .iso()
-    .min("now")
+    .min(Joi.ref('$now', { adjust: (value) => new Date(value.getTime() + 24 * 60 * 60 * 1000) }))
+    .max(Joi.ref('$now', { adjust: (value) => new Date(value.getTime() + 365 * 24 * 60 * 60 * 1000) }))
+    .custom((value, helpers) => {
+        const hour = value.getHours();
+        if (hour < 10 || hour >= 19) {
+            return helpers.error('date.hour');
+        }
+        return value;
+    })
+    .required()
     .messages({
         "date.empty": "La fecha no puede estar vacía",
         "date.base": "La fecha debe ser tipo Date",
-        "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
-        "date.max": "La fecha puede tomar como valor mínimo la fecha de hoy"
+        "date.iso": "La fecha debe estar en formato ISO",
+        "date.min": "La fecha debe ser con mínimo 24 horas de anticipación",
+        "date.max": "La fecha no puede ser mayor a 1 año",
+        "date.hour": "La hora debe estar entre las 10:00 y 18:59",
+        "any.required": "La fecha y hora son obligatorias"
     }),
-    objetivo: Joi.string()
-        .min(10)
-        .max(1000)
-        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/)
-        .messages({
-            "String.empty": "El objetivo puede estar vacío",
-            "String.base": "El objetivo debe ser tipo TEXT",
-            "String.min": "El objetivo debe contener mínimo 10 caracteres",
-            "String.max": "El objetivo puede contener máximo 1000 caracteres"
-    }),
-    observaciones: Joi.string()
-        .min(10)
-        .max(3000)
-        .pattern(/^[\s\S]*$/) 
-        .messages({
-            "String.empty": "Las observaciones no pueden estar vacías",
-            "String.base": "Las observaciones debe ser texto",
-            "String.min": "Las observaciones debe contener al menos 10 caracteres",
-            "String.max": "Las observaciones puede contener hasta 3000 caracteres"
-        }),
     fechaActualizacion: Joi.date()
     .iso()
     .messages({
@@ -104,62 +117,43 @@ export const reunionBodyValidation = Joi.object({
         "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
         "date.max": "La fecha puede tomar como valor mínimo la fecha de hoy"
     })
-}).or(
-    "id_reunion",
-    "lugar",
-    "descripcion",
-    "fecha_reunion",
-    "objetivo",
-    "observaciones",
-    "fechaActualizacion"
-  )
-  .unknown(false)
+}).unknown(false)
   .messages({
     "object.unknown": "No se permiten propiedades adicionales.",
-    "object.missing":
-      "Debes proporcionar al menos un campo: lugar, descripción, fecha_reunion"
   });
 
 export const reunionEditValidation = Joi.object({
-  id_reunion: Joi.number()
-    .integer()
-    .positive()
-    .required(),
+  id_reunion: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().pattern(/^\d+$/)
+  ).optional(),
 
   lugar: Joi.string()
-    .min(5)
-    .max(255)
-    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/),
+    .min(3)
+    .max(100)
+    .pattern(/^(?=.*[a-zA-Z0-9])[\w\s\-'.#áéíóúÁÉÍÓÚñÑ]+$/),
 
   descripcion: Joi.string()
     .min(10)
-    .max(1000),
+    .max(500)
+    .pattern(/^(?=.*[a-zA-Z0-9])[\w\s\-'.#áéíóúÁÉÍÓÚñÑ]+$/),
 
-  fecha_reunion: Joi.date()
-    .iso(), 
+  fecha_reunion: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/),
 
-  objetivo: Joi.string()
-    .min(10)
-    .max(1000)
-    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑñ0-9\s\-'.#]+$/),
+  fechaActualizacion: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/),
 
   observaciones: Joi.string()
-    .min(10)
-    .max(3000)
-    .pattern(/^[\s\S]*$/),
-
-  fechaActualizacion: Joi.date()
-    .iso()
+    .max(1000)
+    .allow('', null)
 }).or(
   "lugar",
-  "descripcion",
-  "fecha_reunion",
-  "objetivo",
-  "observaciones",
-  "fechaActualizacion"
-).messages({
-  "object.missing": "Debes proporcionar al menos un campo para actualizar.",
-});
+  "descripcion", 
+  "fecha_reunion",  
+  "fechaActualizacion",
+  "observaciones"
+);
 
 
   

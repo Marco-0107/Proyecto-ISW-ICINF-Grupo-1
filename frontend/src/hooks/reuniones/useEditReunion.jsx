@@ -6,15 +6,10 @@ export default function useUpdateReunion() {
   const [error,   setError]   = useState(null);
 
   const editarReunion = async (id_reunion, data, onSuccess) => {
-    const confirmado = window.confirm("¿Estás seguro de guardar los cambios?");
-    if (!confirmado) return;
-
     try {
       setLoading(true);
       await updateReunion(id_reunion, data);
       setLoading(false);
-
-      alert("Reunión actualizada correctamente");
 
       if (onSuccess) {
         setTimeout(() => {
@@ -28,9 +23,9 @@ export default function useUpdateReunion() {
       }
 
     } catch (err) {
-      console.error("Error al editar reunión:", err);
       setError("Error al editar la reunión.");
       setLoading(false);
+      throw err;
     }
   };
 

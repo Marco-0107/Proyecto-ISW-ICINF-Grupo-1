@@ -52,13 +52,13 @@ export async function updateReunionService(query, body) {
         if (!reunionFound) return [null, "Reunión no encontrada"];
 
         const dataUpdate = {
-            lugar: body.lugar,
-            descripcion: body.descripcion,
-            fecha_reunion: body.fecha_reunion,
-            objetivo: body.objetivo,
-            observaciones: body.observaciones,
             fechaActualizacion: new Date(),
         };
+
+        if (body.lugar !== undefined) dataUpdate.lugar = body.lugar;
+        if (body.descripcion !== undefined) dataUpdate.descripcion = body.descripcion;
+        if (body.fecha_reunion !== undefined) dataUpdate.fecha_reunion = body.fecha_reunion;
+        if (body.observaciones !== undefined) dataUpdate.observaciones = body.observaciones;
     
         await reunionRepository.update({ id_reunion }, dataUpdate);
 
@@ -128,8 +128,7 @@ export async function createReunionService(body) {
             lugar: body.lugar,
             descripcion: body.descripcion,
             fecha_reunion: body.fecha_reunion,
-            objetivo: body.objetivo,
-            observaciones: body.observaciones,
+            observaciones: body.observaciones || null,
             fechaActualizacion: new Date()
         });
         const saveReunion = await reunionRepository.save(newReunion);

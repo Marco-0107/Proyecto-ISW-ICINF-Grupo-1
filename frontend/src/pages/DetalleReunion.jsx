@@ -6,6 +6,8 @@ import { getUsuariosReunion } from "@services/reunion.service";
 import useEditReunion from "@hooks/reuniones/useEditReunion.jsx";
 import TimePicker from "react-time-picker";
 import CarruselUsuarios from "@components/CarruselUsuarios";
+import ToastNotification from "@components/ToastNotification";
+import ConfirmModal from "@components/ConfirmModal";
 import "react-time-picker/dist/TimePicker.css";
 import { io } from "socket.io-client";
 
@@ -25,11 +27,24 @@ const DetalleReunion = () => {
     const [editFormData, setEditFormData] = useState({});
     const [tokenIngresado, setTokenIngresado] = useState("");
     const [mensajeAsistencia, setMensajeAsistencia] = useState("");
-    const [setFechaConfirmacion] = useState(null);
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
     const [archivosOcultos, setArchivosOcultos] = useState(() => {
         const ocultos = localStorage.getItem('archivos_ocultos');
         return ocultos ? JSON.parse(ocultos) : [];
+    });
+
+    const [toast, setToast] = useState({
+        message: '',
+        type: 'success',
+        isVisible: false
+    });
+
+    const [confirmModal, setConfirmModal] = useState({
+        isVisible: false,
+        title: '',
+        message: '',
+        onConfirm: null,
+        type: 'warning'
     });
 
     const role = user?.rol?.toLowerCase();
@@ -51,11 +66,52 @@ const DetalleReunion = () => {
         localStorage.setItem('archivos_ocultos', JSON.stringify(nuevosOcultos));
     };
 
+    const showToast = (message, type = 'success') => {
+        setToast({
+            message,
+            type,
+            isVisible: true
+        });
+    };
+
+    const hideToast = () => {
+        setToast(prev => ({
+            ...prev,
+            isVisible: false
+        }));
+    };
+
+    const showConfirmModal = (title, message, onConfirm, type = 'warning') => {
+        setConfirmModal({
+            isVisible: true,
+            title,
+            message,
+            onConfirm,
+            type
+        });
+    };
+
+    const hideConfirmModal = () => {
+        setConfirmModal(prev => ({ ...prev, isVisible: false }));
+    };
+
+    const handleConfirmAction = () => {
+        if (confirmModal.onConfirm) {
+            confirmModal.onConfirm();
+        }
+        hideConfirmModal();
+    };
+
     useEffect(() => {
         const reunionIdEnCurso = localStorage.getItem("reunion_en_curso");
         if (!reunionIdEnCurso && !isPresidenta && !isSecretario && !isVecino) {
-            const continuar = confirm("Esta reunión no está activa. ¿Deseas ver el detalle igual?");
-            if (!continuar) return navigate("/reuniones");
+            showConfirmModal(
+                "Reunión Inactiva",
+                "Esta reunión no está activa. ¿Deseas ver el detalle igual?",
+                () => cargarDatos(),
+                'info'
+            );
+            return;
         }
 
         cargarDatos();
@@ -85,14 +141,26 @@ const DetalleReunion = () => {
     const cargarDatos = async () => {
         try {
             const { data } = await axios.get(`/reunion/detail/?id_reunion=${id}`);
-            setReunion(data.data);
+
+            setReunion(prev => ({
+                ...data.data,
+                observaciones: prev?.observaciones && prev.observaciones.length > data.data.observaciones?.length 
+                    ? prev.observaciones 
+                    : data.data.observaciones
+            }));
+            
+
+            setTimeout(() => {
+                hideToast();
+            }, 2000);
+            
         } catch (error) {
-            alert("No se pudo cargar la reunión");
+            showToast("No se pudo cargar la reunión", 'error');
             navigate("/reuniones");
         }
         getUsuariosReunion(id)
             .then(setUsuariosReunion)
-            .catch(console.error);
+            .catch(() => {});
     };
 
     const handleFinalizar = () => {
@@ -107,7 +175,6 @@ const DetalleReunion = () => {
             hora: `${fechaObj.getHours().toString().padStart(2, "0")}:${fechaObj.getMinutes().toString().padStart(2, "0")}`,
             lugar: reunion.lugar,
             descripcion: reunion.descripcion,
-            objetivo: reunion.objetivo,
             observaciones: reunion.observaciones,
         });
         setEditMode(true);
@@ -116,7 +183,7 @@ const DetalleReunion = () => {
     const handleGuardarEdicion = async e => {
         e.preventDefault();
         if (!editFormData.fecha || !editFormData.hora) {
-            alert("Debes ingresar una fecha y hora válidas.");
+            showToast("Debes ingresar una fecha y hora válidas.", 'error');
             return;
         }
         try {
@@ -125,13 +192,13 @@ const DetalleReunion = () => {
                 fecha_reunion: fechaCompleta.toISOString(),
                 lugar: limpiarTexto(editFormData.lugar),
                 descripcion: limpiarTexto(editFormData.descripcion),
-                objetivo: limpiarTexto(editFormData.objetivo),
                 observaciones: editFormData.observaciones,
             });
             setEditMode(false);
             cargarDatos();
+            showToast("¡Cambios guardados correctamente!", 'success');
         } catch {
-            alert("Hubo un error al guardar los cambios. Revisa los datos ingresados.");
+            showToast("Hubo un error al guardar los cambios. Revisa los datos ingresados.", 'error');
         }
     };
 
@@ -179,20 +246,17 @@ const DetalleReunion = () => {
                 id_token: token.id_token,
             });
 
-            // Si llegamos aquí, el POST fue exitoso
+
             setMensajeAsistencia("✅ Asistencia confirmada correctamente");
-            setTokenIngresado(""); // Limpiar el campo del token
-            cargarDatos(); // Recargar datos para actualizar la UI
+            setTokenIngresado(""); 
+            cargarDatos(); 
 
         } catch (error) {
-            console.error("Error en marcarAsistencia:", error);
-            
-            // Solo mostrar error si realmente hay un error del servidor
             if (error.response && error.response.status >= 400) {
                 const mensaje = error.response.data?.message || "Error del servidor";
                 setMensajeAsistencia(`❌ ${mensaje}`);
             } else {
-                // Si no es un error de servidor conocido, asumir que fue exitoso
+
                 setMensajeAsistencia("✅ Asistencia confirmada correctamente");
                 setTokenIngresado("");
                 cargarDatos();
@@ -202,37 +266,47 @@ const DetalleReunion = () => {
 
     const enviarObservacion = async () => {
         if (!nuevoMensaje.trim()) return;
-        if (!isSecretario && !isPresidenta && !isTesorera && !isAdmin) return alert("Solo secretario/tesorera, presidenta o admin pueden enviar observaciones.");
+        if (!isSecretario && !isPresidenta && !isTesorera && !isAdmin) {
+            showToast("Solo secretario/tesorera, presidenta o admin pueden enviar observaciones.", 'error');
+            return;
+        }
         const form = `[${new Date().toLocaleTimeString()}] ${user?.nombre || "Usuario"} (${user?.rol}): ${limpiarTexto(nuevoMensaje)}\n`;
         const nuevas = (reunion?.observaciones || "") + form;
+        
+        // Actualizar estado local inmediatamente
+        setReunion(prev => ({ ...prev, observaciones: nuevas }));
+        setNuevoMensaje("");
+        
         try {
             await editarReunion(id, {
                 fecha_reunion: reunion.fecha_reunion,
                 lugar: reunion.lugar,
                 descripcion: reunion.descripcion,
-                objetivo: reunion.objetivo,
                 observaciones: nuevas,
             });
-            setReunion(prev => ({ ...prev, observaciones: nuevas }));
+
             socket.emit("mensajeObservaciones", { sala: id, mensaje: nuevas });
-            setNuevoMensaje("");
-        } catch {
-            console.error("Error al actualizar observaciones");
+        } catch (error) {
+            setReunion(prev => ({ ...prev, observaciones: reunion?.observaciones || "" }));
+            showToast("Error al enviar la observación", 'error');
         }
     };
 
-    const handleToggleAsistencia = async (usuario) => {
-        if (!confirm(`¿Deseas ${usuario.asistio ? "quitar" : "marcar"} asistencia de ${usuario.User?.nombre} ${usuario.User?.apellido}?`)) {
-            return;
-        }
-
-        try {
-            await axios.patch(`/usuario-reunion/detail/?id_usuario=${usuario.id_usuario}&id_reunion=${id}`);
-            cargarDatos();
-        } catch (error) {
-            alert("Error al actualizar la asistencia");
-            console.error(error);
-        }
+    const handleToggleAsistencia = (usuario) => {
+        showConfirmModal(
+            "Cambiar Asistencia",
+            `¿Deseas ${usuario.asistio ? "quitar" : "marcar"} asistencia de ${usuario.User?.nombre} ${usuario.User?.apellido}?`,
+            async () => {
+                try {
+                    await axios.patch(`/usuario-reunion/detail/?id_usuario=${usuario.id_usuario}&id_reunion=${id}`);
+                    cargarDatos();
+                    showToast(`¡Asistencia ${usuario.asistio ? 'quitada' : 'marcada'} correctamente!`, 'success');
+                } catch (error) {
+                    showToast("Error al actualizar la asistencia", 'error');
+                }
+            },
+            'warning'
+        );
     };
 
     if (!reunion) return <p>Cargando reunión...</p>;
@@ -262,7 +336,6 @@ const DetalleReunion = () => {
                                 <p><strong>Lugar:</strong> {reunion.lugar}</p>
                                 <p><strong>Fecha:</strong> {new Date(reunion.fecha_reunion).toLocaleString()}</p>
                                 <p><strong>Descripción:</strong> {reunion.descripcion}</p>
-                                <p><strong>Objetivo:</strong> {reunion.objetivo}</p>
                                 <p><strong>Última actualización:</strong> {reunion.fechaActualizacion ? new Date(reunion.fechaActualizacion).toLocaleString() : "—"}</p>
                             </div>
                         </div>
@@ -310,7 +383,10 @@ const DetalleReunion = () => {
                             <form
                                 onSubmit={async (e) => {
                                     e.preventDefault();
-                                    if (!archivoSeleccionado) return alert("Selecciona un archivo");
+                                    if (!archivoSeleccionado) {
+                                        showToast("Selecciona un archivo", 'error');
+                                        return;
+                                    }
 
                                     const formData = new FormData();
                                     formData.append("archivo", archivoSeleccionado);
@@ -329,13 +405,12 @@ const DetalleReunion = () => {
                                             archivo_acta: actaURL,
                                         });
 
-                                        alert("✅ Acta subida y asociada a la reunión correctamente");
+                                        showToast("¡Acta subida y asociada a la reunión correctamente!", 'success');
                                         setReunion(prev => ({ ...prev, archivo_acta: actaURL }));
-                                        setArchivoSeleccionado(null); // Limpiar archivo después de subir
-                                        mostrarArchivo(actaURL); // Asegurar que el nuevo archivo se muestre
+                                        setArchivoSeleccionado(null); 
+                                        mostrarArchivo(actaURL); 
                                     } catch (err) {
-                                        console.error(err);
-                                        alert("❌ Error al subir o guardar el acta");
+                                        showToast("Error al subir o guardar el acta", 'error');
                                     }
                                 }}
                                 className="space-y-3"
@@ -503,13 +578,6 @@ const DetalleReunion = () => {
                                         placeholder="Descripción"
                                         rows={2}
                                     />
-                                    <textarea
-                                        value={editFormData.objetivo}
-                                        onChange={e => setEditFormData({ ...editFormData, objetivo: e.target.value })}
-                                        className="block border border-gray-300 rounded p-2 w-full text-sm"
-                                        placeholder="Objetivo"
-                                        rows={2}
-                                    />
                                     <div className="flex gap-2">
                                         <button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded text-sm">
                                             Guardar
@@ -534,6 +602,25 @@ const DetalleReunion = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Toast Notification */}
+            <ToastNotification
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
+                duration={4000}
+            />
+            
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isVisible={confirmModal.isVisible}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                onConfirm={handleConfirmAction}
+                onCancel={hideConfirmModal}
+                type={confirmModal.type}
+            />
         </div>
     );
 }

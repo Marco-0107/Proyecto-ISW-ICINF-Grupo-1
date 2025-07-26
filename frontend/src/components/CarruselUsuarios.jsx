@@ -3,6 +3,7 @@ import axios from '@services/root.service';
 import useEditToken from "@hooks/tokenss/useEditToken";
 import useGetTokens from "@hooks/tokenss/useGetTokens";
 import { ChevronLeft, ChevronRight, TicketPlus, Copy } from 'lucide-react';
+import ToastNotification from './ToastNotification';
 
 const CarruselUsuarios = ({
   usuarios,
@@ -18,6 +19,27 @@ const CarruselUsuarios = ({
   const { cerrarToken } = useEditToken(fetchTokens);
 
   const [tokenActivo, setTokenActivo] = useState(null);
+
+  const [toast, setToast] = useState({
+    message: '',
+    type: 'success',
+    isVisible: false
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({
+      message,
+      type,
+      isVisible: true
+    });
+  };
+
+  const hideToast = () => {
+    setToast(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };
 
   const itemsPerPage = 4;
   const usuariosFiltrados = usuarios
@@ -63,14 +85,14 @@ const CarruselUsuarios = ({
       const res = await axios.post("/token", { id_reunion: parseInt(idReunion) });
       const nuevo = res.data.data;
       console.log("Token generado:", nuevo);
-      alert(`✅ Token generado: ${nuevo.numero_token}`);
+      showToast(`¡Token generado: ${nuevo.numero_token}!`, 'success');
       
       // Actualizar los tokens y luego establecer el nuevo token como activo
       await fetchTokens();
       setTokenActivo(nuevo);
     } catch (error) {
       console.error("Error al generar token:", error);
-      alert("❌ Error al generar el token");
+      showToast("Error al generar el token", 'error');
     }
   };
 
@@ -79,10 +101,10 @@ const CarruselUsuarios = ({
     if (tokenActivo?.numero_token) {
       try {
         await navigator.clipboard.writeText(tokenActivo.numero_token);
-        alert("📋 Token copiado al portapapeles");
+        showToast("¡Token copiado al portapapeles!", 'success');
       } catch (error) {
         console.error("Error al copiar token:", error);
-        alert("❌ Error al copiar el token");
+        showToast("Error al copiar el token", 'error');
       }
     }
   };
@@ -136,10 +158,10 @@ const CarruselUsuarios = ({
                     await cerrarToken(tokenActivo.id_token);
                     // Actualizar el estado local inmediatamente
                     setTokenActivo(prev => prev ? {...prev, estado: "cerrado"} : null);
-                    alert("✅ Token cerrado correctamente");
+                    showToast("¡Token cerrado correctamente!", 'success');
                   } catch (error) {
                     console.error("Error al cerrar token:", error);
-                    alert("❌ Error al cerrar el token");
+                    showToast("Error al cerrar el token", 'error');
                   }
                 }}
                 className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded shadow transition"
@@ -267,6 +289,15 @@ const CarruselUsuarios = ({
           ))}
         </div>
       )}
+      
+      {/* Toast Notification */}
+      <ToastNotification
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+        duration={3000}
+      />
     </div>
   );
 };
