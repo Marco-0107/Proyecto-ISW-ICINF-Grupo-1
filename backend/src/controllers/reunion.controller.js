@@ -1,5 +1,7 @@
 "use strict"
 
+import fs from "fs";
+import path from "path";
 import {
    getReunionService,
    getReunionesService,
@@ -10,6 +12,7 @@ import {
 } from "../services/reunion.service.js";
 
 import { sendEmail } from "../services/email.service.js";
+import { subidaArchivoService, getArchivoByIdService } from "../services/archivo.service.js";
 
 import {
     reunionBodyValidation,
@@ -25,6 +28,7 @@ import {
 
 import { AppDataSource } from "../config/configDb.js";
 import Usuario from "../entity/user.entity.js";
+import { HOST, PORT } from "../config/configEnv.js";
 
 const enviarNotificacionReunion = async (reunion) => {
     try {
@@ -441,7 +445,163 @@ export async function deleteReunion(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
-// Cargar acta a la reunion
+// Cargar acta a la reunion (mejorado)
+export async function cargarActaReunion(req, res) {
+  try {
+    const { id_reunion } = req.params;
+    let archivoPath = req.file?.path;
+
+    if (!archivoPath) {
+      return handleErrorClient(res, 400, "Archivo de acta no subido");
+    }
+
+    if (!id_reunion) {
+      return handleErrorClient(res, 400, "ID de reunión es requerido");
+    }
+
+    // Verificar que la reunión existe
+    const reunionRepository = AppDataSource.getRepository("Reunion");
+    const reunion = await reunionRepository.findOne({ 
+      where: { id_reunion: parseInt(id_reunion) } 
+    });
+
+    if (!reunion) {
+      return handleErrorClient(res, 404, "Reunión no encontrada");
+    }
+
+    // Construir el nombre del archivo con información de la reunión
+    const extension = path.extname(req.file.originalname);
+    const fechaReunion = new Date(reunion.fecha_reunion).toLocaleDateString('es-CL').replace(/\//g, '-');
+    const nombreArchivo = `Acta-Reunion-${fechaReunion}-${reunion.id_reunion}${extension}`;
+
+    // Guardar el archivo en el sistema de archivos
+    const baseUrl = `http://${HOST}:${PORT}/api/src/upload/actas/`;
+    const archivoUrl = baseUrl + path.basename(archivoPath);
+
+    // Crear registro en la tabla de archivos
+    const [archivoCreado, errorArchivo] = await subidaArchivoService({ 
+      nombre: nombreArchivo, 
+      archivoPath: archivoUrl 
+    });
+
+    if (errorArchivo) {
+      return handleErrorClient(res, 500, "Error guardando información del archivo", errorArchivo);
+    }
+
+    // Actualizar la reunión con el ID del archivo
+    const [reunionActualizada, errorReunion] = await updateArchivoActaService(id_reunion, archivoCreado.id);
+    
+    if (errorReunion) {
+      return handleErrorClient(res, 500, "Error asociando acta a la reunión", errorReunion);
+    }
+
+    handleSuccess(res, 200, "✅ Acta cargada correctamente", {
+      reunion: reunionActualizada,
+      archivo: archivoCreado
+    });
+
+  } catch (error) {
+    handleErrorServer(res, 500, "Error cargando acta", error.message);
+  }
+}
+
+// Descargar acta de reunion
+export async function descargarActaReunion(req, res) {
+  try {
+    const { id_reunion } = req.params;
+
+    if (!id_reunion) {
+      return handleErrorClient(res, 400, "ID de reunión es requerido");
+    }
+
+    // Obtener la reunión con el ID del archivo
+    const reunionRepository = AppDataSource.getRepository("Reunion");
+    const reunion = await reunionRepository.findOne({ 
+      where: { id_reunion: parseInt(id_reunion) } 
+    });
+
+    if (!reunion) {
+      return handleErrorClient(res, 404, "Reunión no encontrada");
+    }
+
+    if (!reunion.archivo_acta) {
+      return handleErrorClient(res, 404, "Esta reunión no tiene acta cargada");
+    }
+
+    // Si archivo_acta es un ID, obtener el archivo
+    let archivoId = reunion.archivo_acta;
+    
+    // Si es una URL antigua, informar que debe re-subir el archivo
+    if (typeof archivoId === 'string' && (archivoId.includes('http://') || archivoId.includes('https://'))) {
+      return handleErrorClient(res, 404, "Acta con formato antiguo. Por favor, vuelva a cargar el acta.");
+    }
+
+    // Obtener información del archivo
+    const [archivo, error] = await getArchivoByIdService(archivoId);
+    if (error) {
+      return handleErrorClient(res, 404, "Archivo de acta no encontrado", error);
+    }
+
+    // Extraer la ruta real del archivo
+    let rutaArchivo;
+    if (archivo.archivo.includes('http://') || archivo.archivo.includes('https://')) {
+      const nombreArchivo = path.basename(archivo.archivo);
+      rutaArchivo = path.join(process.cwd(), 'src', 'upload', 'actas', nombreArchivo);
+    } else {
+      rutaArchivo = path.resolve(archivo.archivo);
+    }
+
+    // Verificar si el archivo existe físicamente
+    if (!fs.existsSync(rutaArchivo)) {
+      return handleErrorClient(res, 404, "Archivo físico no encontrado. Por favor, vuelva a cargar el acta.");
+    }
+
+    // Obtener información del archivo
+    const stats = fs.statSync(rutaArchivo);
+    const nombreArchivo = archivo.nombre || path.basename(rutaArchivo);
+    
+    // Determinar el tipo MIME
+    const extension = path.extname(nombreArchivo).toLowerCase();
+    let mimeType = 'application/octet-stream';
+    
+    switch (extension) {
+      case '.pdf':
+        mimeType = 'application/pdf';
+        break;
+      case '.doc':
+        mimeType = 'application/msword';
+        break;
+      case '.docx':
+        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        break;
+      case '.txt':
+        mimeType = 'text/plain';
+        break;
+    }
+
+    // Configurar headers para descarga
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(nombreArchivo)}"`);
+    res.setHeader('Cache-Control', 'no-cache');
+
+    // Crear stream y enviar archivo
+    const fileStream = fs.createReadStream(rutaArchivo);
+    
+    fileStream.on('error', (streamError) => {
+      console.error('Error leyendo acta:', streamError);
+      if (!res.headersSent) {
+        handleErrorServer(res, 500, "Error leyendo el archivo de acta", streamError.message);
+      }
+    });
+
+    fileStream.pipe(res);
+
+  } catch (error) {
+    handleErrorServer(res, 500, "Error descargando acta", error.message);
+  }
+}
+
 export async function updateArchivoActa(req, res) {
   const { id_reunion } = req.params;
   const { archivo_acta } = req.body;
@@ -458,6 +618,7 @@ export async function updateArchivoActa(req, res) {
     data: reunionUpdated,
   });
 }
+
 // Crear una Reunion
 export async function createReunion(req, res) {
     try{

@@ -39,3 +39,24 @@ export async function getArchivosService() {
     return [null, "Error interno del servidor"];
   }
 }
+
+export async function getArchivoByIdService(id) {
+  try {
+    // Obtiene el repositorio de la entidad Archivo
+    const archivoRepository = AppDataSource.getRepository(Archivo);
+
+    const archivo = await archivoRepository.findOne({
+      where: { id: parseInt(id) }
+    });
+
+    if (!archivo) {
+      return [null, "Archivo no encontrado"];
+    }
+
+    // Retorna el archivo encontrado y null para indicar que no hubo errores
+    return [archivo, null];
+  } catch (error) {
+    console.error("Error al obtener archivo por ID:", error);
+    return [null, "Error interno del servidor"];
+  }
+}

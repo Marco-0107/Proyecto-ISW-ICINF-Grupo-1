@@ -28,10 +28,6 @@ const DetalleReunion = () => {
     const [tokenIngresado, setTokenIngresado] = useState("");
     const [mensajeAsistencia, setMensajeAsistencia] = useState("");
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
-    const [archivosOcultos, setArchivosOcultos] = useState(() => {
-        const ocultos = localStorage.getItem('archivos_ocultos');
-        return ocultos ? JSON.parse(ocultos) : [];
-    });
 
     const [toast, setToast] = useState({
         message: '',
@@ -55,20 +51,6 @@ const DetalleReunion = () => {
     const isVecino = role === "vecino";
     const isSecretario = role === "secretario" || role === "tesorero";
     const isPresidenta = role === "presidenta" || role === "admin";
-
-    // Función para ocultar archivo
-    const ocultarArchivo = (archivoUrl) => {
-        const nuevosOcultos = [...archivosOcultos, archivoUrl];
-        setArchivosOcultos(nuevosOcultos);
-        localStorage.setItem('archivos_ocultos', JSON.stringify(nuevosOcultos));
-    };
-
-    // Función para mostrar archivo (cuando se sube uno nuevo)
-    const mostrarArchivo = (archivoUrl) => {
-        const nuevosOcultos = archivosOcultos.filter(url => url !== archivoUrl);
-        setArchivosOcultos(nuevosOcultos);
-        localStorage.setItem('archivos_ocultos', JSON.stringify(nuevosOcultos));
-    };
 
     const showToast = (message, type = 'success') => {
         setToast({
@@ -518,7 +500,7 @@ const DetalleReunion = () => {
                             </h3>
                             {!reunion.archivo_acta && (
                                 <p className="text-xs text-gray-600 mb-3 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                                    El archivo debe ser formato .pdf
+                                    Formatos permitidos: PDF
                                 </p>
                             )}
                             <form
@@ -531,27 +513,18 @@ const DetalleReunion = () => {
 
                                     const formData = new FormData();
                                     formData.append("archivo", archivoSeleccionado);
-                                    formData.append("tipo", "actas");
-                                    formData.append("id", id);
-                                    formData.append("nombre", `Acta Reunion ${id}`);
 
                                     try {
-                                        const res = await axios.post("/archivo", formData, {
+                                        const res = await axios.post(`/reunion/cargar-acta/${id}`, formData, {
                                             headers: { "Content-Type": "multipart/form-data" },
                                         });
 
-                                        const actaURL = res.data?.data?.archivo;
-
-                                        await axios.patch(`/reunion/archivo-acta/${id}`, {
-                                            archivo_acta: actaURL,
-                                        });
-
-                                        showToast("¡Acta subida y asociada a la reunión correctamente!", 'success');
-                                        setReunion(prev => ({ ...prev, archivo_acta: actaURL }));
+                                        showToast("¡Acta cargada correctamente!", 'success');
+                                        setReunion(prev => ({ ...prev, archivo_acta: res.data.data.archivo.id }));
                                         setArchivoSeleccionado(null); 
-                                        mostrarArchivo(actaURL); 
                                     } catch (err) {
-                                        showToast("Error al subir o guardar el acta", 'error');
+                                        const errorMsg = err.response?.data?.details || "Error al cargar el acta";
+                                        showToast(errorMsg, 'error');
                                     }
                                 }}
                                 className="space-y-3"
@@ -575,13 +548,13 @@ const DetalleReunion = () => {
                                             </div>
                                             {!reunion.archivo_acta && (
                                                 <div className="text-xs text-gray-500">
-                                                    Solo archivos PDF
+                                                    PDF
                                                 </div>
                                             )}
                                             <input
                                                 id="acta"
                                                 type="file"
-                                                accept=".pdf"
+                                                accept=".pdf,.doc,.docx,.txt"
                                                 onChange={(e) => setArchivoSeleccionado(e.target.files[0])}
                                                 className="hidden"
                                             />
@@ -607,7 +580,7 @@ const DetalleReunion = () => {
                                                     <input
                                                         id="acta-replace"
                                                         type="file"
-                                                        accept=".pdf"
+                                                        accept=".pdf,.doc,.docx,.txt"
                                                         onChange={(e) => setArchivoSeleccionado(e.target.files[0])}
                                                         className="hidden"
                                                     />
@@ -689,27 +662,47 @@ const DetalleReunion = () => {
                         </div>
                     )}
 
-                    {/* Bloque de descarga mejorado */}
-                    {reunion.archivo_acta && !archivosOcultos.includes(reunion.archivo_acta) && (
+                    {/* Bloque de descarga */}
+                    {reunion.archivo_acta && (
                         <div className="bg-gradient-to-br from-white to-green-50 border-2 border-green-200 rounded-xl p-6 shadow-lg">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-green-800 text-sm md:text-base">Acta de la Reunión</h3>
-                                <button
-                                    onClick={() => ocultarArchivo(reunion.archivo_acta)}
-                                    className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 border border-red-200"
-                                    title="Ocultar acta de la vista"
-                                >
-                                    Ocultar
-                                </button>
-                            </div>
-                            <a
-                                href={reunion.archivo_acta}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <h3 className="font-bold text-green-800 text-sm md:text-base mb-4">Acta de la Reunión</h3>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const response = await axios.get(`/reunion/descargar-acta/${id}`, {
+                                            responseType: 'blob'
+                                        });
+
+                                        const contentDisposition = response.headers['content-disposition'];
+                                        let filename = `acta-reunion-${id}.pdf`;
+                                        
+                                        if (contentDisposition) {
+                                            const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                                            if (filenameMatch && filenameMatch[1]) {
+                                                filename = decodeURIComponent(filenameMatch[1].replace(/['"]/g, ''));
+                                            }
+                                        }
+
+                                        const blob = new Blob([response.data]);
+                                        const url = window.URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = filename;
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        window.URL.revokeObjectURL(url);
+                                        document.body.removeChild(a);
+
+                                        showToast("¡Acta descargada correctamente!", 'success');
+                                    } catch (error) {
+                                        const errorMsg = error.response?.data?.details || "Error al descargar el acta";
+                                        showToast(errorMsg, 'error');
+                                    }
+                                }}
                                 className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg text-sm text-center shadow-md transform hover:scale-105 transition-all duration-200 inline-flex items-center justify-center gap-2"
                             >
                                 📄 Descargar Acta
-                            </a>
+                            </button>
                         </div>
                     )}
 
