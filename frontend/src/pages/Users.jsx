@@ -137,7 +137,7 @@ const Users = () => {
                     inline-flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg
                     ${dataUser.length === 0
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white hover:shadow-blue-500/25 active:scale-95'
+                      : 'bg-yellow-500 hover:bg-yellow-600 text-white hover:shadow-yellow-500/25 active:scale-95'
                     }
                   `}
                   title="Editar usuario seleccionado"
@@ -174,14 +174,16 @@ const Users = () => {
                 )}
 
                 {/* Botón Crear */}
-                <button
-                  onClick={handleClickCreate}
-                  className="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 active:scale-95"
-                  title="Crear nuevo usuario"
-                >
-                  <img src={UpdateIconcopy} alt="crear" className="w-5 h-5 mr-2" />
-                  <span className="hidden sm:inline">Nuevo Usuario</span>
-                </button>
+                {["presidenta", "admin", "tesorera", "secretario"].includes(user?.rol?.toLowerCase()) && (
+                  <button
+                    onClick={handleClickCreate}
+                    className="inline-flex items-center px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 active:scale-95"
+                    title="Crear nuevo usuario"
+                  >
+                    <img src={UpdateIconcopy} alt="crear" className="w-5 h-5 mr-2" />
+                    <span className="hidden sm:inline">Nuevo Usuario</span>
+                  </button>
+                )}
               </div>
             </div>
 

@@ -37,7 +37,9 @@ export async function getCuotasUsuarioByRutService({ rut }) {
             fechaActualizacion: usuarioCuota.cuota.fechaActualizacion,
             monto_c: usuarioCuota.cuota.monto_c,
             estado_pago: usuarioCuota.estado_pago,
-            estado: usuarioCuota.estado_pago === "true" ? "Pagada" : "Pendiente"
+            estado: usuarioCuota.estado_pago === "true" ? "Pagada" : "Pendiente",
+            usuario_id: usuario.id,
+            usuario_rut: usuario.rut
         }));
 
         return [cuotasFormateadas, null];
@@ -52,6 +54,11 @@ export async function getCuotasUsuarioByRutService({ rut }) {
 export async function getCuotasUsuarioService({ id }) {
     try {
         const UcRepository = AppDataSource.getRepository(UsuarioCuota);
+
+        const usuario = await usuarioRepository.findOne({
+            where: { id }
+        });
+
         const cuotasUsuario = await UcRepository.find({
             where: { id },
             relations: ["cuota"]
@@ -68,7 +75,9 @@ export async function getCuotasUsuarioService({ id }) {
             fechaActualizacion: usuarioCuota.cuota.fechaActualizacion,
             monto_c: usuarioCuota.cuota.monto_c,
             estado_pago: usuarioCuota.estado_pago,
-            estado: usuarioCuota.estado_pago === "true" ? "Pagada" : "Pendiente"
+            estado: usuarioCuota.estado_pago === "true" ? "Pagada" : "Pendiente",
+            usuario_id: usuario?.id,
+            usuario_rut: usuario?.rut
         }));
 
         return [cuotasFormateadas, null];
@@ -107,7 +116,7 @@ export async function actualizarEstadoPagoCuotaService({ id, id_cuota, estado_pa
         registroFound.estado_pago = estado_pago;
         const actualizado = await UcRepository.save(registroFound);
 
-        if (estado_pago = true) {
+        if (estado_pago == true) {
             const cuota = await cuotaRepository.findOneBy({ id_cuota });
             if (!cuota) return [actualizado, "Estado actualizado, pero no se encontro la cuota para generar el movimiento"];
 
@@ -134,6 +143,8 @@ export async function actualizarEstadoPagoCuotaByRutService({ rut, id_cuota, est
     try {
         const usuarioRepository = AppDataSource.getRepository(Usuario);
         const UcRepository = AppDataSource.getRepository(UsuarioCuota);
+        const cuotaRepository = AppDataSource.getRepository(Cuota);
+        const mfRepository = AppDataSource.getRepository(MovimientoFinanciero);
 
         //Buscar el usuario por RUT para obtener su ID
         const usuario = await usuarioRepository.findOne({
@@ -144,20 +155,17 @@ export async function actualizarEstadoPagoCuotaByRutService({ rut, id_cuota, est
             return [null, "Usuario no encontrado."];
         }
 
-        //Encontrar la cuota del usuario usando su RUT e id de la cuota
-        const cuotaUsuario = await UcRepository.find({
-            where: { id: usuario.id },
-            relations: ["cuota"],
-        });
-        const mfRepository = AppDataSource.getRepository(MovimientoFinanciero);
+        const registroFound = await UcRepository.findOneBy({
+             id: usuario.id, 
+             id_cuota 
+            });
 
-        const registroFound = await UcRepository.findOneBy({ id, id_cuota });
         if (!registroFound) return [null, "No se encontró el registro de cuota para este usuario"];
 
         registroFound.estado_pago = estado_pago;
         const actualizado = await UcRepository.save(registroFound);
 
-        if (estado_pago = true) {
+        if (estado_pago == true) {
             const cuota = await cuotaRepository.findOneBy({ id_cuota });
             if (!cuota) return [actualizado, "Estado actualizado, pero no se encontro la cuota para generar el movimiento"];
 

@@ -28,18 +28,25 @@ export default function useMarcarCuotaPagada() {
             }
 
             console.log("Cuota pendiente encontrada: ", cuotaPendiente);
-            console.log("ID de cuota a actualizar: ", cuotaPendiente.id_cuota);
-
-            const idVecino = cuotaPendiente.id || cuotaPendiente.usuario_id || cuotaPendiente.vecino_id;
+            
+            const idVecino = cuotaPendiente.usuario_id;
             console.log("ID del vecino:", idVecino);
 
-            if (!cuotaPendiente.id_cuota || !idVecino) {
-                throw new Error("Faltan datos necesarios");
+            if(!idVecino) {
+                console.error("Error: No se encontró id del vecino en:", cuotaPendiente);                throw new Error("ID del vecino no encontrado. Datos disponibles:" + Object.keys(cuotaPendiente).join(", "));
             }
+
+            console.log("Actualizando cuota con los datos: ", {
+                id_cuota: cuotaPendiente.id_cuota,
+                datos: {
+                    id: idVecino,
+                    estado_pago: "true"
+                }
+            });
 
             await updateCuota(cuotaPendiente.id_cuota, {
                 id: idVecino,
-                estado_pago: true
+                estado_pago: "true"
             });
 
             console.log("Estado de pago actualizado.");

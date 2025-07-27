@@ -58,8 +58,10 @@ export const updateCuota = async (id, updateData) => {
     }
 
     try {
-        const response = await axios.patch(`/cuotas/`, updateData, {
-            params: {id_cuota: id }
+        const response = await axios.patch(`/usuario-cuota/`, {
+            id: updateData.id,
+            id_cuota: updateData.id_cuota,
+            estado_pago: updateData.estado_pago
         });
         console.log("Respuesta del servidor:", response.data);
         return response.data.data;

@@ -177,25 +177,14 @@ const Cuotas = () => {
                                             </div>
                                         </div>
 
-                                        <div className="border-t pt-3">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-gray-500">Estado</span>
-                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${cuota.estado === 'activa'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {cuota.estado}
-                                                </span>
-                                            </div>
-                                        </div>
 
                                         {user?.rol === 'vecino' && (
                                             <div className="border-t pt-3">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-sm text-gray-500">Estado de Pago</span>
                                                     <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold ${cuota.estado_pago
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-red-100 text-red-800'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-red-100 text-red-800'
                                                         }`}>
                                                         {cuota.estado_pago ? (
                                                             <>
