@@ -14,7 +14,7 @@ const Tokens = () => {
   const { tokens, fetchTokens, setTokens } = useGetTokens();
   const { reuniones } = useGetReunionesActivas();
   const { user } = useAuth();  
-  const { cerrarToken } = useEditToken();
+  const { cerrarToken } = useEditToken();  
   const [idReunion, setIdReunion] = useState('');
   const [filter, setFilter] = useState('');
   const [idUsuario, setIdUsuario] = useState(null);
@@ -127,12 +127,12 @@ const Tokens = () => {
       hozAlign: "center"
     },
     {
-      title: "Objetivo",
-      field: "Reunion.objetivo",
+      title: "Descripción",
+      field: "Reunion.descripcion",
       width: 200,
       formatter: function (cell) {
-        const objetivo = cell.getValue();
-        return objetivo ? objetivo.substring(0, 50) + (objetivo.length > 50 ? "..." : "") : "—";
+        const descripcion = cell.getValue();
+        return descripcion ? descripcion.substring(0, 50) + (descripcion.length > 50 ? "..." : "") : "—";
       }
     },
     {
@@ -219,14 +219,6 @@ const Tokens = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Tokens</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Administra los tokens de asistencia para las reuniones activas
-          </p>
-        </div>
-
         {/* Formulario de creación */}
         <div className="bg-white shadow rounded-lg p-6 mb-8 border border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Crear Nuevo Token</h2>
@@ -244,7 +236,7 @@ const Tokens = () => {
                 <option value="">Selecciona reunión de hoy</option>
                 {reuniones.map((reunion) => (
                   <option key={reunion.id_reunion} value={reunion.id_reunion}>
-                    {`#${reunion.id_reunion} - ${reunion.objetivo}`}
+                    {`#${reunion.id_reunion} - ${reunion.descripcion}`}
                   </option>
                 ))}
               </select>

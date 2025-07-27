@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,6 +10,7 @@ import ToastNotification from '@components/ToastNotification';
 import ConfirmModal from '@components/ConfirmModal';
 
 const Reuniones = () => {
+  const navigate = useNavigate();
   const [reuniones, setReuniones] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
@@ -88,6 +90,66 @@ const Reuniones = () => {
       confirmModal.onConfirm();
     }
     hideConfirmModal();
+  };
+
+  // Función para verificar si el formulario es válido
+  const isFormValid = () => {
+    // Verificar campos obligatorios
+    if (!formData.lugar?.trim() || !formData.descripcion?.trim()) {
+      return false;
+    }
+
+    // Si seleccionó "Otro", verificar el campo personalizado
+    if (formData.lugar === 'Otro (especificar)' && !formData.lugarPersonalizado?.trim()) {
+      return false;
+    }
+
+    // Verificar fecha y hora
+    if (!selectedDate || !formData.hora) {
+      return false;
+    }
+
+    // Verificar si hay errores activos
+    if (Object.keys(errors).length > 0) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // Función para obtener mensaje de qué falta o está mal
+  const getValidationMessage = () => {
+    const issues = [];
+
+    if (!selectedDate) issues.push('fecha');
+    if (!formData.hora) issues.push('hora');
+    if (!formData.lugar?.trim()) issues.push('lugar');
+    if (formData.lugar === 'Otro (especificar)' && !formData.lugarPersonalizado?.trim()) {
+      issues.push('lugar personalizado');
+    }
+    if (!formData.descripcion?.trim()) issues.push('descripción');
+
+    // Verificar errores de validación específicos
+    const errorKeys = Object.keys(errors);
+    if (errorKeys.length > 0) {
+      const errorMessages = errorKeys.map(key => {
+        switch (key) {
+          case 'fecha': return 'fecha válida';
+          case 'hora': return 'hora válida';
+          case 'lugar': return 'lugar válido';
+          case 'lugarPersonalizado': return 'lugar personalizado válido';
+          case 'descripcion': return 'descripción válida';
+          default: return key;
+        }
+      });
+      return `Corrige: ${errorMessages.join(', ')}`;
+    }
+
+    if (issues.length > 0) {
+      return `Completa: ${issues.join(', ')}`;
+    }
+
+    return '';
   };
 
   const getErrorMessage = (validationErrors) => {
@@ -176,6 +238,9 @@ const Reuniones = () => {
         newErrors.lugar = 'Debes seleccionar un lugar';
       } else {
         delete newErrors.lugar;
+        if (value !== 'Otro (especificar)') {
+          delete newErrors.lugarPersonalizado;
+        }
       }
     }
 
@@ -354,6 +419,9 @@ const Reuniones = () => {
       } else if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]/.test(formData.lugarPersonalizado)) {
         newErrors.lugarPersonalizado = 'El lugar debe contener al menos una letra o número';
       }
+    } else {
+
+      delete newErrors.lugarPersonalizado;
     }
 
     // Validar descripción 
@@ -526,53 +594,99 @@ const Reuniones = () => {
 
     const diferenciaHoras = (fecha.getTime() - ahora.getTime()) / (60 * 60 * 1000);
     const puedeAcceder = diferenciaHoras <= 24;
+    const isActual = ahora >= fecha && ahora <= fin;
+    const isFutura = fecha > ahora;
 
     return (
-      <div key={r.id_reunion} className="border p-4 rounded-md shadow-sm mb-4 bg-white w-full max-w-2xl">
-        <div className="mb-2">
-          <p><strong>Lugar:</strong> {r.lugar}</p>
-          <p><strong>Fecha:</strong> {formatearFechaDDMMYYYY(r.fecha_reunion)} a las {formatearHoraHHMMSS(r.fecha_reunion)} hrs</p>
-          <p><strong>Descripción:</strong> {r.descripcion}</p>
+      <div key={r.id_reunion} className={`border-2 p-4 rounded-xl shadow-lg mb-4 bg-white w-full max-w-2xl reunion-card transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 ${isActual ? 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50' :
+          isFutura ? 'border-blue-400 bg-gradient-to-r from-blue-50 to-cyan-50' :
+            'border-gray-300 bg-gradient-to-r from-gray-50 to-slate-50'
+        }`}>
+
+        <div className="flex justify-between items-start mb-3">
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${isActual ? 'bg-green-100 text-green-800 border border-green-200' :
+              isFutura ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                'bg-gray-100 text-gray-800 border border-gray-200'
+            }`}>
+            {isActual ? 'En Curso' : isFutura ? 'Próxima' : 'Finalizada'}
+          </span>
+          {isActual && <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>}
         </div>
+
+        <div className="mb-3 space-y-2">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-gray-700">Lugar:</span>
+            <span className="text-gray-900">{r.lugar}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-gray-700">Fecha:</span>
+            <span className="text-gray-900">{formatearFechaDDMMYYYY(r.fecha_reunion)} a las {formatearHoraHHMMSS(r.fecha_reunion)} hrs</span>
+          </div>
+          <div className="flex items-start space-x-2">
+            <span className="font-semibold text-gray-700">Descripción:</span>
+            <span className="text-gray-900">{r.descripcion}</span>
+          </div>
+        </div>
+
         <div className="flex flex-wrap gap-2">
           {user && ["presidenta", "admin", "vecino", "tesorera", "secretario"].includes(user.rol?.toLowerCase()) && puedeAcceder && (
             <button onClick={() => {
               if (["presidenta", "admin"].includes(user.rol?.toLowerCase())) {
                 localStorage.setItem("reunion_en_curso", r.id_reunion);
               }
-              window.location.href = `/detalle-reunion/${r.id_reunion}`;
+              navigate(`/detalle-reunion/${r.id_reunion}`);
             }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded">
-              {user.rol?.toLowerCase() === "presidenta" || user.rol?.toLowerCase() === "admin" ? "Ingresar a Reunión" : "Ver Reunión"}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-6 text-sm rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 min-w-[120px]">
+              {user.rol?.toLowerCase() === "presidenta" || user.rol?.toLowerCase() === "admin" ? "Ingresar" : "Ver"}
             </button>
           )}
           {user && ["presidenta", "admin"].includes(user.rol?.toLowerCase()) && (
             <>
               <button
                 onClick={() => handleEditar(r)}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded">Editar</button>
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-2 px-6 text-sm rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 min-w-[120px]">
+                Editar
+              </button>
               <button
                 onClick={() => handleEliminarReunion(r.id_reunion)}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded">
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-2 px-4 text-sm rounded-lg shadow-md transform hover:scale-105 transition-all duration-200">
                 {loadingDelete ? "Eliminando..." : "Eliminar"}
               </button>
             </>
           )}
         </div>
+
+        {/* Indicador de acceso para reuniones futuras */}
+        {isFutura && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${puedeAcceder ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+              }`}>
+              {puedeAcceder ? 'Acceso disponible' : 'Disponible 24h antes'}
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <div className="bg-white px-4 py-2 rounded-md shadow-md border text-gray-800">
-          <p className="text-sm font-medium">📅 Fecha actual: {formatearFechaDDMMYYYY(fechaHoraActual)}</p>
-          <p className="text-sm font-medium">⏰ Hora actual: {formatearHoraHHMMSS(fechaHoraActual)}</p>
+    <div className="p-4 bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+      <div className="flex justify-between items-center mb-6 reunion-content">
+        <div className="bg-gradient-to-r from-white to-green-50 px-6 py-4 rounded-lg shadow-md border-2 border-green-200 text-gray-800">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-green-600 text-xl">📅</span>
+              <span className="text-base font-bold">Fecha: {formatearFechaDDMMYYYY(fechaHoraActual)}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-green-600 text-xl">⏰</span>
+              <span className="text-base font-bold">Hora: {formatearHoraHHMMSS(fechaHoraActual)}</span>
+            </div>
+          </div>
         </div>
         {(user?.rol === "presidenta" || user?.rol === "admin") && (
           <button
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transform hover:scale-105 transition-all duration-200"
             onClick={() => {
               setShowForm(!showForm);
               setIsEditing(false);
@@ -580,18 +694,23 @@ const Reuniones = () => {
               setErrors({});
               setIsSubmitting(false);
             }}>
-            + Nueva reunión
+            Nueva reunión
           </button>
         )}
       </div>
 
       {showForm && (
-        <div className="max-w-4xl">
-          <div className="bg-white p-6 rounded-md shadow-md mb-6">
-            <h2 className="text-lg font-semibold mb-4">{isEditing ? 'Editar reunión' : 'Crear nueva reunión'}</h2>
+        <div className="max-w-4xl reunion-content">
+          <div className="bg-gradient-to-br from-white to-green-50 p-6 rounded-xl shadow-lg mb-6 reunion-form border-2 border-green-200">
+            <h2 className="text-xl font-bold mb-4 text-green-800 flex items-center">
+              <span className="mr-2">{isEditing ? 'Editar' : 'Crear'}</span>
+              {isEditing ? 'reunión' : 'nueva reunión'}
+            </h2>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Fecha y hora:</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span className="mr-2">Fecha y hora:</span>
+                </label>
                 <DatePicker
                   selected={selectedDate}
                   onChange={handleDateTimeChange}
@@ -601,23 +720,26 @@ const Reuniones = () => {
                   dateFormat="dd-MM-yyyy HH:mm"
                   placeholderText="Selecciona fecha y hora"
                   minDate={new Date()} // Desde hoy
-                  maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)} 
-                  className={`mt-1 block w-full border rounded-md shadow-sm p-2 text-sm ${errors.fecha || errors.hora ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)}
+                  className={`w-full border-2 rounded-lg shadow-sm p-3 text-sm transition-all duration-200 ${errors.fecha || errors.hora ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
                     }`}
                 />
                 {(errors.fecha || errors.hora) && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
                     {errors.fecha || errors.hora}
                   </p>
                 )}
               </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700">Lugar:</label>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span className="mr-2">Lugar:</span>
+                </label>
                 <select
                   name="lugar"
                   value={formData.lugar}
                   onChange={handleInputChange}
-                  className={`mt-1 block w-full border rounded-md shadow-sm p-2 ${errors.lugar ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full border-2 rounded-lg shadow-sm p-3 transition-all duration-200 ${errors.lugar ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
                     }`}
                 >
                   <option value="">Selecciona un lugar</option>
@@ -628,56 +750,83 @@ const Reuniones = () => {
                   ))}
                 </select>
                 {errors.lugar && (
-                  <p className="mt-1 text-sm text-red-600">{errors.lugar}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {errors.lugar}
+                  </p>
                 )}
 
                 {/* Campo adicional para lugar personalizado */}
                 {formData.lugar === 'Otro (especificar)' && (
-                  <div className="mt-3">
-                    <label className="block text-sm font-medium text-gray-700">Especifica el lugar:</label>
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Especifica el lugar:</label>
                     <input
                       type="text"
                       name="lugarPersonalizado"
                       value={formData.lugarPersonalizado}
                       onChange={handleInputChange}
-                      className={`mt-1 block w-full border rounded-md shadow-sm p-2 ${errors.lugarPersonalizado ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      className={`w-full border-2 rounded-lg shadow-sm p-3 transition-all duration-200 ${errors.lugarPersonalizado ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
                         }`}
                       placeholder="Ej: Sala de juntas edificio B, Casa particular..."
                     />
                     {errors.lugarPersonalizado && (
-                      <p className="mt-1 text-sm text-red-600">{errors.lugarPersonalizado}</p>
+                      <p className="mt-2 text-sm text-red-600 flex items-center">
+                        <span className="mr-1">⚠️</span>
+                        {errors.lugarPersonalizado}
+                      </p>
                     )}
                   </div>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Descripción:</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                  <span className="mr-2">Descripción:</span>
+                </label>
                 <textarea
                   name="descripcion"
                   value={formData.descripcion}
                   onChange={handleInputChange}
                   rows="4"
-                  className={`mt-1 block w-full border rounded-md shadow-sm p-2 ${errors.descripcion ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full border-2 rounded-lg shadow-sm p-3 transition-all duration-200 resize-none ${errors.descripcion ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
                     }`}
                   placeholder="Describe brevemente el contenido de la reunión..."
                 />
                 {errors.descripcion && (
-                  <p className="mt-1 text-sm text-red-600">{errors.descripcion}</p>
+                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    {errors.descripcion}
+                  </p>
                 )}
               </div>
               {errors.general && (
-                <div className="md:col-span-2 bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-600">{errors.general}</p>
+                <div className="md:col-span-2 bg-red-50 border-l-4 border-red-400 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <span className="text-red-600 mr-2">🚨</span>
+                    <p className="text-sm text-red-600 font-medium">{errors.general}</p>
+                  </div>
                 </div>
               )}
-              <div className="col-span-2 flex gap-2">
+
+              {/* Mostrar mensaje de validación si el formulario no es válido */}
+              {!isFormValid() && (
+                <div className="col-span-2 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <span className="text-yellow-600 mr-2">⚠️</span>
+                    <p className="text-sm text-yellow-800 font-medium">
+                      {getValidationMessage()}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="col-span-2 flex gap-4 pt-2">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className={`font-semibold py-2 px-4 rounded ${isSubmitting
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-green-600 hover:bg-green-700'
-                    } text-white`}
+                  disabled={!isFormValid() || isSubmitting}
+                  className={`flex-1 font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${!isFormValid() || isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg transform hover:scale-105'
+                    }`}
                 >
                   {isSubmitting
                     ? 'Guardando...'
@@ -688,9 +837,9 @@ const Reuniones = () => {
                   type="button"
                   onClick={resetForm}
                   disabled={isSubmitting}
-                  className={`font-semibold py-2 px-4 rounded text-white ${isSubmitting
+                  className={`flex-1 font-semibold py-3 px-6 rounded-lg text-white transition-all duration-200 ${isSubmitting
                     ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-gray-400 hover:bg-gray-500'
+                    : 'bg-gray-500 hover:bg-gray-600 shadow-lg transform hover:scale-105'
                     }`}
                 >
                   Cancelar
@@ -701,55 +850,117 @@ const Reuniones = () => {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-2">Futuras</h2>
-      {futuras.map(renderReunionCard)}
+      <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
+        <h2 className="text-xl font-bold mb-3 reunion-content text-blue-800 flex items-center">
+          <span className="mr-2">Próximas Reuniones</span>
+          <span className="ml-2 bg-blue-100 text-blue-800 text-sm font-semibold px-2 py-1 rounded-full">
+            {futuras.length}
+          </span>
+        </h2>
+        <div className="reunion-list">
+          {futuras.length > 0 ? (
+            futuras.map(renderReunionCard)
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <div className="text-2xl mb-2">📅</div>
+              <p className="text-base font-medium">No hay reuniones programadas</p>
+              <p className="text-sm">Las próximas reuniones aparecerán aquí</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-      <h2 className="text-xl font-bold mt-6 mb-2">Actuales</h2>
-      {actuales.map(renderReunionCard)}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 className="text-2xl font-bold mb-4 reunion-content text-green-800 flex items-center">
+          <span className="mr-3">Reuniones en Curso</span>
+          <span className="ml-3 bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full">
+            {actuales.length}
+          </span>
+        </h2>
+        <div className="reunion-list">
+          {actuales.length > 0 ? (
+            actuales.map(renderReunionCard)
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <div className="text-2xl mb-2">⏰</div>
+              <p className="text-base font-medium">No hay reuniones en curso</p>
+              <p className="text-sm">Las reuniones activas se mostrarán aquí</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-      <h2 className="text-xl font-bold mt-6 mb-2">Pasadas</h2>
-      <button onClick={() => setMostrarPasadas(!mostrarPasadas)} className="mb-2 text-sm font-semibold text-blue-600 hover:underline">
-        {mostrarPasadas ? "Ocultar reuniones pasadas" : `Ver reuniones pasadas (${pasadas.length})`}
-      </button>
-
-      {mostrarPasadas && (
-        <div className="mb-4 flex flex-wrap gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha exacta:</label>
-            <input
-              type="date"
-              value={filtroFechaPasadas}
-              onChange={(e) => setFiltroFechaPasadas(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-[160px]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mes (MM):</label>
-            <input
-              type="text"
-              maxLength={2}
-              placeholder="Ej: 07"
-              value={filtroMes}
-              onChange={(e) => setFiltroMes(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-[80px]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Año (AAAA):</label>
-            <input
-              type="text"
-              maxLength={4}
-              placeholder="Ej: 2025"
-              value={filtroAnio}
-              onChange={(e) => setFiltroAnio(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-[100px]"
-            />
-          </div>
+      <div className="bg-white rounded-xl shadow-lg p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold reunion-content text-purple-800 flex items-center">
+            <span className="mr-2">Reuniones Pasadas</span>
+            <span className="ml-2 bg-purple-100 text-purple-800 text-sm font-semibold px-2 py-1 rounded-full">
+              {pasadas.length}
+            </span>
+          </h2>
+          <button
+            onClick={() => setMostrarPasadas(!mostrarPasadas)}
+            className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-2 px-4 text-sm rounded-lg shadow-md transform hover:scale-105 transition-all duration-200 reunion-content"
+          >
+            {mostrarPasadas ? "Ocultar" : `Ver (${pasadas.length})`}
+          </button>
         </div>
 
-      )}
+        {mostrarPasadas && (
+          <div className="reunion-list">
+            <div className="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
+              <h3 className="text-lg font-semibold text-purple-800 mb-3 flex items-center">
+                <span className="mr-2">Filtrar Reuniones Pasadas</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Fecha exacta:</label>
+                  <input
+                    type="date"
+                    value={filtroFechaPasadas}
+                    onChange={(e) => setFiltroFechaPasadas(e.target.value)}
+                    className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Mes (MM):</label>
+                  <input
+                    type="text"
+                    maxLength={2}
+                    placeholder="Ej: 07"
+                    value={filtroMes}
+                    onChange={(e) => setFiltroMes(e.target.value)}
+                    className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Año (AAAA):</label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    placeholder="Ej: 2025"
+                    value={filtroAnio}
+                    onChange={(e) => setFiltroAnio(e.target.value)}
+                    className="w-full border-2 border-gray-300 rounded-lg p-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200"
+                  />
+                </div>
+              </div>
+            </div>
 
-      {mostrarPasadas && pasadasFiltradas.map(renderReunionCard)}
+            <div className="reunion-list">
+              {pasadasFiltradas.length > 0 ? (
+                pasadasFiltradas.map(renderReunionCard)
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <div className="text-2xl mb-2">🔍</div>
+                  <p className="text-base font-medium">No se encontraron reuniones</p>
+                  <p className="text-sm">Prueba ajustando los filtros de búsqueda</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Toast Notification */}
       <ToastNotification
