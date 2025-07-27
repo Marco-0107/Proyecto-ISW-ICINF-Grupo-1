@@ -1,5 +1,6 @@
 "use strict";
 import Joi from "joi";
+import moment from "moment-timezone";
 
 export const reunionQueryValidation = Joi.object({
     id: Joi.number()
@@ -90,10 +91,24 @@ export const reunionBodyValidation = Joi.object({
        }),
     fecha_reunion: Joi.date()
     .iso()
-    .min(Joi.ref('$now', { adjust: (value) => new Date(value.getTime() + 24 * 60 * 60 * 1000) }))
-    .max(Joi.ref('$now', { adjust: (value) => new Date(value.getTime() + 365 * 24 * 60 * 60 * 1000) }))
+    .min(Joi.ref('$now', { 
+        adjust: (value) => {
+            // Calcular 24 horas de anticipación en zona horaria de Chile
+            const fechaChile = moment.tz("America/Santiago").add(24, 'hours');
+            return fechaChile.toDate();
+        } 
+    }))
+    .max(Joi.ref('$now', { 
+        adjust: (value) => {
+            // Calcular máximo 1 año en zona horaria de Chile
+            const fechaChile = moment.tz("America/Santiago").add(365, 'days');
+            return fechaChile.toDate();
+        } 
+    }))
     .custom((value, helpers) => {
-        const hour = value.getHours();
+        // Usar moment-timezone para validar la hora en zona horaria de Chile
+        const fechaChile = moment.tz(value, "America/Santiago");
+        const hour = fechaChile.hour();
         if (hour < 10 || hour >= 19) {
             return helpers.error('date.hour');
         }
@@ -104,9 +119,9 @@ export const reunionBodyValidation = Joi.object({
         "date.empty": "La fecha no puede estar vacía",
         "date.base": "La fecha debe ser tipo Date",
         "date.iso": "La fecha debe estar en formato ISO",
-        "date.min": "La fecha debe ser con mínimo 24 horas de anticipación",
+        "date.min": "La fecha debe ser con mínimo 24 horas de anticipación (hora de Chile)",
         "date.max": "La fecha no puede ser mayor a 1 año",
-        "date.hour": "La hora debe estar entre las 10:00 y 18:59",
+        "date.hour": "La hora debe estar entre las 10:00 y 18:59 (hora de Chile)",
         "any.required": "La fecha y hora son obligatorias"
     }),
     fechaActualizacion: Joi.date()
@@ -139,7 +154,19 @@ export const reunionEditValidation = Joi.object({
     .pattern(/^(?=.*[a-zA-Z0-9])[\w\s\-'.#áéíóúÁÉÍÓÚñÑ]+$/),
 
   fecha_reunion: Joi.string()
-    .pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/),
+    .pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/)
+    .custom((value, helpers) => {
+        // Usar moment-timezone para validar la hora en zona horaria de Chile
+        const fechaChile = moment.tz(value, "America/Santiago");
+        const hour = fechaChile.hour();
+        if (hour < 10 || hour >= 19) {
+            return helpers.error('date.hour');
+        }
+        return value;
+    })
+    .messages({
+        "date.hour": "La hora debe estar entre las 10:00 y 18:59 (hora de Chile)"
+    }),
 
   fechaActualizacion: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/),
