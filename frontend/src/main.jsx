@@ -11,9 +11,13 @@ import DetalleReunion from '@pages/DetalleReunion';
 import Movfin from '@pages/movfin';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
-import Publicacion from '@pages/DetallePublicacion.jsx';
+import Noticias from '@pages/Noticias';
 import DetallePublicacion from '@pages/DetallePublicacion.jsx';
 import Cuotas from './pages/cuotas';
+import Notificaciones from '@pages/Notificaciones.jsx';
+import DetalleNotificacion from '@pages/DetalleNotificacion.jsx';
+import Convocatorias from '@pages/Convocatorias.jsx';
+
 
 const router = createBrowserRouter([
   {
@@ -49,9 +53,15 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      //Cristian
+      //Noticias
+      {
+        path: '/noticias',
+        element: <Noticias />
+      },
       {
         path: '/publicacion',
-        element: <Publicacion />
+        element: <Noticias />
       },
       {
         path: '/detalle-publicacion/:id',
@@ -60,8 +70,25 @@ const router = createBrowserRouter([
       {
         path: '/cuotas',
         element: <Cuotas/>
-      }
-
+      },
+      //Notificaciones
+      {
+        path: '/notificaciones',
+        element: <Notificaciones />
+      },
+      {
+        path: '/notificacion',
+        element: <Notificaciones />
+      },
+      {
+        path: '/notificacion/:id',
+        element: <DetalleNotificacion />
+      },
+      //Convocatorias
+      {
+        path: '/convocatorias',
+        element: <Convocatorias />
+      },
     ]
   },
   {

@@ -10,7 +10,10 @@ import {
     DollarSign,
     LogOut,
     Menu,
-    X
+    X,
+    Newspaper,
+    Bell,
+    Megaphone
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -44,9 +47,27 @@ const Sidebar = () => {
             show: true
         },
         {
+            to: "/noticias",
+            label: "Noticias",
+            icon: Newspaper,
+            show: true
+        },
+        {
+            to: "/notificaciones",
+            label: "Notificaciones",
+            icon: Bell,
+            show: ['admin', 'presidenta', 'presidente', 'secretaria', 'secretario'].includes(userRole?.toLowerCase())
+        },
+        {
             to: "/reuniones",
             label: "Reuniones",
             icon: Calendar,
+            show: true
+        },
+        {
+            to: "/convocatorias",
+            label: "Convocatorias",  
+            icon: Megaphone,
             show: true
         },
         {
