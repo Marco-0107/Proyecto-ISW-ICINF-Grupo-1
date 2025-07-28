@@ -22,11 +22,11 @@ const Notificacion=new EntitySchema({
             length:64
         },
         fecha:{ 
-            type:"date",
+            type:"timestamp",
             nullable:true
         },
         fechaActualizacion:{
-            type:"date",
+            type:"timestamp",
             nullable:false
         },
         estado_visualizacion:{

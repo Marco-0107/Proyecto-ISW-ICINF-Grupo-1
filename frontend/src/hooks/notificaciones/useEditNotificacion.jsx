@@ -11,10 +11,10 @@ export default function useUpdateNotificacion() {
 
     try {
       setLoading(true);
-      await updatePublicacion(id_notificacion, data);
+      await updateNotificacion(id_notificacion, data);
       setLoading(false);
 
-      alert("Notificacón actualizada correctamente");
+      alert("Notificación actualizada correctamente");
 
       if (onSuccess) {
         setTimeout(() => {

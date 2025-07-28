@@ -13,6 +13,15 @@ const UsuarioConvocatoria=new EntitySchema({
         id_convocatoria:{
             type:"int",
             primary:true
+        },
+        comentarios:{
+            type:"text",
+            nullable:true
+        },
+        fecha_inscripcion:{
+            type:"timestamp",
+            nullable:true,
+            default: () => "CURRENT_TIMESTAMP"
         }
     },
     relations:{

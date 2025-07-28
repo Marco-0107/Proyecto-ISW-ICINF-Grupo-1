@@ -25,7 +25,7 @@ const Publicacion = new EntitySchema({
       nullable: false
     },
     fecha_publicacion:{
-      type: "date",
+      type: "timestamp",
       nullable: false
     },
     estado:{
@@ -33,8 +33,13 @@ const Publicacion = new EntitySchema({
       length:50
     },
     fechaActualizacion:{
-      type:"date",
+      type:"timestamp",
       nullable: false
+    },
+    imagen:{
+      type:"varchar",
+      length: 500,
+      nullable: true
     }
   },
   relations:{
