@@ -98,11 +98,59 @@ const CarruselUsuarios = ({
   const copiarToken = async () => {
     if (tokenActivo?.numero_token) {
       try {
-        await navigator.clipboard.writeText(tokenActivo.numero_token);
-        showToast("¡Token copiado al portapapeles!", 'success');
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(tokenActivo.numero_token.toString());
+          showToast("¡Token copiado al portapapeles!", 'success');
+        } else {
+          const textArea = document.createElement('textarea');
+          textArea.value = tokenActivo.numero_token.toString();
+          textArea.style.position = 'absolute';
+          textArea.style.left = '-9999px';
+          textArea.style.top = '0';
+          textArea.style.opacity = '0';
+          textArea.setAttribute('readonly', '');
+          textArea.style.userSelect = 'text';
+          
+          document.body.appendChild(textArea);
+          
+          if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+            textArea.contentEditable = true;
+            textArea.readOnly = false;
+            const range = document.createRange();
+            range.selectNodeContents(textArea);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            textArea.setSelectionRange(0, 999999);
+          } else {
+            textArea.select();
+            textArea.setSelectionRange(0, 99999);
+          }
+          
+          let successful = false;
+          try {
+            successful = document.execCommand('copy');
+          } catch (err) {
+            successful = false;
+          }
+          
+          document.body.removeChild(textArea);
+          
+          if (successful) {
+            showToast("¡Token copiado al portapapeles!", 'success');
+          } else {
+            const promptText = `Token de la reunión: ${tokenActivo.numero_token}`;
+            if (window.prompt) {
+              window.prompt("Copia el token manualmente (Ctrl+C):", tokenActivo.numero_token.toString());
+            } else {
+              showToast(promptText, 'info');
+            }
+          }
+        }
       } catch (error) {
         console.error("Error al copiar token:", error);
-        showToast("Error al copiar el token", 'error');
+        const promptText = `Token: ${tokenActivo.numero_token}`;
+        showToast(promptText, 'info');
       }
     }
   };

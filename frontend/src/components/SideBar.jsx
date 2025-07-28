@@ -92,7 +92,7 @@ const Sidebar = () => {
             to: "/cuotas",
             label: "Mis cuotas",
             icon: DollarSign,
-            show: userRole == 'admin' || userRole === 'vecino'
+            show: userRole == 'admin' || userRole === 'vecino' || userRole === 'tesorera'
         }
     ];
 
