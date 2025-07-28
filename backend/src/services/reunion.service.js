@@ -1,10 +1,8 @@
 "use strict";
 import UsuarioReunion from "../entity/usuario_reunion.entity.js";
 import Reunion from "../entity/reunion.entity.js";
-import Token from "../entity/token.entity.js";
 import Usuario from "../entity/user.entity.js"
 import { AppDataSource } from "../config/configDb.js";
-import { createTokenService } from "./token.service.js";
 
 // Obtener una reunion por ID
 export async function getReunionService({ id_reunion }) {
@@ -54,13 +52,13 @@ export async function updateReunionService(query, body) {
         if (!reunionFound) return [null, "Reunión no encontrada"];
 
         const dataUpdate = {
-            lugar: body.lugar,
-            descripcion: body.descripcion,
-            fecha_reunion: body.fecha_reunion,
-            objetivo: body.objetivo,
-            observaciones: body.observaciones,
             fechaActualizacion: new Date(),
         };
+
+        if (body.lugar !== undefined) dataUpdate.lugar = body.lugar;
+        if (body.descripcion !== undefined) dataUpdate.descripcion = body.descripcion;
+        if (body.fecha_reunion !== undefined) dataUpdate.fecha_reunion = body.fecha_reunion;
+        if (body.observaciones !== undefined) dataUpdate.observaciones = body.observaciones;
     
         await reunionRepository.update({ id_reunion }, dataUpdate);
 
@@ -98,6 +96,24 @@ export async function deleteReunionService(query) {
         return [null, "Error interno del servidor"];
     }
 }
+// Agregar el acta a la reunion
+    export async function updateArchivoActaService(id_reunion, archivo_acta) {
+        try {
+        const reunionRepository = AppDataSource.getRepository(Reunion);
+
+        const reunion = await reunionRepository.findOne({ where: { id_reunion } });
+        if (!reunion) return [null, "Reunión no encontrada"];
+
+        reunion.archivo_acta = archivo_acta;
+        await reunionRepository.save(reunion);
+
+        return [reunion, null];
+  } catch (error) {
+    console.error("Error al actualizar el acta:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
+
 // Crear reunion y asignarla a todos los vecinos
 export async function createReunionService(body) {
         const reunionRepository = AppDataSource.getRepository(Reunion);
@@ -112,8 +128,7 @@ export async function createReunionService(body) {
             lugar: body.lugar,
             descripcion: body.descripcion,
             fecha_reunion: body.fecha_reunion,
-            objetivo: body.objetivo,
-            observaciones: body.observaciones,
+            observaciones: body.observaciones || null,
             fechaActualizacion: new Date()
         });
         const saveReunion = await reunionRepository.save(newReunion);

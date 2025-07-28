@@ -18,11 +18,16 @@ export const sendEmail = async (to, subject, text, html) => {
             text: text,
             html: html,
         };
-        await transporter.sendMail(mailOptions);
-
-        return mailOptions;
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Correo enviado exitosamente:", info.messageId);
+        
+        return {
+            success: true,
+            messageId: info.messageId,
+            mailOptions: mailOptions
+        };
     } catch (error) {
-        console.error("Error enviando el correo: %s", error.message);
+        console.error("Error enviando el correo:", error.message);
         throw new Error("Error enviando el correo: " + error.message);
     }
 };

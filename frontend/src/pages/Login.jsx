@@ -100,7 +100,7 @@ const Login = () => {
     return (
         <div className="min-h-screen flex">
             {/* Panel izquierdo - Bienvenida */}
-            <div className="flex-1 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-start pl-16 pr-12 relative overflow-hidden">
+            <div className="flex-1 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-start pl-16 pr-12 relative overflow-hidden">
 
                 {/* Círculo decorativo */}
                 <div className="absolute -right-40 -top-32 w-96 h-96 bg-white bg-opacity-10 rounded-full"></div>
@@ -111,7 +111,7 @@ const Login = () => {
                         Bienvenid@ de nuevo!
                     </h1>
                     <div className="w-12 h-1 bg-white mb-6"></div>
-                    <p className="text-blue-100 text-lg leading-relaxed mb-8">
+                    <p className="text-black-200 text-lg leading-relaxed mb-8">
                         Recuerda iniciar sesión con las credenciales que le fueron otorgadas
                         por la directiva, en caso de olvidar las credenciales, comunicarse
                         directamente con ellos.
@@ -122,13 +122,13 @@ const Login = () => {
             {/* Panel derecho - Formulario */}
             <div className="flex-1 bg-gray-50 flex items-center justify-center p-12 relative">
                 {/* Círculos decorativos */}
-                <div className="absolute top-20 right-20 w-32 h-32 bg-gray-200 rounded-full opacity-30"></div>
-                <div className="absolute bottom-32 left-20 w-24 h-24 bg-gray-300 rounded-full opacity-20"></div>
+                <div className="absolute top-20 right-20 w-32 h-32 bg-gray-200 rounded-full opacity-600"></div>
+                <div className="absolute bottom-32 left-20 w-24 h-24 bg-gray-300 rounded-full opacity-400"></div>
 
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
                         <h2 className="text-3xl font-bold text-gray-800 mb-2">Iniciar Sesión</h2>
-                        <div className="w-12 h-1 bg-blue-500 mx-auto"></div>
+                        <div className="w-12 h-1 bg-green-500 mx-auto"></div>
                     </div>
 
                     <form onSubmit={loginSubmit} className="space-y-6">
@@ -140,7 +140,7 @@ const Login = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="ejemplo@gmail.com"
-                                className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400 ${errors.email || errorEmail
+                                className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors placeholder-gray-400 ${errors.email || errorEmail
                                         ? 'border-red-300 bg-red-50'
                                         : 'border-gray-200'
                                     }`}
@@ -163,7 +163,7 @@ const Login = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     placeholder="Ingresa tu contraseña..."
-                                    className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-400 pr-12 ${errors.password || errorPassword
+                                    className={`w-full px-4 py-4 bg-white border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors placeholder-gray-400 pr-12 ${errors.password || errorPassword
                                         ? 'border-red-300 bg-red-50'
                                         : 'border-gray-200'
                                         }`}
@@ -190,7 +190,7 @@ const Login = () => {
                             disabled={isLoading}
                             className={`w-full py-4 rounded-lg font-semibold text-white transition-all duration-200 ${isLoading
                                 ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-blue-500 hover:bg-blue-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
+                                : 'bg-green-500 hover:bg-green-600 hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]'
                                 }`}
                         >
                             {isLoading ? (
