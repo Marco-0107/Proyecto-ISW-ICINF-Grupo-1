@@ -78,7 +78,10 @@ const Movimientos = () => {
   };
 
   const fechaHoraLocal = () => {
-    return new Date().toISOString();
+    // Obtener fecha actual en zona horaria de Chile
+    const ahora = new Date();
+    const fechaChile = new Date(ahora.toLocaleString("en-US", {timeZone: "America/Santiago"}));
+    return fechaChile.toISOString();
   };
 
   const formatearFecha = (iso) => {
@@ -88,8 +91,7 @@ const Movimientos = () => {
 
   const formatearHora = (iso) => {
     const fecha = new Date(iso);
-    const fechaChile = new Date(fecha.getTime() + 3);
-    return fechaChile.toLocaleTimeString('es-CL', {
+    return fecha.toLocaleTimeString('es-CL', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
