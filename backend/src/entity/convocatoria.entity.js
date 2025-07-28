@@ -23,7 +23,7 @@ const Convocatoria = new EntitySchema({
             nullable: false
         },
         fecha_inicio:{
-            type: "date",
+            type: "timestamp",
             nullable: false
         },
         fecha_cierre:{
@@ -31,11 +31,15 @@ const Convocatoria = new EntitySchema({
             nullable: false
         },
         fechaActualizacion:{
-            type:"date",
+            type:"timestamp",
             nullable:false
         },
         estado:{
             type: "boolean"
+        },
+        archivo_convocatoria:{
+            type: "int",
+            nullable: true
         },
     },
 });

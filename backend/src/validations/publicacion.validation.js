@@ -20,82 +20,91 @@ export const publicacionQueryValidation = Joi.object({
         "string.max": "El titulo debe tener como máximo 250",
         "string.pattern.base": "El nombre solo puede contener letras y espacios"
     })
-})
+});
 
+// Validación simple para crear publicaciones
 export const publicacionBodyValidation = Joi.object({
-    id_publicacion: Joi.number()
-    .integer()
-    .positive()
-    .messages({
-        "integer.empty": "El id no puede estar vacío",
-        "integer.base": "El id debe ser un integer",
-        "integer.positive": "El id debe ser positivo"
-    }),
     titulo: Joi.string()
     .min(5)
     .max(250)
+    .required()
     .messages({
         "string.empty": "El titulo no puede estar vacío",
-        "string.base": "El titulo debe ser tipo Varchar",
+        "string.base": "El titulo debe ser de tipo string",
         "string.min": "El titulo debe tener como mínimo 5 caracteres",
-        "string.max": "El titulo debe tener como máximo 250",
-        "string.pattern.base": "El nombre solo puede contener letras y espacios"
+        "string.max": "El titulo debe tener como máximo 250 caracteres",
+        "any.required": "El título es obligatorio"
     }),
     tipo: Joi.string()
-    .min(5)
-    .max(25)
+    .valid('noticia', 'comunicado', 'alerta')
+    .required()
     .messages({
         "string.empty": "El tipo no puede estar vacío",
-        "string.base": "El tipo debe ser tipo Varchar",
+        "any.only": "El tipo debe ser: noticia, comunicado o alerta",
+        "any.required": "El tipo es obligatorio"
+    }),
+    contenido: Joi.string()
+    .min(1)
+    .max(5000)
+    .required()
+    .messages({
+        "string.empty": "El contenido no puede estar vacío",
+        "string.min": "El contenido debe tener como mínimo 1 caracter",
+        "string.max": "El contenido debe tener como máximo 5000 caracteres",
+        "any.required": "El contenido es obligatorio"
+    }),
+    estado: Joi.string()
+    .valid('pendiente', 'publicada', 'archivada')
+    .default('pendiente')
+    .messages({
+        "any.only": "El estado debe ser: pendiente, publicada o archivada"
+    }),
+    imagen: Joi.string()
+    .allow(null, '')
+    .optional()
+}).options({ 
+    allowUnknown: false,  // No permitir campos adicionales
+    stripUnknown: true,   // Eliminar campos desconocidos
+    abortEarly: false     // Mostrar todos los errores
+});
+
+// Validación más flexible para FormData (sin requerir todos los campos)
+export const publicacionFormDataValidation = Joi.object({
+    titulo: Joi.string()
+    .min(5)
+    .max(250)
+    .when(Joi.exist(), { then: Joi.required() })
+    .messages({
+        "string.empty": "El titulo no puede estar vacío",
+        "string.base": "El titulo debe ser de tipo string",
         "string.min": "El titulo debe tener como mínimo 5 caracteres",
-        "string.max": "El titulo debe tener como mínimo 25 caracteres",
-        "string.pattern.base": "El tipo solo puede contener letras y espacios"
+        "string.max": "El titulo debe tener como máximo 250 caracteres"
+    }),
+    tipo: Joi.string()
+    .valid('noticia', 'comunicado', 'alerta')
+    .messages({
+        "string.empty": "El tipo no puede estar vacío",
+        "any.only": "El tipo debe ser: noticia, comunicado o alerta"
     }),
     contenido: Joi.string()
     .min(1)
     .max(5000)
     .messages({
         "string.empty": "El contenido no puede estar vacío",
-        "string.base": "El contenido debe ser tipo TEXT",
         "string.min": "El contenido debe tener como mínimo 1 caracter",
         "string.max": "El contenido debe tener como máximo 5000 caracteres"
     }),
-    fecha_publicacion: Joi.date()
-    .iso()
-    .max("now")
-    .messages({
-        "date.empty": "La fecha no puede estar vacía",
-        "date.base": "La fecha debe ser tipo Date",
-        "date.iso": "La fecha debe estar en formato AAAA-MM-DD",
-        "date.max": "La fecha puede tomar como valor máximo la fecha actual"
-    }),
     estado: Joi.string()
-    .min(1)
-    .max(255)
+    .valid('pendiente', 'publicada', 'archivada')
+    .default('pendiente')
     .messages({
-        "string.empty": "El contenido no puede estar vacío",
-        "string.base": "El contenido debe ser tipo Varchar",
-        "string.min": "El contenido debe tener como mínimo 1 caracter",
-        "string.max": "El contenido debe tener como máximo 255 caracteres"
+        "any.only": "El estado debe ser: pendiente, publicada o archivada"
     }),
-    id_usuario: Joi.number()
-    .integer()
-    .positive()
-    .messages({
-        "number.empty": "El id debe no puede estar vacío",
-        "number.base": "El id debe ser un integer",
-        "integer.positive": "El id debe ser positivo"
-    })
-}).or(
-    "titulo",
-    "tipo",
-    "contenido",
-    "fecha_publicacion",
-    "estado"
-  )
-  .unknown(false)
-  .messages({
-    "object.unknown": "No se permiten propiedades adicionales.",
-    "object.missing":
-      "Debes proporcionar al menos un campo: titulo, tipo"
-  });
+    imagen: Joi.string()
+    .allow(null, '')
+    .optional()
+}).options({ 
+    allowUnknown: false,
+    stripUnknown: true,
+    abortEarly: false
+});

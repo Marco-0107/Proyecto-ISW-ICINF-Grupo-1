@@ -2,6 +2,35 @@
 import Convocatoria from "../entity/convocatoria.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 
+// Actualizar archivo de convocatoria
+export async function updateArchivoConvocatoriaService(id_convocatoria, archivo_id) {
+  try {
+    const convocatoriaRepository = AppDataSource.getRepository(Convocatoria);
+    
+    const convocatoriaFound = await convocatoriaRepository.findOne({
+      where: { id_convocatoria: parseInt(id_convocatoria) }
+    });
+
+    if (!convocatoriaFound) {
+      return [null, "Convocatoria no encontrada"];
+    }
+
+    await convocatoriaRepository.update(
+      { id_convocatoria: parseInt(id_convocatoria) }, 
+      { archivo_convocatoria: archivo_id }
+    );
+
+    const updatedConvocatoria = await convocatoriaRepository.findOne({
+      where: { id_convocatoria: parseInt(id_convocatoria) }
+    });
+
+    return [updatedConvocatoria, null];
+  } catch (error) {
+    console.error("Error al actualizar archivo de convocatoria:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
+
 // Obtener una convocatoria por ID
 export async function getconvocatoriaService({ id_convocatoria }) {
     try {
@@ -20,16 +49,15 @@ export async function getconvocatoriaService({ id_convocatoria }) {
         return [null, "Error interno del servidor"];
   }
 }
-// Obtengo lista de cuotas
+// Obtengo lista de convocatorias
 export async function getconvocatoriasService() {
     try {
         const convocatoriaRepository = AppDataSource.getRepository(Convocatoria);
 
         const convocatorias = await convocatoriaRepository.find();
 
-        if (!convocatorias || convocatorias.length === 0) return [null, "No hay convocatorias"];
-
-        return [convocatorias, null];
+        // Si no hay convocatorias, retornar array vacío en lugar de error
+        return [convocatorias || [], null];
 
     } catch (error) {
         console.error("Error al obtener las convocatorias:", error);

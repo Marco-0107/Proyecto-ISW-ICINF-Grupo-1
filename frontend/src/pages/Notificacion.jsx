@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { createNotificacion } from '@services/notificaciones.service';
+import { createNotificacion } from '@services/notificaciones.service.js';
 
 export default function NotificacionForm() {
   const [form, setForm] = useState({

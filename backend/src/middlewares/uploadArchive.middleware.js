@@ -2,7 +2,18 @@ import multer from "multer";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./src/upload/");
+    // Determinar la carpeta de destino basándose en el tipo o endpoint
+    let folder = "./src/upload/";
+    
+    if (req.route.path.includes("convocatoria") || req.body.tipo === "convocatorias") {
+      folder = "./src/upload/convocatorias/";
+    } else if (req.route.path.includes("acta") || req.body.tipo === "actas") {
+      folder = "./src/upload/actas/";
+    } else if (req.body.tipo === "postulaciones") {
+      folder = "./src/upload/postulaciones/";
+    }
+    
+    cb(null, folder);
   },
   filename: function (req, file, cb) {
     // Reemplazo de espacios en blanco en por guiones en los nombres de los archivos
