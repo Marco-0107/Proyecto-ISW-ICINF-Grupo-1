@@ -1,36 +1,32 @@
 import { useState } from "react";
 import { deleteMovimiento } from "../../services/movimiento.service";
+import { deleteDataAlert, showErrorAlert, showSuccessAlert } from "../../helpers/sweetAlert";
 
 export default function useDeleteMovimiento() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const eliminarMovimiento = async (id, onSuccess) => {
-        const confirmado = window.confirm("¿Estás seguro que deseas eliminar este movimiento?");
-        if (!confirmado) return;
-
         try {
-            setLoading(true);
-            await deleteMovimiento(id);
-            setLoading(false);
+            const result = await deleteDataAlert();
+            if (result.isConfirmed) {
+                setLoading(true);
+                await deleteMovimiento(id);
+                setLoading(false);
 
-            alert("Movimiento eliminado correctamente");
+                showSuccessAlert('Exito', 'Se eliminó el movimiento.');
 
-            if (onSuccess) {
-                setTimeout(() => {
-                    onSuccess();
-
-                    if (typeof windows != "undefined") {
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 100);
-                    }
-                }, 100);
+                if (onSuccess) {
+                    setTimeout(() => {
+                        onSuccess();
+                    }, 100);
+                }
             }
         } catch (error) {
             console.error("Error al eliminar el movimiento:", error);
             setError("Error al eliminar el movimiento");
             setLoading(false);
+            showErrorAlert('Error', 'No se pudo eliminar el movimiento.');
         }
     };
     return {

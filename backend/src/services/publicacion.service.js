@@ -55,6 +55,7 @@ export async function updatePublicacionService(query, body) {
             contenido: body.contenido,
             fecha_publicacion: new Date(),
             estado: body.estado,
+            imagen: body.imagen || null,
             fechaActualizacion: new Date(),
         };
     
@@ -105,6 +106,7 @@ export async function createPublicacionService(body) {
             contenido: body.contenido,
             fecha_publicacion: new Date(),
             estado: body.estado || "pendiente",
+            imagen: body.imagen || null,
             fechaActualizacion: new Date()
         });
 

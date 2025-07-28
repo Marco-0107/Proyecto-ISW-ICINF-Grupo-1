@@ -17,7 +17,7 @@ const MovimientoFinanciero=new EntitySchema({
             type:"text"
         },
         fecha_movimiento:{
-            type:"date",
+            type:"timestamp",
             nullable:false
         },
         tipo_transaccion:{
@@ -25,7 +25,7 @@ const MovimientoFinanciero=new EntitySchema({
             length:50
         },
         fechaActualizacion:{
-            type:"date",
+            type:"timestamp",
             nullable:false
         },
         id: {
