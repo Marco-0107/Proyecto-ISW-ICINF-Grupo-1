@@ -32,13 +32,3 @@ export function formatPostUpdate(user) {
         createdAt: formatTempo(user.createdAt, "DD-MM-YYYY")
     };
 }
-
-export function formatFechaDDMMYYYY(isoDate) {
-  const date = new Date(isoDate);
-  date.setHours(date.getHours() - 4);
-  return date.toLocaleDateString('es-CL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-}

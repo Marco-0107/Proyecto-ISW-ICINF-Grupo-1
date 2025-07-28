@@ -80,12 +80,24 @@ export const movimiento_financieroBodyValidation = Joi.object({
     }),
     fecha_movimiento: Joi.date()
     .iso()
-    .max("now")
+    .custom((value, helpers) => {
+        const fechaChile = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Santiago"}));
+        const fechaRecibida = new Date(value);
+        
+        const unDiaEnMs = 24 * 60 * 60 * 1000;
+        const diferencia = fechaRecibida.getTime() - fechaChile.getTime();
+        
+        if (diferencia > unDiaEnMs) {
+            return helpers.error('date.max');
+        }
+        
+        return value;
+    })
     .messages({
         "date.empty": "La fecha de movimiento no puede estar vacía",
         "date.base": "La fecha de movimiento debe ser tipo Date",
         "date.iso": "La fecha de movimiento debe estar en formato AAAA-MM-DD",
-        "date.max": "La fecha puede tomar como valor máximo la fecha actual"
+        "date.max": "La fecha no puede ser superior a la fecha actual en zona horaria de Chile"
     }),
     estado: Joi.string()
     .min(3)

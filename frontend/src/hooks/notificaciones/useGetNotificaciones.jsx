@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getNotificaciones } from '@services/notificaciones.service.jsx';
+import { getNotificaciones } from '@services/notificaciones.service.js';
 
-const useGetPublicaciones = () => {
+const useGetNotificaciones = () => {
   const [notificaciones, setNotificaciones] = useState([]);
 
   const fetchNotificaciones = async () => {

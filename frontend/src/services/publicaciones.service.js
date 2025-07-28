@@ -27,21 +27,55 @@ export async function getPublicacionById(id_publicacion) {
 // Crear una nueva publicación
 export async function createPublicacion(publicacionData) {
   try {
+    console.log('📤 Servicio: Enviando datos para crear publicación:', publicacionData);
+    
+    // Usar la misma lógica que en Home.jsx - enviar directamente el objeto
     const response = await axios.post('/publicacion', publicacionData);
+    console.log('Publicación creada exitosamente:', response.data);
     return response.data.data;
   } catch (error) {
+    console.error('Error detallado al crear publicación:', error.response?.data);
     throw error.response?.data || error;
   }
 }
 
 // Actualizar una publicación existente
-export const updatePublicacion = async (id_publicacion , payload) => {
+export const updatePublicacion = async (id_publicacion, payload) => {
   try {
-    const response = await axios.patch(`/publicacion/detail/?`,payload, {
-     params: { id_publicacion  }
-  });
+    console.log('Servicio: Actualizando publicación:', id_publicacion, payload);
+    
+    // Convertir objeto simple a FormData si no es ya FormData
+    let formData;
+    if (payload instanceof FormData) {
+      formData = payload;
+      console.log('📋 Datos ya están en FormData');
+    } else {
+      // Crear FormData desde el objeto
+      formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== null && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
+        }
+      });
+      console.log('📋 Convertido objeto a FormData para actualización');
+    }
+    
+    // Debug: Mostrar el contenido del FormData
+    console.log('📋 Contenido del FormData para actualización:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
+    }
+    
+    // NO establecer Content-Type manualmente para FormData
+    const config = {
+      params: { id_publicacion }
+    };
+    
+    const response = await axios.patch(`/publicacion/detail/?`, formData, config);
+    console.log('✅ Publicación actualizada exitosamente:', response.data);
     return response.data.data;
   } catch (error) {
+    console.error('Error detallado al actualizar publicación:', error.response?.data);
     throw error.response?.data || error;
   }
 };

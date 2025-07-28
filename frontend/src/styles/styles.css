@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 @import url("animations.css");
+@import "tailwindcss";
+
 html,
 body {
 	margin: 0;
@@ -11,8 +13,92 @@ body {
 	overflow-x: hidden;
 	font-family: "Montserrat", sans-serif;
 }
+
 #root {
 	min-width: 100%;
 	min-height: 100vh;
 	margin: 0 auto;
+}
+
+/* Utilidades para truncamiento de texto */
+.line-clamp-1 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+}
+
+.line-clamp-2 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+}
+
+.line-clamp-3 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+}
+
+/* Estilos para prose (contenido de artículos) */
+.prose {
+	max-width: none;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+	margin-top: 1.5em;
+	margin-bottom: 0.5em;
+	font-weight: 700;
+}
+
+.prose p {
+	margin-bottom: 1em;
+	line-height: 1.7;
+}
+
+.prose ul, .prose ol {
+	margin-bottom: 1em;
+	padding-left: 1.5em;
+}
+
+.prose li {
+	margin-bottom: 0.5em;
+}
+
+.prose blockquote {
+	border-left: 4px solid #3b82f6;
+	padding-left: 1em;
+	margin: 1.5em 0;
+	font-style: italic;
+	color: #6b7280;
+}
+
+.prose code {
+	background-color: #f3f4f6;
+	padding: 0.2em 0.4em;
+	border-radius: 0.25rem;
+	font-size: 0.875em;
+}
+
+.prose pre {
+	background-color: #1f2937;
+	color: #f9fafb;
+	padding: 1em;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	margin: 1.5em 0;
+}
+
+.prose a {
+	color: #3b82f6;
+	text-decoration: underline;
+}
+
+.prose a:hover {
+	color: #1d4ed8;
 }
