@@ -13,9 +13,11 @@ import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Noticias from '@pages/Noticias';
 import DetallePublicacion from '@pages/DetallePublicacion.jsx';
+import Cuotas from './pages/cuotas';
 import Notificaciones from '@pages/Notificaciones.jsx';
 import DetalleNotificacion from '@pages/DetalleNotificacion.jsx';
 import Convocatorias from '@pages/Convocatorias.jsx';
+
 
 const router = createBrowserRouter([
   {
@@ -64,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: '/detalle-publicacion/:id',
         element: <DetallePublicacion />
+      },
+      {
+        path: '/cuotas',
+        element: <Cuotas/>
       },
       //Notificaciones
       {
