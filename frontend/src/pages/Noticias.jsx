@@ -84,16 +84,23 @@ export default function Noticias() {
     try {
       if (publicacionId) {
         // Actualizar publicación existente
+        console.log('Actualizando publicación ID:', publicacionId, 'con datos:', formData);
         await updatePublicacion(publicacionId, formData);
+        showSuccessAlert('¡Actualizado!', 'La publicación ha sido actualizada correctamente.');
       } else {
         // Crear nueva publicación
+        console.log('Creando nueva publicación con datos:', formData);
         await createPublicacion(formData);
+        showSuccessAlert('¡Creado!', 'La publicación ha sido creada correctamente.');
       }
       
       // Recargar la lista de publicaciones
       await fetchPublicaciones();
+      // Regresar a la vista de lista
+      handleBackToList();
     } catch (error) {
       console.error('Error al guardar publicación:', error);
+      showErrorAlert('Error', 'Ocurrió un error al guardar la publicación.');
       throw error;
     }
   };

@@ -53,7 +53,7 @@ export default function Header() {
           <div className="relative">
             <button 
               onClick={() => setShowNotificationsSidebar(true)} 
-              className="relative p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-colors duration-200"
+              className="relative p-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition-colors duration-200"
               title="Ver notificaciones"
             >
               <Bell size={24} />

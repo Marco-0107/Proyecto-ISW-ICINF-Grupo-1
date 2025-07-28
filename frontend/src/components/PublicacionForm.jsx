@@ -163,12 +163,12 @@ const PublicacionForm = ({ publicacion, onBack, onSave }) => {
         estado: formData.estado
       };
 
-      console.log('� Enviando datos como Home.jsx:', submitData);
+      console.log('🚀 Enviando datos como Home.jsx:', submitData);
 
       // Enviar datos igual que en Home
       await onSave(submitData, publicacion?.id_publicacion);
-      console.log('✅ onSave completado, regresando...');
-      onBack();
+      console.log('✅ onSave completado exitosamente');
+      // No llamar onBack() aquí, será manejado por el componente padre
       
     } catch (error) {
       console.error('Error al guardar:', error);
