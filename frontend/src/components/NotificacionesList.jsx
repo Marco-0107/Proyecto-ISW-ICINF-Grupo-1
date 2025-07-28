@@ -21,15 +21,6 @@ export default function NotificacionesList({
   const { user } = useAuth();
   const isAdmin = ['admin', 'presidenta', 'presidente', 'secretaria', 'secretario'].includes(user?.rol?.toLowerCase());
 
-  // Debug logging
-  console.log('NotificacionesList - Props recibidas:', {
-    notificacionesLength: notificaciones?.length,
-    isArray: Array.isArray(notificaciones),
-    userRole: user?.rol,
-    isAdmin,
-    notificaciones: notificaciones
-  });
-
   const getTipoStyle = (tipo) => {
     switch (tipo?.toLowerCase()) {
       case 'alerta':
@@ -71,9 +62,6 @@ export default function NotificacionesList({
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No hay notificaciones</h3>
           <p className="text-gray-500 mb-2">Cuando se creen notificaciones, aparecerán aquí.</p>
-          <div className="text-xs text-gray-400 mt-4 p-2 bg-gray-50 rounded">
-            Debug: Array={Array.isArray(notificaciones) ? 'Sí' : 'No'}, Length={notificaciones?.length || 0}
-          </div>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -98,7 +98,7 @@ export default function NotificationsSidebar({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        className="fixed inset-0 bg-gradient-to-br from-gray-900/30 via-gray-800/20 to-gray-900/30 backdrop-blur-sm z-40"
         onClick={onClose}
       />
 

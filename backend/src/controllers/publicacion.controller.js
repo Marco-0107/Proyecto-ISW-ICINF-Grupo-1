@@ -215,17 +215,25 @@ export async function deletePublicacion(req, res) {
 // Crear una publicación
 export async function createPublicacion(req, res) {
     try {
-        console.log('=== CREAR PUBLICACIÓN (COMO HOME) ===');
+        console.log('=== CREAR PUBLICACIÓN ===');
         console.log('Body recibido:', req.body);
+        console.log('Archivo recibido:', req.file);
         
-        // Usar la misma lógica que Home.jsx
-        const body = {
-            titulo: req.body.titulo,
-            tipo: req.body.tipo || 'noticia',
-            contenido: req.body.contenido,
-            estado: req.body.estado || 'pendiente',
-            imagen: null // Por ahora sin imagen como en Home
-        };
+        // Construir el objeto de datos desde req.body (multer ya procesó los campos)
+        const body = {};
+        
+        // Solo incluir campos que estén presentes y no vacíos
+        if (req.body.titulo) body.titulo = req.body.titulo;
+        if (req.body.tipo) body.tipo = req.body.tipo;
+        if (req.body.contenido) body.contenido = req.body.contenido;
+        if (req.body.estado) body.estado = req.body.estado;
+        
+        // Si se subió una imagen, agregar la ruta al body
+        if (req.file) {
+            const protocol = req.protocol;
+            const host = req.get('host');
+            body.imagen = `${protocol}://${host}/uploads/images/${req.file.filename}`;
+        }
 
         console.log('Datos a validar:', body);
 

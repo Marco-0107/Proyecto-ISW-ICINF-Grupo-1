@@ -40,19 +40,29 @@ export async function createPublicacion(publicacionData) {
 }
 
 // Actualizar una publicación existente
-export const updatePublicacion = async (id_publicacion , payload) => {
+export const updatePublicacion = async (id_publicacion, payload) => {
   try {
     console.log('Servicio: Actualizando publicación:', id_publicacion, payload);
     
-    // Verificar que es FormData
-    if (!(payload instanceof FormData)) {
-      console.error('Los datos no son FormData:', payload);
-      throw new Error('Los datos deben ser FormData');
+    // Convertir objeto simple a FormData si no es ya FormData
+    let formData;
+    if (payload instanceof FormData) {
+      formData = payload;
+      console.log('📋 Datos ya están en FormData');
+    } else {
+      // Crear FormData desde el objeto
+      formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        if (payload[key] !== null && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
+        }
+      });
+      console.log('📋 Convertido objeto a FormData para actualización');
     }
     
     // Debug: Mostrar el contenido del FormData
     console.log('📋 Contenido del FormData para actualización:');
-    for (let [key, value] of payload.entries()) {
+    for (let [key, value] of formData.entries()) {
       console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
     }
     
@@ -61,7 +71,7 @@ export const updatePublicacion = async (id_publicacion , payload) => {
       params: { id_publicacion }
     };
     
-    const response = await axios.patch(`/publicacion/detail/?`, payload, config);
+    const response = await axios.patch(`/publicacion/detail/?`, formData, config);
     console.log('✅ Publicación actualizada exitosamente:', response.data);
     return response.data.data;
   } catch (error) {
