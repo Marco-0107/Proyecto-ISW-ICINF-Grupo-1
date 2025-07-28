@@ -28,12 +28,12 @@ export default function useMarcarCuotaPagada() {
             }
 
             console.log("Cuota pendiente encontrada: ", cuotaPendiente);
-            
+
             const idVecino = cuotaPendiente.usuario_id;
             console.log("ID del vecino:", idVecino);
 
-            if(!idVecino) {
-                console.error("Error: No se encontró id del vecino en:", cuotaPendiente);                throw new Error("ID del vecino no encontrado. Datos disponibles:" + Object.keys(cuotaPendiente).join(", "));
+            if (!idVecino) {
+                console.error("Error: No se encontró id del vecino en:", cuotaPendiente); throw new Error("ID del vecino no encontrado. Datos disponibles:" + Object.keys(cuotaPendiente).join(", "));
             }
 
             console.log("Actualizando cuota con los datos: ", {

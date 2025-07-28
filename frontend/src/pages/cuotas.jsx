@@ -26,8 +26,17 @@ const Cuotas = () => {
     const fetchCuotas = async () => {
         setLoading(true);
         try {
+            let data;
             if (user?.rol === 'vecino') {
                 const data = await getCuotasUsuarioByRut(user.rut);
+
+                const ordenarCuotas = data.sort((a, b) => {
+                    if (a.estado_pago !== b.estado_pago) {
+                        return a.estado_pago ? 1 : -1;
+                    }
+                    return new Date(b.fecha_emision) - new Date(a.fecha_emision);
+                })
+
                 console.log("Cuotas del usuario:", data);
                 setCuotas(data);
             } else {
